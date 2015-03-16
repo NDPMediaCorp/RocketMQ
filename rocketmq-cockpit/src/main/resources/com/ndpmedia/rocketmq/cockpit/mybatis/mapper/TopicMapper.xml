@@ -62,4 +62,11 @@
         FROM topic
         WHERE topic = #{topic}
     </select>
+
+    <select id="listByTeamId" resultType="Topic" parameterType="long">
+        SELECT id, topic, cluster_name, permission, write_queue_num, read_queue_num, unit, has_unit_subscription, broker_address, order_type, status_id, create_time, update_time
+        FROM topic AS t
+        JOIN topic_team_xref AS xref ON t.id = xref.topic_id
+        WHERE xref.team_id = #{teamId}
+    </select>
 </mapper>

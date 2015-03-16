@@ -19,4 +19,6 @@ public interface TopicMapper {
     List<Topic> list();
 
     List<Topic> listByTopic(String topic);
+
+    List<Topic> listByTeamId(long teamId);
 }

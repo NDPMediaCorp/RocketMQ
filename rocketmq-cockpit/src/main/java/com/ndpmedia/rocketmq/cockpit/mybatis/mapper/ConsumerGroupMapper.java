@@ -14,6 +14,8 @@ public interface ConsumerGroupMapper {
 
     List<ConsumerGroup> listByClusterName(String clusterName);
 
+    List<ConsumerGroup> listByTeamId(String clusterName);
+
     long insert(ConsumerGroup consumerGroup);
 
     void update(ConsumerGroup consumerGroup);

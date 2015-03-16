@@ -72,4 +72,12 @@
         FROM consumer_group
         WHERE cluster_name = #{clusterName}
     </select>
+
+    <select id="listByTeamId" resultMap="consumerGroupMap" parameterType="long">
+        SELECT id, cluster_name, which_broker_when_consume_slowly, group_name, consume_enable, consume_broadcast_enable, broker_address, broker_id, retry_max_times, retry_queue_num, consume_from_min_enable, status_id, create_time, update_time
+        FROM consumer_group
+        JOIN consumer_group_team_xref AS xref ON id = xref.consumer_group_id
+        WHERE xref.team_id = #{teamId}
+    </select>
+
 </mapper>

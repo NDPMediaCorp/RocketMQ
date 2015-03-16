@@ -114,3 +114,19 @@ CREATE TABLE IF NOT EXISTS cockpit_user_login (
   retry INT NOT NULL DEFAULT 0,
   lock_time BIGINT NOT NULL DEFAULT 0
 ) ENGINE = INNODB;
+
+
+-- Resource ownership
+
+CREATE TABLE IF NOT EXISTS topic_team_xref(
+  topic_id INT NOT NULL REFERENCES topic(id),
+  team_id INT NOT NULL REFERENCES team(id),
+  CONSTRAINT UNIQUE (topic_id, team_id)
+) ENGINE = INNODB;
+
+
+CREATE TABLE IF NOT EXISTS consumer_group_team_xref(
+  consumer_group_id INT NOT NULL REFERENCES consumer_group(id),
+  team_id INT NOT NULL REFERENCES team(id),
+  CONSTRAINT UNIQUE (consumer_group_id, team_id)
+) ENGINE = INNODB;
