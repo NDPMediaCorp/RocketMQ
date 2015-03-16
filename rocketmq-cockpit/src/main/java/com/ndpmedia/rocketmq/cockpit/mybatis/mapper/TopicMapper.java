@@ -1,6 +1,7 @@
 package com.ndpmedia.rocketmq.cockpit.mybatis.mapper;
 
 import com.ndpmedia.rocketmq.cockpit.model.Topic;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -16,9 +17,11 @@ public interface TopicMapper {
 
     Topic get(long id);
 
-    List<Topic> list();
-
-    List<Topic> listByTopic(String topic);
-
-    List<Topic> listByTeamId(long teamId);
+    /**
+     * List by team ID and topic.
+     * @param teamId Team ID, 0 for administrator.
+     * @param topic Topic name.
+     * @return List of topics.
+     */
+    List<Topic> list(@Param("teamId") long teamId, @Param("topic") String topic);
 }
