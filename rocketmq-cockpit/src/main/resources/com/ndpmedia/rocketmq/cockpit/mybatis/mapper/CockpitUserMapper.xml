@@ -3,20 +3,39 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ndpmedia.rocketmq.cockpit.mybatis.mapper.CockpitUserMapper">
 
-    <select id="get" resultType="CockpitUser" parameterType="long">
-        SELECT id, role, username, password
-        FROM cockpit_user
-        WHERE id = #{id}
+    <resultMap id="cockpitUserMap" type="CockpitUser">
+        <id column="tid" property="id" />
+        <result column="role" property="role" />
+        <result column="username" property="username" />
+        <result column="password" property="password" />
+        <association property="team" resultMap="teamMap" />
+    </resultMap>
+
+    <resultMap id="teamMap" type="Team">
+        <id column="tid" property="id" />
+        <result column="name" property="name" />
+    </resultMap>
+
+    <select id="get" resultMap="cockpitUserMap" parameterType="long">
+        SELECT u.id AS uid, u.role, u.username, u.password, t.id AS tid, t.name
+        FROM cockpit_user AS u
+            JOIN team_user_xref AS xref ON u.id = xref.user_id
+            JOIN team AS t on xref.team_id = t.id
+        WHERE u.id = #{id}
     </select>
 
-    <select id="list" resultType="CockpitUser">
-        SELECT id, role, username, password
-        FROM cockpit_user
+    <select id="list" resultMap="cockpitUserMap">
+        SELECT u.id AS uid, u.role, u.username, u.password, t.id AS tid, t.name
+        FROM cockpit_user AS u
+            JOIN team_user_xref AS xref ON u.id = xref.user_id
+            JOIN team AS t on xref.team_id = t.id
     </select>
 
-    <select id="getByUserName" resultType="CockpitUser" parameterType="string">
-        SELECT id, role, username, password
-        FROM cockpit_user
+    <select id="getByUserName" resultMap="cockpitUserMap" parameterType="string">
+        SELECT u.id AS uid, u.role, u.username, u.password, t.id AS tid, t.name
+        FROM cockpit_user AS u
+            JOIN team_user_xref AS xref ON u.id = xref.user_id
+            JOIN team AS t on xref.team_id = t.id
         WHERE username = #{userName}
     </select>
 

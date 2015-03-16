@@ -9,6 +9,8 @@ public class CockpitUser {
 
     private String password;
 
+    private Team team;
+
     public long getId() {
         return id;
     }
@@ -39,5 +41,13 @@ public class CockpitUser {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }
