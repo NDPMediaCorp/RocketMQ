@@ -18,6 +18,8 @@ public interface ConsumerGroupMapper {
 
     void update(ConsumerGroup consumerGroup);
 
+    void register(long id);
+
     void delete(long id);
 
 

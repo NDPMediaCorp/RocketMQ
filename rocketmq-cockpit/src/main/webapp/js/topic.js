@@ -70,7 +70,7 @@ $(document).ready(function() {
             contentType: "application/json",
             success: function() {
                 $.ajax({
-                            async: false,
+                    async: false,
                             url: "cockpit/api/topic/" + id,
                             type: "DELETE",
                             dataType: "json",
@@ -116,8 +116,8 @@ $(document).ready(function() {
                         dataType: "json",
                         contentType: "application/json",
                         success: function() {
-
-                                                    }
+                            location.reload(true);
+                        }
                     });
                 }
             });
