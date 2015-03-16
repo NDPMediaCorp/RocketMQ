@@ -14,5 +14,9 @@ public interface MonitorService {
 
     @GET
     @Path("/monitor/{consumerGroup}")
-    List<ConsumeProgress> monitor(@PathParam("consumerGroup")String consumerGroup);
+    List<ConsumeProgress> monitor(@PathParam("consumerGroup") String consumerGroup);
+
+    @GET
+    @Path("/monitor/{consumerGroup}/{topic}")
+    List<ConsumeProgress> monitor(@PathParam("consumerGroup") String consumerGroup, @PathParam("topic") String topic);
 }

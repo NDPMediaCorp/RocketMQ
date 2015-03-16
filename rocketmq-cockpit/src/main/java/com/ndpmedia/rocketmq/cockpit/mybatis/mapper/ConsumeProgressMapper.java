@@ -3,6 +3,7 @@ package com.ndpmedia.rocketmq.cockpit.mybatis.mapper;
 import com.ndpmedia.rocketmq.cockpit.model.ConsumeProgress;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ConsumeProgressMapper {
 
@@ -14,5 +15,5 @@ public interface ConsumeProgressMapper {
 
     List<ConsumeProgress> listByConsumerGroup(String consumerGroup);
 
-    List<ConsumeProgress> listByTopic(String topic);
+    List<ConsumeProgress> listByConsumerGroupThenTopic(Map<String, String> map);
 }
