@@ -53,12 +53,12 @@
     <select id="list" resultMap="consumerGroupMap">
         SELECT id, cluster_name, which_broker_when_consume_slowly, group_name, consume_enable, consume_broadcast_enable, broker_address, broker_id, retry_max_times, retry_queue_num, consume_from_min_enable, status_id, create_time, update_time
         FROM consumer_group
-        <if test="teamId != 0">
+        <if test="teamId > 0">
             JOIN consumer_group_team_xref AS xref ON xref.consumer_group_id = id
         </if>
         WHERE 1 = 1
 
-        <if test="teamId != 0">
+        <if test="teamId > 0">
             AND xref.team_id = #{teamId}
         </if>
 

@@ -55,11 +55,11 @@
     <select id="list" resultMap="topicMap">
         SELECT id, topic, cluster_name, permission, write_queue_num, read_queue_num, unit, has_unit_subscription, broker_address, order_type, status_id, create_time, update_time
         FROM topic
-        <if test="teamId != 0">
+        <if test="teamId > 0">
             JOIN topic_team_xref AS xref ON id = xref.topic_id
         </if>
         WHERE 1 = 1
-        <if test="teamId != 0">
+        <if test="teamId > 0">
             AND xref.team_id = #{teamId}
         </if>
 
