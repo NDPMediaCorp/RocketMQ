@@ -16,6 +16,23 @@
         <result column="name" property="name" />
     </resultMap>
 
+    <insert id="insert" parameterType="CockpitUser" useGeneratedKeys="true" keyProperty="id">
+      INSERT INTO cockpit_user(id, role, username, password)
+      VALUES (NULL, #{role}, #{username}, #{password})
+    </insert>
+
+    <insert id="grant">
+        INSERT INTO cockpit_user_role_xref(user_id, role_id)
+                SELECT #{userId}, #{roleId}
+                FROM cockpit_user_role_xref
+                WHERE NOT EXISTS(SELECT * FROM cockpit_user_role_xref WHERE user_id = #{userId} AND role_id = #{roleId})
+    </insert>
+
+    <delete id="revoke">
+        DELETE FROM cockpit_user_role_xref
+        WHERE user_id = #{userId} AND role_id = #{roleId}
+    </delete>
+
     <select id="get" resultMap="cockpitUserMap">
         SELECT u.id AS uid, u.role, u.username, u.password, t.id AS tid, t.name
         FROM cockpit_user AS u
@@ -32,10 +49,19 @@
         </if>
     </select>
 
+
     <select id="list" resultMap="cockpitUserMap">
         SELECT u.id AS uid, u.role, u.username, u.password, t.id AS tid, t.name
         FROM cockpit_user AS u
             JOIN team_user_xref AS xref ON u.id = xref.user_id
             JOIN team AS t on xref.team_id = t.id
+    </select>
+
+
+    <select id="queryRoles" resultType="CockpitRole">
+        SELECT r.id, r.name
+        FROM cockpit_role AS r
+        JOIN cockpit_user_role_xref AS xref ON xref.role_id = r.id
+        WHERE xref.user_id = #{userId}
     </select>
 </mapper>

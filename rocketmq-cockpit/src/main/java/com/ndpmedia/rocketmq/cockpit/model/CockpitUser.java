@@ -1,6 +1,7 @@
 package com.ndpmedia.rocketmq.cockpit.model;
 
 public class CockpitUser {
+
     private long id;
 
     private String role;

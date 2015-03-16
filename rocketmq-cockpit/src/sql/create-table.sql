@@ -82,7 +82,7 @@ CREATE TABLE name_server_kv (
 CREATE TABLE IF NOT EXISTS team (
   id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(255) NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS cockpit_user (
   id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -102,10 +102,10 @@ CREATE TABLE IF NOT EXISTS cockpit_role (
   name VARCHAR(32) NOT NULL
 ) ENGINE = INNODB;
 
-CREATE TABLE IF NOT EXISTS cockpit_rel_user_role (
-  id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  user_id INT NOT NULL,
-  role_id INT NOT NULL
+CREATE TABLE IF NOT EXISTS cockpit_user_role_xref (
+  user_id INT NOT NULL REFERENCES cockpit_user(id),
+  role_id INT NOT NULL REFERENCES cockpit_role(id),
+  CONSTRAINT UNIQUE (user_id, role_id)
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS cockpit_user_login (
