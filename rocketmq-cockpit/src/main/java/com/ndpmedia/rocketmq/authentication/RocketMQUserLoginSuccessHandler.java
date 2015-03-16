@@ -18,9 +18,9 @@ import java.util.Collection;
 /**
  * try to save user login session.
  */
-public class RocketMQUserLoginSuccessHanlder extends SavedRequestAwareAuthenticationSuccessHandler
+public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler
         implements LoginConstant {
-    private final Logger logger = LoggerFactory.getLogger(RocketMQUserLoginSuccessHanlder.class);
+    private final Logger logger = LoggerFactory.getLogger(RocketMQUserLoginSuccessHandler.class);
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -50,7 +50,7 @@ public class RocketMQUserLoginSuccessHanlder extends SavedRequestAwareAuthentica
         super.onAuthenticationSuccess(request, response, authentication);
     }
 
-    public String getIpAddr(HttpServletRequest request) {
+    private String getIpAddr(HttpServletRequest request) {
         String ip = getServerIP(request);
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getHeader("x-forwarded-for");
@@ -76,9 +76,7 @@ public class RocketMQUserLoginSuccessHanlder extends SavedRequestAwareAuthentica
     }
 
     private String getServerIP(HttpServletRequest request) {
-        String temp = request.getServerName();
-
-        return temp;
+        return request.getServerName();
     }
 
     public Cookie getCookie(HttpServletRequest request, String key, String value) throws Exception {
