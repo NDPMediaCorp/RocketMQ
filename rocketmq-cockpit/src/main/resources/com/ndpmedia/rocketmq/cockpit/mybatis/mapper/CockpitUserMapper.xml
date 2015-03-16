@@ -16,12 +16,20 @@
         <result column="name" property="name" />
     </resultMap>
 
-    <select id="get" resultMap="cockpitUserMap" parameterType="long">
+    <select id="get" resultMap="cockpitUserMap">
         SELECT u.id AS uid, u.role, u.username, u.password, t.id AS tid, t.name
         FROM cockpit_user AS u
             JOIN team_user_xref AS xref ON u.id = xref.user_id
             JOIN team AS t on xref.team_id = t.id
-        WHERE u.id = #{id}
+        WHERE 1 = 1
+
+        <if test="id > 0">
+            AND u.id = #{id}
+        </if>
+
+        <if test="userName != null">
+            AND u.username = #{userName}
+        </if>
     </select>
 
     <select id="list" resultMap="cockpitUserMap">
@@ -30,13 +38,4 @@
             JOIN team_user_xref AS xref ON u.id = xref.user_id
             JOIN team AS t on xref.team_id = t.id
     </select>
-
-    <select id="getByUserName" resultMap="cockpitUserMap" parameterType="string">
-        SELECT u.id AS uid, u.role, u.username, u.password, t.id AS tid, t.name
-        FROM cockpit_user AS u
-            JOIN team_user_xref AS xref ON u.id = xref.user_id
-            JOIN team AS t on xref.team_id = t.id
-        WHERE username = #{userName}
-    </select>
-
 </mapper>

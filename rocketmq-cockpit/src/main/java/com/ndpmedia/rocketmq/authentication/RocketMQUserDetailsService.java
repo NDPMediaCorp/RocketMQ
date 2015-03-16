@@ -66,6 +66,6 @@ public class RocketMQUserDetailsService implements UserDetailsService {
     }
 
     private CockpitUser getCockpitUser(String userName) throws Exception {
-        return cockpitUserMapper.getByUserName(userName);
+        return cockpitUserMapper.get(-1, userName);
     }
 }

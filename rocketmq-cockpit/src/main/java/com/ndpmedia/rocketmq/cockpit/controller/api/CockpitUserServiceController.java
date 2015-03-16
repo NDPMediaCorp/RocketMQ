@@ -21,7 +21,7 @@ public class CockpitUserServiceController {
     @RequestMapping(value = "/id/{id}", method = RequestMethod.GET)
     @ResponseBody
     public CockpitUser get(@PathVariable("id") long id) {
-        return cockpitUserMapper.get(id);
+        return cockpitUserMapper.get(id, null);
     }
 
     @RequestMapping(method = RequestMethod.GET)
