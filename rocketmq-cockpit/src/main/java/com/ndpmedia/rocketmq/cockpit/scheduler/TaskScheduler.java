@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -28,25 +30,23 @@ public class TaskScheduler {
     private TopicService topicService;
 
     @Scheduled(fixedRate = 30000)
-    public void queryAccumulation()
-    {
+    public void queryAccumulation() {
 
-        try
-        {
+        Date date = new Date();
+        try {
             Set<String> topicList = topicService.fetchTopics();
 
             List<ConsumeProgress> consumeProgressList;
-            for (String topic : topicList)
-            {
+            for (String topic : topicList) {
                 if (!topic.contains(MixAll.RETRY_GROUP_TOPIC_PREFIX))
                     continue;
                 consumeProgressList = consumeProgressService
                         .queryConsumerProgress(topic.replace(MixAll.RETRY_GROUP_TOPIC_PREFIX, ""), null, null);
-                for (ConsumeProgress cp : consumeProgressList)
-                {
+                for (ConsumeProgress cp : consumeProgressList) {
                     if (null == cp || null == cp.getTopic() || null == cp.getBrokerName()) {
                         continue;
                     }
+                    cp.setCreateTime(date);
                     consumeProgressMapper.insert(cp);
                 }
             }

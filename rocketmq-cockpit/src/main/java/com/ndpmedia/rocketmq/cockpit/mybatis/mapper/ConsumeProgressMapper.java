@@ -1,7 +1,6 @@
 package com.ndpmedia.rocketmq.cockpit.mybatis.mapper;
 
 import com.ndpmedia.rocketmq.cockpit.model.ConsumeProgress;
-import com.ndpmedia.rocketmq.cockpit.model.ConsumerGroup;
 
 import java.util.List;
 

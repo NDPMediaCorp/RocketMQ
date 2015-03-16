@@ -5,7 +5,6 @@ import com.alibaba.rocketmq.common.admin.OffsetWrapper;
 import com.alibaba.rocketmq.common.message.MessageQueue;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.ndpmedia.rocketmq.cockpit.model.ConsumeProgress;
-import com.ndpmedia.rocketmq.cockpit.model.ConsumerGroup;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.ConsumerGroupMapper;
 import com.ndpmedia.rocketmq.cockpit.service.ConsumeProgressService;
 import org.slf4j.Logger;
@@ -27,13 +26,11 @@ public class ConsumeProgressServiceImpl implements ConsumeProgressService {
     private ConsumerGroupMapper consumerGroupMapper;
 
     @Override
-    public List<ConsumeProgress> queryConsumerProgress(String groupName, String topic, String broker)
-    {
+    public List<ConsumeProgress> queryConsumerProgress(String groupName, String topic, String broker) {
         List<ConsumeProgress> consumeProgressList = new ArrayList<ConsumeProgress>();
         DefaultMQAdminExt defaultMQAdminExt = new DefaultMQAdminExt();
         defaultMQAdminExt.setInstanceName(Long.toString(System.currentTimeMillis()));
-        try
-        {
+        try {
             defaultMQAdminExt.start();
             // 查询特定consumer
             ConsumeStats consumeStats = defaultMQAdminExt.examineConsumeStats(groupName);
@@ -44,8 +41,7 @@ public class ConsumeProgressServiceImpl implements ConsumeProgressService {
 
             long diffTotal = 0L;
 
-            for (MessageQueue messageQueue : messageQueueList)
-            {
+            for (MessageQueue messageQueue : messageQueueList) {
                 OffsetWrapper offsetWrapper = consumeStats.getOffsetTable().get(messageQueue);
                 if (null != topic && !topic.equals(messageQueue.getTopic())) {
                     continue;
