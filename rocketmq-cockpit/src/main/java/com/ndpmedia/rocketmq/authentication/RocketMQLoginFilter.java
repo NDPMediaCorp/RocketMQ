@@ -1,8 +1,8 @@
 package com.ndpmedia.rocketmq.authentication;
 
 import com.google.code.kaptcha.Constants;
-import com.ndpmedia.rocketmq.cockpit.util.LoginConstant;
 import com.ndpmedia.rocketmq.cockpit.util.FileManager;
+import com.ndpmedia.rocketmq.cockpit.util.LoginConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

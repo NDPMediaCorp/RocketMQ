@@ -7,11 +7,11 @@ import java.util.Date;
  */
 public class Topic {
 
-    public static int DEFAULT_READ_QUEUE_NUM  = 16;
+    public static int DEFAULT_READ_QUEUE_NUM = 16;
 
     public static int DEFAULT_WRITE_QUEUE_NUM = 16;
 
-    private long   id;
+    private long id;
 
     private String topic;
 
@@ -21,9 +21,9 @@ public class Topic {
 
     private int writeQueueNum = DEFAULT_WRITE_QUEUE_NUM;
 
-    private int readQueueNum  = DEFAULT_READ_QUEUE_NUM;
+    private int readQueueNum = DEFAULT_READ_QUEUE_NUM;
 
-    private int     permission;
+    private int permission;
 
     private boolean unit;
 
@@ -37,13 +37,11 @@ public class Topic {
 
     private Date updateTime;
 
-    public String getTopic()
-    {
+    public String getTopic() {
         return topic;
     }
 
-    public void setTopic(String topic)
-    {
+    public void setTopic(String topic) {
         this.topic = topic;
     }
 
@@ -79,23 +77,19 @@ public class Topic {
         this.readQueueNum = readQueueNum;
     }
 
-    public Date getCreateTime()
-    {
+    public Date getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime)
-    {
+    public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
 
-    public Date getUpdateTime()
-    {
+    public Date getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(Date updateTime)
-    {
+    public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
 

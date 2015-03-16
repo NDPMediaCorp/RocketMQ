@@ -32,13 +32,6 @@
         <result column="update_time" property="updateTime" />
     </resultMap>
 
-    <select id="selectConsumerGroup" parameterType="long" resultMap="consumerGroupMap">
-        SELECT id, cluster_name, which_broker_when_consume_slowly, group_name, consume_enable, consume_broadcast_enable, broker_address, broker_id, retry_max_times, retry_queue_num, consume_from_min_enable, status_id, create_time, update_time
-        FROM consumer_group
-        WHERE id = #{id}
-
-    </select>
-
     <resultMap id="consumeProgressMap" type="ConsumeProgress">
         <id column="id" property="id" />
         <result column="topic" property="topic" />
@@ -62,10 +55,11 @@
         WHERE consumer_group = #{consumerGroup}
     </select>
 
-    <select id="listByTopic" resultMap="consumeProgressMap" parameterType="string">
-        SELECT id, consumer_group_id, topic, broker_name, queue_id, broker_offset, consumer_offset, last_timestamp, diff, create_time
+    <select id="listByConsumerGroupThenTopic" resultMap="consumeProgressMap" parameterType="map">
+        SELECT id, consumer_group, topic, broker_name, queue_id, broker_offset, consumer_offset, last_timestamp, diff, create_time
         FROM consume_progress
-        WHERE topic = #{topic}
+        WHERE consumer_group = #{consumerGroup}
+              AND topic = #{topic}
     </select>
 
 </mapper>
