@@ -17,8 +17,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private TeamMapper teamMapper;
 
-    @Transactional
     @Override
+    @Transactional
     public void registerUser(CockpitUser cockpitUser) {
         cockpitUserMapper.insert(cockpitUser);
 

@@ -9,13 +9,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @Controller
 public class LoginController {
-    @RequestMapping(value = "/login", method = {RequestMethod.GET, RequestMethod.POST})
+
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String showIndex() {
         System.out.println(" first , we need open the login page .");
         return "login";
     }
 
-    @RequestMapping(value = "/home", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/home", method = RequestMethod.GET)
     public String login() {
         return "home";
     }
