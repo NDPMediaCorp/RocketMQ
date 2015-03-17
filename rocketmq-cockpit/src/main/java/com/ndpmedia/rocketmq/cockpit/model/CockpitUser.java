@@ -1,10 +1,11 @@
 package com.ndpmedia.rocketmq.cockpit.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CockpitUser {
 
     private long id;
-
-    private String role;
 
     private String username;
 
@@ -12,7 +13,11 @@ public class CockpitUser {
 
     private Team team;
 
+    private String email;
+
     private Status status = Status.DRAFT;
+
+    private List<CockpitRole> cockpitRoles = new ArrayList<CockpitRole>();
 
     public long getId() {
         return id;
@@ -20,14 +25,6 @@ public class CockpitUser {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 
     public String getUsername() {
@@ -60,5 +57,21 @@ public class CockpitUser {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public List<CockpitRole> getCockpitRoles() {
+        return cockpitRoles;
+    }
+
+    public void setCockpitRoles(List<CockpitRole> cockpitRoles) {
+        this.cockpitRoles = cockpitRoles;
     }
 }

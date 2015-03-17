@@ -4,14 +4,15 @@
 <mapper namespace="com.ndpmedia.rocketmq.cockpit.mybatis.mapper.CockpitUserMapper">
 
     <resultMap id="cockpitUserMap" type="CockpitUser">
-        <id column="tid" property="id" />
-        <result column="role" property="role" />
+        <id column="uid" property="id" />
         <result column="username" property="username" />
         <result column="password" property="password" />
+        <result column="email" property="email" />
         <result column="status_id" property="status"
                 typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
                 javaType="com.ndpmedia.rocketmq.cockpit.model.Status" />
         <association property="team" resultMap="teamMap" />
+        <collection property="cockpitRoles" column="uid" ofType="CockpitRole" select="queryRoles" />
     </resultMap>
 
     <resultMap id="teamMap" type="Team">
@@ -20,8 +21,8 @@
     </resultMap>
 
     <insert id="insert" parameterType="CockpitUser" useGeneratedKeys="true" keyProperty="id">
-      INSERT INTO cockpit_user(id, role, username, password, status_id)
-      VALUES (NULL, #{role}, #{username}, #{password}, #{status.id})
+      INSERT INTO cockpit_user(id, username, password, email, status_id)
+      VALUES (NULL, #{username}, #{password}, #{email}, #{status.id})
     </insert>
 
     <insert id="grant">
@@ -43,7 +44,7 @@
     </delete>
 
     <select id="get" resultMap="cockpitUserMap">
-        SELECT u.id AS uid, u.role, u.username, u.password, u.status_id, t.id AS tid, t.name
+        SELECT u.id AS uid, u.username, u.password, u.email, u.status_id, t.id AS tid, t.name
         FROM cockpit_user AS u
             JOIN team_user_xref AS xref ON u.id = xref.user_id
             JOIN team AS t on xref.team_id = t.id
@@ -60,7 +61,7 @@
 
 
     <select id="list" resultMap="cockpitUserMap">
-        SELECT u.id AS uid, u.role, u.username, u.password, u.status_id, t.id AS tid, t.name
+        SELECT u.id AS uid, u.username, u.password, u.email, u.status_id, t.id AS tid, t.name
         FROM cockpit_user AS u
             JOIN team_user_xref AS xref ON u.id = xref.user_id
             JOIN team AS t on xref.team_id = t.id

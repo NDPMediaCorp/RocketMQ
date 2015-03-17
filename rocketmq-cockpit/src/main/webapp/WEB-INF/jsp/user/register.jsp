@@ -40,13 +40,9 @@
         </tr>
 
         <tr>
-            <td>Role</td>
+            <td>Email</td>
             <td>
-                <select id="role">
-                    <c:forEach items="${roleList}" var="role">
-                        <option value="${role.id}">${role.name}</option>
-                    </c:forEach>
-                </select>
+                <input type="text" id="email">
             </td>
         </tr>
 
