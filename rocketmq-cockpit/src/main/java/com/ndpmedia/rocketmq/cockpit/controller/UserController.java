@@ -9,6 +9,7 @@ import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.CockpitUserMapper;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.TeamMapper;
 import com.ndpmedia.rocketmq.cockpit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,7 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    @Qualifier("userService")
     private UserService userService;
 
     @RequestMapping(value = "/register", method = RequestMethod.GET)
