@@ -6,7 +6,7 @@
     <base href="<%=basePath%>">
     <title>User Registration</title>
     <script src="http://libs.baidu.com/jquery/1.7.0/jquery.js" type="text/javascript"></script>
-    <script src="js/register.js" type="text/javascript"></script>
+    <script src="/js/register.js" type="text/javascript"></script>
 </head>
 <body>
 
@@ -56,5 +56,7 @@
             </td>
         </tr>
     </table>
+
+   Already Registered? <a href="/cockpit/login.jsp">Login</a>
 </body>
 </html>
