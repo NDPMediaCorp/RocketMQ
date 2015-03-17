@@ -1,5 +1,46 @@
+var oTable;
+
 $(document).ready(function() {
-        $('#topic').DataTable({
+    oTable = initTable();
+
+    $(".addTopic").click(function() {
+        var topic = $("input.topic").val();
+        var write_queue_num = $("input.writeQueueNum").val();
+        var read_queue_num = $("input.readQueueNum").val();
+        var broker_address = $("input.brokerAddress").val();
+        var cluster_name = $("input.clusterName").val();
+        var permission = $("input.permission").val();
+        var unit = $("input.unit").val();
+        var has_unit_subscription = $("input.hasUnitSubscription").val();
+        var order = $("input.order").val();
+        var allow = "DRAFT";
+        var ob = JSON.stringify({"topic":topic,"writeQueueNum":write_queue_num,"readQueueNum":read_queue_num,
+                                 "brokerAddress":broker_address, "clusterName":cluster_name, "permission":permission, "unit":unit, "hasUnitSubscription":has_unit_subscription, "order":order, "status":allow});
+        if ($.trim(topic) === "") {
+            return false;
+        } else if ($.trim(cluster_name) === "" && $.trim(broker_address) == "") {
+            return false;
+        } else {
+            $.ajax({
+                        async: false,
+                        url: "cockpit/api/topic",
+                        type: "PUT",
+                        dataType: "json",
+                        contentType: 'application/json',
+                        data: ob,
+                        success: function() {
+                            location.reload(true);
+                        },
+                        error: function() {
+
+                        }
+                    });
+        }
+    });
+});
+
+function initTable(){
+    var table = $('#topic').DataTable({
             "processing": true,
             "sAjaxSource": "cockpit/api/topic",
             "sAjaxDataProp": "data",
@@ -52,48 +93,10 @@ $(document).ready(function() {
                         });
             }
         });
-
-    $(".addTopic").click(function() {
-        var topic = $("input.topic").val();
-        var write_queue_num = $("input.writeQueueNum").val();
-        var read_queue_num = $("input.readQueueNum").val();
-        var broker_address = $("input.brokerAddress").val();
-        var cluster_name = $("input.clusterName").val();
-        var permission = $("input.permission").val();
-        var unit = $("input.unit").val();
-        var has_unit_subscription = $("input.hasUnitSubscription").val();
-        var order = $("input.order").val();
-        var allow = "DRAFT";
-        var ob = JSON.stringify({"topic":topic,"writeQueueNum":write_queue_num,"readQueueNum":read_queue_num,
-                                 "brokerAddress":broker_address, "clusterName":cluster_name, "permission":permission, "unit":unit, "hasUnitSubscription":has_unit_subscription, "order":order, "status":allow});
-        if ($.trim(topic) === "") {
-            return false;
-        } else if ($.trim(cluster_name) === "" && $.trim(broker_address) == "") {
-            return false;
-        } else {
-            $.ajax({
-                        async: false,
-                        url: "cockpit/api/topic",
-                        type: "PUT",
-                        dataType: "json",
-                        contentType: 'application/json',
-                        data: ob,
-                        success: function() {
-                            location.reload(true);
-                        },
-                        error: function() {
-
-                        }
-                    });
-        }
-    });
-});
-
+        return table;
+}
 
     function _deleteFun(id, topic, cluster_name, broker_address) {
-        if ($.trim(id) === "" ) {
-            return false;
-        }
         $.ajax({
             async: false,
             data: JSON.stringify({"id":id, "topic":topic, "clusterName":cluster_name}),
@@ -101,17 +104,19 @@ $(document).ready(function() {
             type: "DELETE",
             dataType: "json",
             contentType: "application/json",
-            success: function() {
-                $.ajax({
-                    async: false,
+            success: function(backdata) {
+                if (backdata){
+                    $.ajax({
+                        async: false,
                             url: "cockpit/api/topic/" + id,
                             type: "DELETE",
                             dataType: "json",
                             contentType: "application/json; charset=UTF-8",
-                            success: function() {
-                                row.remove();
+                            complete: function() {
+                                window.location.reload(true);
                             }
                         });
+                }
             }
         });
     }
@@ -120,9 +125,6 @@ $(document).ready(function() {
             var ob = JSON.stringify({"id":id, "topic":topic,"writeQueueNum":write_queue_num,"readQueueNum":read_queue_num,
                                      "brokerAddress":broker_address, "clusterName":cluster_name, "permission":permission,
                                      "unit":unit, "hasUnitSubscription":has_unit_subscription, "order":order});
-            if ($.trim(id) === "" ) {
-                        return false;
-            }
             $.ajax({
                 async: false,
                 data: ob,
@@ -130,17 +132,19 @@ $(document).ready(function() {
                 type: "POST",
                 dataType: "json",
                 contentType: "application/json",
-                success: function() {
-                    $.ajax({
-                        async: false,
-                        url: "cockpit/api/topic/" + id,
-                        type: "POST",
-                        dataType: "json",
-                        contentType: "application/json",
-                        complete: function() {
-                            window.location.reload(true);
-                        }
-                    });
+                success: function(backdata) {
+                    if (backdata) {
+                        $.ajax({
+                            async: false,
+                            url: "cockpit/api/topic/" + id,
+                            type: "POST",
+                            dataType: "json",
+                            contentType: "application/json",
+                            complete: function() {
+                                window.location.reload(true);
+                            }
+                        });
+                    }
                 }
             });
     }
