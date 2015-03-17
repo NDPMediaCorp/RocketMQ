@@ -25,7 +25,7 @@ public class TopicServiceController {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> list() {
-        List<Topic> topics = topicMapper.list();
+        List<Topic> topics = topicMapper.list(0, null);
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("sEcho", 1);
         result.put("iTotalRecords", topics.size());
