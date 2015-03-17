@@ -27,4 +27,6 @@ public interface CockpitUserMapper {
 
     List<CockpitRole> queryRoles(@Param("userId") long userId);
 
+    void activate(long id);
+
 }
