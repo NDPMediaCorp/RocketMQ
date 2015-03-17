@@ -32,7 +32,7 @@
 <body onload='document.f.j_username.focus();'>
 <h3>Login with Username and Password</h3>
 
-<form name='f' action='/j_spring_security_check' method='POST'>
+<form name='f' action='j_spring_security_check' method='POST'>
     <%
         String msg = "";
         Object errMSG = session.getAttribute("errorMSG");
@@ -60,12 +60,12 @@
                 <div class="chknumber">
                     <label>verification code：</label>
                     <td><input name="kaptcha" type="text" id="kaptcha" maxlength="8" class="chknumber_input"/>
-                        <img src="/cockpit/captcha-image" width="170" height="40" id="kaptchaImage"
+                        <img src="cockpit/captcha-image" width="170" height="40" id="kaptchaImage"
                              style="margin-bottom: -3px"/>
                         <script type="text/javascript">
                             $(function () {
                                 $('#kaptchaImage').click(function () {//生成验证码
-                                    $(this).hide().attr('src', '/cockpit/captcha-image?' + Math.floor(Math.random() * 100)).fadeIn();
+                                    $(this).hide().attr('src', 'cockpit/captcha-image?' + Math.floor(Math.random() * 100)).fadeIn();
                                 })
 
                             });
@@ -80,7 +80,7 @@
     </table>
 </form>
 
-    Do not have an account yet? <a href="/cockpit/register">Register</a>
+    Do not have an account yet? <a href="cockpit/register">Register</a>
 
 </body>
 </html>

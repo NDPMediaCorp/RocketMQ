@@ -44,13 +44,15 @@ $(document).ready(function() {
                 type: "POST",
                 dataType: "json",
                 contentType: "application/json; charset=UTF-8",
-                url: "/cockpit/register",
+                url: "cockpit/register",
                 success: function(data) {
-                    alert("Registration success");
+                    alert("Registration Succeeded");
+                },
+                error: function(data) {
+                    alert("Registration Failed")
                 }
             });
         }
-
         return readyToRegister;
     });
 });
