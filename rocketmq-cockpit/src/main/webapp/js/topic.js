@@ -107,9 +107,9 @@ $(document).ready(function() {
                             url: "cockpit/api/topic/" + id,
                             type: "DELETE",
                             dataType: "json",
-                            contentType: "application/json",
-                            complete: function() {
-                                alter("1111111111111111");
+                            contentType: "application/json; charset=UTF-8",
+                            success: function() {
+                                row.remove();
                             }
                         });
             }

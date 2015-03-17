@@ -55,11 +55,16 @@
     <select id="list" resultMap="topicMap">
         SELECT id, topic, cluster_name, permission, write_queue_num, read_queue_num, unit, has_unit_subscription, broker_address, order_type, status_id, create_time, update_time
         FROM topic
-    </select>
+        <if test="teamId > 0">
+            JOIN topic_team_xref AS xref ON id = xref.topic_id
+        </if>
+        WHERE 1 = 1
+        <if test="teamId > 0">
+            AND xref.team_id = #{teamId}
+        </if>
 
-    <select id="listByTopic" resultType="Topic" parameterType="string">
-        SELECT id, topic, cluster_name, permission, write_queue_num, read_queue_num, unit, has_unit_subscription, broker_address, order_type, status_id, create_time, update_time
-        FROM topic
-        WHERE topic = #{topic}
+        <if test="topic != null">
+            AND topic = #{topic}
+        </if>
     </select>
 </mapper>

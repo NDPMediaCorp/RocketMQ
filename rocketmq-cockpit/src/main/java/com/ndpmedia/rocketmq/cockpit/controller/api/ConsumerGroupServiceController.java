@@ -19,7 +19,7 @@ public class ConsumerGroupServiceController {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public List<ConsumerGroup> list() {
-        return consumerGroupMapper.list();
+        return consumerGroupMapper.list(0, null, null);
     }
 
     @RequestMapping(value = "/id/{id}", method = RequestMethod.GET)
@@ -31,13 +31,13 @@ public class ConsumerGroupServiceController {
     @RequestMapping(value = "/cluster-name/{clusterName}", method = RequestMethod.GET)
     @ResponseBody
     public List<ConsumerGroup> listByClusterName(@PathVariable("clusterName") String clusterName) {
-        return consumerGroupMapper.listByClusterName(clusterName);
+        return consumerGroupMapper.list(0, clusterName, null);
     }
 
     @RequestMapping(value = "/consumer-group-name/{consumerGroupName}", method = RequestMethod.GET)
     @ResponseBody
     public ConsumerGroup getByConsumerGroupName(@PathVariable("consumerGroupName") String consumerGroupName) {
-        return consumerGroupMapper.getByGroupName(consumerGroupName);
+        return consumerGroupMapper.list(0, null, consumerGroupName).get(0);
     }
 
     @RequestMapping(method = RequestMethod.PUT)

@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS cockpit CHARACTER SET 'UTF8';
+
 USE cockpit;
 
 CREATE TABLE IF NOT EXISTS name_server (
@@ -82,13 +84,14 @@ CREATE TABLE name_server_kv (
 CREATE TABLE IF NOT EXISTS team (
   id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(255) NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS cockpit_user (
   id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  role VARCHAR(32) NOT NULL,
   username VARCHAR(32) NOT NULL ,
-  password  VARCHAR(64) NOT NULL
+  password  VARCHAR(64) NOT NULL,
+  email VARCHAR(255) NOT NULL ,
+  status_id INT NOT NULL REFERENCES status_lu(id)
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS team_user_xref (
@@ -102,10 +105,10 @@ CREATE TABLE IF NOT EXISTS cockpit_role (
   name VARCHAR(32) NOT NULL
 ) ENGINE = INNODB;
 
-CREATE TABLE IF NOT EXISTS cockpit_rel_user_role (
-  id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  user_id INT NOT NULL,
-  role_id INT NOT NULL
+CREATE TABLE IF NOT EXISTS cockpit_user_role_xref (
+  user_id INT NOT NULL REFERENCES cockpit_user(id),
+  role_id INT NOT NULL REFERENCES cockpit_role(id),
+  CONSTRAINT UNIQUE (user_id, role_id)
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS cockpit_user_login (
@@ -113,4 +116,20 @@ CREATE TABLE IF NOT EXISTS cockpit_user_login (
   login_status INT NOT NULL DEFAULT 1,
   retry INT NOT NULL DEFAULT 0,
   lock_time BIGINT NOT NULL DEFAULT 0
+) ENGINE = INNODB;
+
+
+-- Resource ownership
+
+CREATE TABLE IF NOT EXISTS topic_team_xref(
+  topic_id INT NOT NULL REFERENCES topic(id),
+  team_id INT NOT NULL REFERENCES team(id),
+  CONSTRAINT UNIQUE (topic_id, team_id)
+) ENGINE = INNODB;
+
+
+CREATE TABLE IF NOT EXISTS consumer_group_team_xref(
+  consumer_group_id INT NOT NULL REFERENCES consumer_group(id),
+  team_id INT NOT NULL REFERENCES team(id),
+  CONSTRAINT UNIQUE (consumer_group_id, team_id)
 ) ENGINE = INNODB;

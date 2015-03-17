@@ -13,6 +13,7 @@
     <security:http pattern="/img/**" security="none" />
     <security:http pattern="/rocketmq/**" security="none" />
     <security:http pattern="/**/captcha-image" security="none" />
+    <security:http pattern="/cockpit/register" security="none" />
 
     <security:http auto-config="true" >
         <security:custom-filter ref="rocketMQLoginFilter" before="FORM_LOGIN_FILTER" />
@@ -53,7 +54,7 @@
     </security:authentication-manager>
 
     <bean id="rocketMQLoginFilter" class="com.ndpmedia.rocketmq.authentication.RocketMQLoginFilter" />
-    <bean id="rocketMQUserLoginSuccessHandler" class="com.ndpmedia.rocketmq.authentication.RocketMQUserLoginSuccessHanlder" />
+    <bean id="rocketMQUserLoginSuccessHandler" class="com.ndpmedia.rocketmq.authentication.RocketMQUserLoginSuccessHandler" />
     <bean id="accessDeniedHandler" class="com.ndpmedia.rocketmq.authentication.RocketMQUserAccessDeniedHandler" >
         <property name="accessDeniedURL" value="/cockpit/home.jsp" />
     </bean>
@@ -68,4 +69,7 @@
           class="com.ndpmedia.rocketmq.authentication.RocketMQUserLoginFailedHandler" />
 
     <bean id="loginController" class="com.ndpmedia.rocketmq.cockpit.controller.LoginController" />
+
+    <bean id="md5PasswordEncoder" class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" />
+
 </beans>

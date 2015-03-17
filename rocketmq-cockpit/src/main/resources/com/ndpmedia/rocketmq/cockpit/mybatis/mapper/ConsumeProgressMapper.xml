@@ -47,19 +47,22 @@
     <select id="list" resultMap="consumeProgressMap">
         SELECT id, consumer_group, topic, broker_name, queue_id, broker_offset, consumer_offset, last_timestamp, diff, create_time
         FROM consume_progress
-    </select>
+        WHERE 1 = 1
 
-    <select id="listByConsumerGroup" resultMap="consumeProgressMap">
-        SELECT id, consumer_group, topic, broker_name, queue_id, broker_offset, consumer_offset, last_timestamp, diff, create_time
-        FROM consume_progress
-        WHERE consumer_group = #{consumerGroup}
-    </select>
+        <if test="consumerGroup != null">
+            AND consumer_group = #{consumerGroup}
+        </if>
 
-    <select id="listByConsumerGroupThenTopic" resultMap="consumeProgressMap" parameterType="map">
-        SELECT id, consumer_group, topic, broker_name, queue_id, broker_offset, consumer_offset, last_timestamp, diff, create_time
-        FROM consume_progress
-        WHERE consumer_group = #{consumerGroup}
-              AND topic = #{topic}
-    </select>
+        <if test="topic != null">
+            AND topic = #{topic}
+        </if>
 
+        <if test="brokerName != null">
+            AND broker_name = #{brokerName}
+        </if>
+
+        <if test="queueId > -1">
+            AND queue_id = #{queueId}
+        </if>
+    </select>
 </mapper>

@@ -21,8 +21,8 @@ INSERT INTO team(id, name) VALUES (1, "TP");
 INSERT INTO team(id, name) VALUES (2, "YeahTool");
 INSERT INTO team(id, name) VALUES (3, "Facebook");
 
-INSERT INTO cockpit_user(id, username, password, role) VALUES (1, 'root', '320734fbb627d6884a1284acbdaa5db9', 'ROLE_ADMIN');
-INSERT INTO cockpit_user(id, username, password, role) VALUES (2, 'xutao', '23dc3038d25ef09f3ad7c0552b40ef9f', 'ROLE_USER');
+INSERT INTO cockpit_user(id, username, password, email, status_id) VALUES (1, 'root', '320734fbb627d6884a1284acbdaa5db9', "admin@rocketmq.com", 2);
+INSERT INTO cockpit_user(id, username, password, email, status_id) VALUES (2, 'xutao', '23dc3038d25ef09f3ad7c0552b40ef9f', "robert@yeahmobi.com", 2);
 
 INSERT INTO team_user_xref(team_id, user_id) VALUES (1, 1);
 INSERT INTO team_user_xref(team_id, user_id) VALUES (1, 2);

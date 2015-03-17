@@ -1,18 +1,17 @@
 package com.ndpmedia.rocketmq.cockpit.mybatis.mapper;
 
 import com.ndpmedia.rocketmq.cockpit.model.ConsumerGroup;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface ConsumerGroupMapper {
 
-    List<ConsumerGroup> list();
+    List<ConsumerGroup> list(@Param("teamId") long teamId,
+                             @Param("clusterName") String clusterName,
+                             @Param("consumerGroupName") String consumerGroupName);
 
     ConsumerGroup get(long id);
-
-    ConsumerGroup getByGroupName(String groupName);
-
-    List<ConsumerGroup> listByClusterName(String clusterName);
 
     long insert(ConsumerGroup consumerGroup);
 

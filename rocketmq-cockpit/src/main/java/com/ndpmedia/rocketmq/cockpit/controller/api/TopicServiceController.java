@@ -37,7 +37,7 @@ public class TopicServiceController {
     @RequestMapping(value = "/{topic}", method = RequestMethod.GET)
     @ResponseBody
     public List<Topic> lookUp(@PathVariable("topic") String topic) {
-        return topicMapper.listByTopic(topic);
+        return topicMapper.list(0, topic);
     }
 
     @RequestMapping(method = RequestMethod.PUT)
