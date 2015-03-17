@@ -12,6 +12,8 @@ public class CockpitUser {
 
     private Team team;
 
+    private Status status = Status.DRAFT;
+
     public long getId() {
         return id;
     }
@@ -50,5 +52,13 @@ public class CockpitUser {
 
     public void setTeam(Team team) {
         this.team = team;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }

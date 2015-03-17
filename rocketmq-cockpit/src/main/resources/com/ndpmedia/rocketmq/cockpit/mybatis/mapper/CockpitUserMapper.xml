@@ -8,6 +8,9 @@
         <result column="role" property="role" />
         <result column="username" property="username" />
         <result column="password" property="password" />
+        <result column="status_id" property="status"
+                typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
+                javaType="com.ndpmedia.rocketmq.cockpit.model.Status" />
         <association property="team" resultMap="teamMap" />
     </resultMap>
 
@@ -17,8 +20,8 @@
     </resultMap>
 
     <insert id="insert" parameterType="CockpitUser" useGeneratedKeys="true" keyProperty="id">
-      INSERT INTO cockpit_user(id, role, username, password)
-      VALUES (NULL, #{role}, #{username}, #{password})
+      INSERT INTO cockpit_user(id, role, username, password, status_id)
+      VALUES (NULL, #{role}, #{username}, #{password}, #{status.id})
     </insert>
 
     <insert id="grant">
@@ -34,7 +37,7 @@
     </delete>
 
     <select id="get" resultMap="cockpitUserMap">
-        SELECT u.id AS uid, u.role, u.username, u.password, t.id AS tid, t.name
+        SELECT u.id AS uid, u.role, u.username, u.password, u.status_id, t.id AS tid, t.name
         FROM cockpit_user AS u
             JOIN team_user_xref AS xref ON u.id = xref.user_id
             JOIN team AS t on xref.team_id = t.id
@@ -51,7 +54,7 @@
 
 
     <select id="list" resultMap="cockpitUserMap">
-        SELECT u.id AS uid, u.role, u.username, u.password, t.id AS tid, t.name
+        SELECT u.id AS uid, u.role, u.username, u.password, u.status_id, t.id AS tid, t.name
         FROM cockpit_user AS u
             JOIN team_user_xref AS xref ON u.id = xref.user_id
             JOIN team AS t on xref.team_id = t.id
