@@ -10,7 +10,7 @@
     <insert id="addMember">
         INSERT INTO team_user_xref(team_id, user_id)
                 SELECT #{teamId}, #{memberId}
-                FROM team_user_xref
+                FROM dual
                 WHERE NOT EXISTS(SELECT * FROM team_user_xref WHERE team_id = #{teamId} AND user_id = #{memberId})
     </insert>
 

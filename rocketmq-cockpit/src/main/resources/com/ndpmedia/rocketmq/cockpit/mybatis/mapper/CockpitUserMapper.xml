@@ -28,7 +28,7 @@
     <insert id="grant">
         INSERT INTO cockpit_user_role_xref(user_id, role_id)
                 SELECT #{userId}, #{roleId}
-                FROM cockpit_user_role_xref
+                FROM dual
                 WHERE NOT EXISTS(SELECT * FROM cockpit_user_role_xref WHERE user_id = #{userId} AND role_id = #{roleId})
     </insert>
 
