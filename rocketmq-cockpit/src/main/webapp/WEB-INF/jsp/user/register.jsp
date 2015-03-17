@@ -2,30 +2,59 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
+    <%@include file="../include/base-path.jsp"%>
+    <base href="<%=basePath%>">
     <title>User Registration</title>
     <script src="http://libs.baidu.com/jquery/1.7.0/jquery.js" type="text/javascript"></script>
     <script src="js/register.js" type="text/javascript"></script>
 </head>
 <body>
 
-    <select id="team">
-        <c:forEach items="${teamList}" var="team">
-            <option value="${team.id}">${team.name}</option>
-        </c:forEach>
-    </select>
-    <br />
+    <table>
+        <tr>
+           <td>Team</td>
+           <td>
+               <select id="team">
+                   <c:forEach items="${teamList}" var="team">
+                       <option value="${team.id}">${team.name}</option>
+                   </c:forEach>
+               </select>
+           </td>
+        </tr>
 
-    <input type="text" id="userName">
-    <br />
-    <input type="password" id="password">
-    <br />
-    <select id="role">
-        <c:forEach items="${roleList}" var="role">
-            <option value="${role.id}">${role.name}</option>
-        </c:forEach>
-    </select>
-    <br />
+        <tr>
+            <td>User Name</td>
+            <td><input type="text" id="userName"></td>
+        </tr>
 
-    <button value="Register" id="registerButton"></button>
+        <tr>
+            <td>Password</td>
+            <td><input type="password" id="password"></td>
+        </tr>
+
+        <tr>
+            <td>Confirm Password</td>
+            <td>
+                <input type="password" id="confirmPassword">
+            </td>
+        </tr>
+
+        <tr>
+            <td>Role</td>
+            <td>
+                <select id="role">
+                    <c:forEach items="${roleList}" var="role">
+                        <option value="${role.id}">${role.name}</option>
+                    </c:forEach>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="text-align: center;">
+                <input type="button" value="Register" id="registerButton">
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
