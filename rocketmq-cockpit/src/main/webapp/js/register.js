@@ -34,16 +34,15 @@ $(document).ready(function() {
             password: password,
             userName: userName,
             email: email,
-            team: {id: teamId}
+            teamId: teamId
         };
 
         if(readyToRegister) {
             $.ajax({
                 async: true,
-                data: JSON.stringify(data),
+                data: data,
                 type: "POST",
                 dataType: "json",
-                contentType: "application/json; charset=UTF-8",
                 url: "cockpit/register",
                 success: function(data) {
                     alert("Registration Succeeded");

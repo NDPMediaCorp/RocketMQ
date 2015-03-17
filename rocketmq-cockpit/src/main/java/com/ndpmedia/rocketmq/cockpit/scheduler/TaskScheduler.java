@@ -29,7 +29,7 @@ public class TaskScheduler {
     @Autowired
     private TopicService topicService;
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 300000)
     public void queryAccumulation() {
 
         Date date = new Date();

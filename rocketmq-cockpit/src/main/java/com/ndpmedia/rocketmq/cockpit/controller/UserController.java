@@ -8,14 +8,15 @@ import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.CockpitRoleMapper;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.CockpitUserMapper;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.TeamMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Controller
@@ -30,6 +31,9 @@ public class UserController {
 
     @Autowired
     private CockpitRoleMapper cockpitRoleMapper;
+
+    @Autowired
+    private Md5PasswordEncoder md5PasswordEncoder;
 
     @RequestMapping(value = "/register", method = RequestMethod.GET)
     public ModelAndView register() {
@@ -46,8 +50,15 @@ public class UserController {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ResponseBody
-    public CockpitUser register(@RequestBody CockpitUser cockpitUser) {
+    public CockpitUser register(HttpServletRequest request) {
+        CockpitUser cockpitUser = new CockpitUser();
         cockpitUser.setStatus(Status.DRAFT);
+        cockpitUser.setEmail(request.getParameter("email"));
+        cockpitUser.setUsername(request.getParameter("userName"));
+        cockpitUser.setPassword(md5PasswordEncoder.encodePassword(request.getParameter("password"), cockpitUser.getUsername()));
+        Team team = new Team();
+        team.setId(Long.parseLong(request.getParameter("teamId")));
+        cockpitUser.setTeam(team);
         cockpitUserMapper.insert(cockpitUser);
         cockpitUser.setPassword(null);
         return cockpitUser;

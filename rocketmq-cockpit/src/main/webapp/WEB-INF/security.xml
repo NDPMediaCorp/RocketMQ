@@ -69,4 +69,7 @@
           class="com.ndpmedia.rocketmq.authentication.RocketMQUserLoginFailedHandler" />
 
     <bean id="loginController" class="com.ndpmedia.rocketmq.cockpit.controller.LoginController" />
+
+    <bean id="md5PasswordEncoder" class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" />
+
 </beans>
