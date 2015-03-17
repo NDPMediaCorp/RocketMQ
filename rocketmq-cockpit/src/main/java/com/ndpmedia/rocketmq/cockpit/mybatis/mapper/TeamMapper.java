@@ -1,6 +1,7 @@
 package com.ndpmedia.rocketmq.cockpit.mybatis.mapper;
 
 import com.ndpmedia.rocketmq.cockpit.model.Team;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -21,4 +22,6 @@ public interface TeamMapper {
     void delete(long id);
 
     void update(Team team);
+
+    void addMember(@Param("teamId") long teamId, @Param("memberId") long memberId);
 }

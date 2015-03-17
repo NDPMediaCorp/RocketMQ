@@ -39,10 +39,6 @@ public class RocketMQUserLoginProvider extends AbstractUserDetailsAuthentication
             throw new InternalAuthenticationServiceException(var7.getMessage(), var7);
         }
 
-        if(loadedUser == null) {
-            throw new InternalAuthenticationServiceException("UserDetailsService returned null, which is an interface contract violation");
-        } else {
-            return loadedUser;
-        }
+        return loadedUser;
     }
 }

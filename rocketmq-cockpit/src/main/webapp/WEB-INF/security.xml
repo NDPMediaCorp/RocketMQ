@@ -46,12 +46,17 @@
     </security:http>
 
     <security:authentication-manager alias="myAuthenticationManager">
+        <!--
         <security:authentication-provider  user-service-ref="userService">
             <security:password-encoder hash="md5">
                 <security:salt-source user-property="username"  />
             </security:password-encoder>
         </security:authentication-provider>
+        -->
+        <security:authentication-provider ref="rocketMQLoginProvider" />
     </security:authentication-manager>
+
+    <bean id="rocketMQLoginProvider" class="com.ndpmedia.rocketmq.authentication.RocketMQLoginProvider" />
 
     <bean id="rocketMQLoginFilter" class="com.ndpmedia.rocketmq.authentication.RocketMQLoginFilter" />
     <bean id="rocketMQUserLoginSuccessHandler" class="com.ndpmedia.rocketmq.authentication.RocketMQUserLoginSuccessHandler" />
@@ -70,6 +75,6 @@
 
     <bean id="loginController" class="com.ndpmedia.rocketmq.cockpit.controller.LoginController" />
 
-    <bean id="md5PasswordEncoder" class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" />
+    <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
 
 </beans>

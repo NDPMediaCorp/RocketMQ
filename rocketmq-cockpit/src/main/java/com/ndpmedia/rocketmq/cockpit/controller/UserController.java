@@ -8,7 +8,7 @@ import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.CockpitRoleMapper;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.CockpitUserMapper;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.TeamMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +33,7 @@ public class UserController {
     private CockpitRoleMapper cockpitRoleMapper;
 
     @Autowired
-    private Md5PasswordEncoder md5PasswordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @RequestMapping(value = "/register", method = RequestMethod.GET)
     public ModelAndView register() {
@@ -48,6 +48,12 @@ public class UserController {
     }
 
 
+    /**
+     * TODO make this method transactional.
+     *
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ResponseBody
     public CockpitUser register(HttpServletRequest request) {
@@ -55,12 +61,14 @@ public class UserController {
         cockpitUser.setStatus(Status.DRAFT);
         cockpitUser.setEmail(request.getParameter("email"));
         cockpitUser.setUsername(request.getParameter("userName"));
-        cockpitUser.setPassword(md5PasswordEncoder.encodePassword(request.getParameter("password"), cockpitUser.getUsername()));
+        cockpitUser.setPassword(passwordEncoder.encode(request.getParameter("password")));
         Team team = new Team();
         team.setId(Long.parseLong(request.getParameter("teamId")));
         cockpitUser.setTeam(team);
         cockpitUserMapper.insert(cockpitUser);
-        cockpitUser.setPassword(null);
+
+        teamMapper.addMember(team.getId(), cockpitUser.getId());
+
         return cockpitUser;
     }
 
