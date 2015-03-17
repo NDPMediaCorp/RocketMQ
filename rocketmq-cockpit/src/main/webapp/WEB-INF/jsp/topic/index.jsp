@@ -6,9 +6,11 @@
   <base href="<%=basePath%>%">
   <link rel="shortcut icon" href="favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="http://libs.baidu.com/jquery/1.7.0/jquery.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
   <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
   <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+  <script src="http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js"></script>
+  <link href="http://cdn.datatables.net/1.10.5/css/jquery.dataTables.min.css" rel="stylesheet">
   <script src="js/topic.js" type="application/javascript"></script>
 </head>
 <body>
@@ -19,37 +21,29 @@
     </div>
   </div>
 
-  <div class="clear-both"></div>
-
-  <div class="row">
-    <div class="col-xs-8 col-xs-offset-2 text-left table-responsive">
-      <table class="table table-hover table-bordered">
+      <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered table-hover" id="topic" width="90%">
         <thead>
-        <tr>
-          <td style="display:none">id</td>
-          <td style="display:none">cluster_name</td>
-          <td style="display:none">permission</td>
-          <td style="display:none">write_queue_num</td>
-          <td style="display:none">read_queue_num</td>
-          <td style="display:none">unit</td>
-          <td style="display:none">has_unit_subscription</td>
-          <td style="display:none">broker_address</td>
-          <td style="display:none">order_type</td>
-          <td style="display:none">status_id</td>
-          <td style="display:none">create_time</td>
-          <td style="display:none">update_time</td>
-          <td>topic</td>
-          <td>Operation</td>
-        </tr>
+           <tr>
+                      <th>topic</th>
+                      <th>clusterName</th>
+                      <th>brokerAddress</th>
+                      <th>writeQueueNum</th>
+                      <th>readQueueNum</th>
+                      <th>permission</th>
+                      <th>unit</th>
+                      <th>hasUnitSubscription</th>
+                      <th>order</th>
+                      <th>status</th>
+                      <th>createTime</th>
+                      <th>updateTime</th>
+                      <th>Operation</th>
+            </tr>
         </thead>
-        <tbody class="table-striped table-content">
+        <tbody>
         </tbody>
       </table>
 
-      <div class="clear-both"></div>
 
-    </div>
-  </div>
 </div>
 
   <div class="clear-both"></div>

@@ -1,22 +1,57 @@
 $(document).ready(function() {
-
-    $.get("cockpit/api/topic", function(data) {
-        $(".table-content").children().remove();
-        data.forEach(function(topic) {
-            var operationLink = $("<a class='removeItem' href='javascript:;'>Remove</a>");
-            var approveLink = $("<a class='approveItem' href='javascript:;'>Approve</a>");
-
-            var operation = $("<td></td>");
-            if (topic.status != "ACTIVE"){
-                operation.append(approveLink);
-                operation.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+        $('#topic').DataTable({
+            "processing": true,
+            "sAjaxSource": "cockpit/api/topic",
+            "sAjaxDataProp": "data",
+            "bPaginate": true,  //是否分页。
+            "bFilter": true,  //是否可过滤。
+            "bLengthChange": true, //是否允许自定义每页显示条数.
+            "scrollY": 400,
+            "scrollX": true,
+            "columnsDefs":[
+                {
+                    "targets": [0],
+                    "visible": false,
+                    "searchable": false
+                }
+            ],
+            "columns": [
+                        { "data": "topic" },
+                        { "data": "clusterName" },
+                        { "data": "brokerAddress" },
+                        { "data": "writeQueueNum" },
+                        { "data": "readQueueNum" },
+                        { "data": "permission" },
+                        { "data": "unit" },
+                        { "data": "hasUnitSubscription" },
+                        { "data": "order" },
+                        { "data": "status" },
+                        { "data": "createTime" },
+                        { "data": "updateTime" },
+                        { "data": "id",
+                          "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                            if (oData.status != "ACTIVE"){
+                                $(nTd).html("<a href='javascript:void(0);' " + "onclick='_editFun(\"" + oData.id + "\",\"" + oData.topic + "\",\"" + oData.clusterName + "\",\"" + oData.brokerAddress + "\",\"" + oData.writeQueueNum + "\",\"" + oData.readQueueNum + "\",\"" + oData.permission + "\",\"" + oData.unit + "\",\"" + oData.hasUnitSubscription + "\",\"" + oData.order + "\")'>aprove</a>&nbsp;&nbsp;")
+                                .append("<a href='javascript:void(0);' onclick='_deleteFun(\"" + oData.id + "\",\"" + oData.topic + "\",\"" + oData.clusterName + "\",\"" + oData.brokerAddress + "\")'>del</a>");
+                             }else {
+                                $(nTd).html("<a href='javascript:void(0);' onclick='_deleteFun(\"" + oData.id + "\",\"" + oData.topic + "\",\"" + oData.clusterName + "\",\"" + oData.brokerAddress + "\")'>del</a>");
+                             }
+                          }
+                        }
+            ],
+            "sDom": "<'row-fluid'<'span6 myBtnBox'><'span6'f>r>t<'row-fluid'<'span6'i><'span6 'p>>",
+            "fnCreatedRow": function (nRow, aData, iDataIndex) {
+                        //add selected class
+                        $(nRow).click(function () {
+                            if ($(this).hasClass('row_selected')) {
+                                $(this).removeClass('row_selected');
+                            } else {
+                                oTable.$('tr.row_selected').removeClass('row_selected');
+                                $(this).addClass('row_selected');
+                            }
+                        });
             }
-            operation.append(operationLink);
-            var item = $("<tr><td style='display:none'>" + topic.id + "</td><td style='display:none'>" + topic.clusterName + "</td><td style='display:none'>" + topic.permission + "</td><td style='display:none'>" + topic.writeQueueNum + "</td><td style='display:none'>" + topic.readQueueNum + "</td><td style='display:none'>" + topic.unit + "</td><td style='display:none'>" + topic.hasUnitSubscription + "</td><td style='display:none'>" + topic.brokerAddress + "</td><td style='display:none'>" + topic.order + "</td><td style='display:none'>" + topic.status + "</td><td style='display:none'>" + topic.createTime + "</td><td style='display:none'>" + topic.updateTime + "</td><td>" + topic.topic + "</td></tr>");
-            item.append(operation);
-            $(".table-content").append(item);
         });
-    });
 
     $(".addTopic").click(function() {
         var topic = $("input.topic").val();
@@ -52,14 +87,12 @@ $(document).ready(function() {
                     });
         }
     });
+});
 
-    $(".removeItem").live("click", function() {
-        var row = $(this).parent().parent();
-        var id = row.children().eq(0).html();
-        var cluster_name = row.children().eq(1).html();
-        var topic = row.children().eq(12).html();
+
+    function _deleteFun(id, topic, cluster_name, broker_address) {
         if ($.trim(id) === "" ) {
-                    return false;
+            return false;
         }
         $.ajax({
             async: false,
@@ -75,26 +108,15 @@ $(document).ready(function() {
                             type: "DELETE",
                             dataType: "json",
                             contentType: "application/json",
-                            success: function() {
-                                row.remove();
+                            complete: function() {
+                                alter("1111111111111111");
                             }
                         });
             }
         });
-    });
+    }
 
-    $(".approveItem").live("click", function() {
-            var row = $(this).parent().parent();
-            var id = row.children().eq(0).html();
-            var cluster_name = row.children().eq(1).html();
-            var permission = row.children().eq(2).html();
-            var write_queue_num = row.children().eq(3).html();
-            var read_queue_num = row.children().eq(4).html();
-            var unit = row.children().eq(5).html();
-            var has_unit_subscription = row.children().eq(6).html();
-            var broker_address = row.children().eq(7).html();
-            var order = row.children().eq(8).html();
-            var topic = row.children().eq(12).html();
+    function _editFun(id, topic, cluster_name, broker_address, write_queue_num, read_queue_num, permission, unit, has_unit_subscription,  order) {
             var ob = JSON.stringify({"id":id, "topic":topic,"writeQueueNum":write_queue_num,"readQueueNum":read_queue_num,
                                      "brokerAddress":broker_address, "clusterName":cluster_name, "permission":permission,
                                      "unit":unit, "hasUnitSubscription":has_unit_subscription, "order":order});
@@ -115,11 +137,10 @@ $(document).ready(function() {
                         type: "POST",
                         dataType: "json",
                         contentType: "application/json",
-                        success: function() {
-                            location.reload(true);
+                        complete: function() {
+                            window.location.reload(true);
                         }
                     });
                 }
             });
-        });
-});
+    }

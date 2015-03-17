@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/api/topic")
@@ -22,8 +24,14 @@ public class TopicServiceController {
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public List<Topic> list() {
-        return topicMapper.list();
+    public Map<String, Object> list() {
+        List<Topic> topics = topicMapper.list();
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("sEcho", 1);
+        result.put("iTotalRecords", topics.size());
+        result.put("iTotalDisplayRecords", topics.size());
+        result.put("aaData", topics);
+        return result;
     }
 
     @RequestMapping(value = "/{topic}", method = RequestMethod.GET)
