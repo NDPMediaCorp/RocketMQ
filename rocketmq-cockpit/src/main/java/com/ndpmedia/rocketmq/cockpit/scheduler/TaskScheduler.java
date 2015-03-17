@@ -38,8 +38,11 @@ public class TaskScheduler {
 
             List<ConsumeProgress> consumeProgressList;
             for (String topic : topicList) {
-                if (!topic.contains(MixAll.RETRY_GROUP_TOPIC_PREFIX))
+                if (!topic.contains(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
+                    //All operational consumer groups have a topic with pattern: %RETRY%_{ConsumerGroup}
                     continue;
+                }
+
                 consumeProgressList = consumeProgressService
                         .queryConsumerProgress(topic.replace(MixAll.RETRY_GROUP_TOPIC_PREFIX, ""), null, null);
                 for (ConsumeProgress cp : consumeProgressList) {
@@ -51,8 +54,9 @@ public class TaskScheduler {
                 }
             }
         } catch (Exception e) {
-            if (!e.getMessage().contains("offset table is empty"))
+            if (!e.getMessage().contains("offset table is empty")) {
                 logger.warn("[MONITOR][CONSUME PROCESS] main method failed." + e);
+            }
         }
     }
 
