@@ -71,7 +71,8 @@
     <select id="queryRoles" resultType="CockpitRole">
         SELECT r.id, r.name
         FROM cockpit_role AS r
-        JOIN cockpit_user_role_xref AS xref ON xref.role_id = r.id
-        WHERE xref.user_id = #{userId}
+        JOIN cockpit_group_role_xref AS gxref ON gxref.role_id = r.id
+        JOIN cockpit_team_group_xref AS txref ON txref.group_id = gxref.group_id
+        WHERE txref.team_id = #{teamId}
     </select>
 </mapper>

@@ -98,17 +98,28 @@ CREATE TABLE IF NOT EXISTS team_user_xref (
   team_id INT NOT NULL REFERENCES team(id) ON DELETE RESTRICT ,
   user_id INT NOT NULL REFERENCES cockpit_user(id) ON DELETE RESTRICT ,
   CONSTRAINT UNIQUE (team_id, user_id)
-);
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS security_group (
+  id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS cockpit_team_group_xref (
+  team_id INT NOT NULL REFERENCES team(id) ON DELETE RESTRICT,
+  group_id INT NOT NULL REFERENCES security_group(id) ON DELETE RESTRICT,
+  CONSTRAINT UNIQUE (team_id, group_id)
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS cockpit_role (
   id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(32) NOT NULL
 ) ENGINE = INNODB;
 
-CREATE TABLE IF NOT EXISTS cockpit_user_role_xref (
-  user_id INT NOT NULL REFERENCES cockpit_user(id) ON DELETE RESTRICT ,
+CREATE TABLE IF NOT EXISTS cockpit_group_role_xref (
+  group_id INT NOT NULL REFERENCES security_group(id) ON DELETE RESTRICT ,
   role_id INT NOT NULL REFERENCES cockpit_role(id) ON DELETE RESTRICT ,
-  CONSTRAINT UNIQUE (user_id, role_id)
+  CONSTRAINT UNIQUE (group_id, role_id)
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS cockpit_user_login (

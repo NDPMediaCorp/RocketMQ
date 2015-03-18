@@ -49,7 +49,7 @@ public class RocketMQUserDetailsService implements UserDetailsService {
 
         // 用户名、密码、是否启用、是否被锁定、是否过期、权限
         user = new User(userName, cockpitUser.getPassword(), true, true, true, true,
-                getAuthority(cockpitUser.getId()));
+                getAuthority(cockpitUser.getTeam().getId()));
 
         return user;
     }

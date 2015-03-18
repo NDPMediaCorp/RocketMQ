@@ -21,8 +21,22 @@ INSERT INTO team(id, name) VALUES (1, "TP");
 INSERT INTO team(id, name) VALUES (2, "YeahTool");
 INSERT INTO team(id, name) VALUES (3, "Facebook");
 
-INSERT INTO cockpit_user(id, username, password, email, status_id) VALUES (1, 'root', '320734fbb627d6884a1284acbdaa5db9', "admin@rocketmq.com", 2);
-INSERT INTO cockpit_user(id, username, password, email, status_id) VALUES (2, 'xutao', '23dc3038d25ef09f3ad7c0552b40ef9f', "robert@yeahmobi.com", 2);
+INSERT INTO cockpit_user(id, username, password, email, status_id) VALUES (1, 'root', '$2a$10$.b5O4pAsTd6CyptUbXrMtOjJH1qYlbcVzk8WDPvb8dWwAXpfKZHwS', "admin@rocketmq.com", 2);
+INSERT INTO cockpit_user(id, username, password, email, status_id) VALUES (2, 'xutao', '$2a$10$Q9W2Zh/h/viu/zSMT2CbL.Dnt5LLbDGDMo.N/xfc7m6TIUCbeLpvO', "robert@yeahmobi.com", 2);
+
+INSERT INTO cockpit_role(id, name) VALUES (1, "ROLE_USER");
+INSERT INTO cockpit_role(id, name) VALUES (2, "ROLE_ADMIN");
+
+INSERT INTO security_group(id, name) VALUES (1, "MASTER");
+INSERT INTO security_group(id, name) VALUES (2, "EMPLOYEE");
+
+INSERT INTO cockpit_team_group_xref(team_id, group_id) VALUES (1, 1);
+INSERT INTO cockpit_team_group_xref(team_id, group_id) VALUES (2, 2);
+INSERT INTO cockpit_team_group_xref(team_id, group_id) VALUES (3, 2);
+
+INSERT INTO cockpit_group_role_xref(group_id, role_id) VALUES (1, 1);
+INSERT INTO cockpit_group_role_xref(group_id, role_id) VALUES (1, 2);
+INSERT INTO cockpit_group_role_xref(group_id, role_id) VALUES (2, 2);
 
 INSERT INTO team_user_xref(team_id, user_id) VALUES (1, 1);
 INSERT INTO team_user_xref(team_id, user_id) VALUES (1, 2);

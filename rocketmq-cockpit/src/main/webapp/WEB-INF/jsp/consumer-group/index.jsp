@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-  <title>Topic Management</title>
+  <title>Consumer Group Management</title>
   <%@include file="../include/base-path.jsp"%>
   <base href="<%=basePath%>%">
   <link rel="shortcut icon" href="favicon.ico" />
@@ -15,7 +15,7 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-8 col-md-offset-2 text-center">
-      <h1>Topic Catalog</h1>
+      <h1>Consumer Group Catalog</h1>
     </div>
   </div>
 
