@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class LoginController {
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public String showIndex() {
+    public String showLogin() {
         System.out.println(" first , we need open the login page .");
         return "login";
     }
 
     @RequestMapping(value = "/home", method = RequestMethod.GET)
-    public String login() {
+    public String showHome() {
         return "home";
     }
 }

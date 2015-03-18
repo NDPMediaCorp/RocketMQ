@@ -14,28 +14,24 @@
     <security:http pattern="/rocketmq/**" security="none" />
     <security:http pattern="/**/captcha-image" security="none" />
     <security:http pattern="/cockpit/register" security="none" />
-    <security:http pattern="/cockpit/login.jsp" security="none" />
+    <security:http pattern="/cockpit/login" security="none" />
+    <security:http pattern="/error/**" security="none" />
 
-    <security:http auto-config="true" >
+    <security:http auto-config="true" use-expressions="false">
         <security:custom-filter ref="rocketMQLoginFilter" before="FORM_LOGIN_FILTER" />
         <security:intercept-url pattern="/cockpit/login.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <security:intercept-url pattern="/cockpit/captcha-image.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 
-        <security:intercept-url pattern="/cockpit/broker/" access="ROLE_USER"/>
-        <security:intercept-url pattern="/cockpit/home.jsp" access="ROLE_USER"/>
-        <security:intercept-url pattern="/cockpit/api/**" access="ROLE_USER"/>
-
-        <security:intercept-url pattern="/cockpit/broker/" access="ROLE_ADMIN"/>
-        <security:intercept-url pattern="/cockpit/home.jsp" access="ROLE_ADMIN"/>
-        <security:intercept-url pattern="/cockpit/api/**" access="ROLE_ADMIN"/>
         <security:intercept-url pattern="/cockpit/manage/**" access="ROLE_ADMIN"/>
-        <security:intercept-url pattern="/**" access="ROLE_ADMIN"/>
+        <security:intercept-url pattern="/**" access="ROLE_USER, ROLE_ADMIN"/>
+
 
         <security:form-login authentication-failure-handler-ref="rocketMQUserLoginFailedHandler"
                              authentication-success-handler-ref="rocketMQUserLoginSuccessHandler"
+                             default-target-url="/"
                              login-page="/cockpit/login.jsp"
-                             default-target-url="/cockpit/"
                              authentication-failure-url="/cockpit/login.jsp?error=true"/>
+
         <!-- Use the comment out line in production -->
         <!--
         <security:intercept-url pattern="/**" access="ROLE_ADMIN" requires-channel="https" />
@@ -43,10 +39,11 @@
         <security:session-management>
             <security:concurrency-control max-sessions="1" error-if-maximum-exceeded="false"  />
         </security:session-management>
+
         <security:access-denied-handler ref="accessDeniedHandler" />
     </security:http>
 
-    <security:authentication-manager alias="myAuthenticationManager">
+    <security:authentication-manager alias="authenticationManager">
         <!--
         <security:authentication-provider  user-service-ref="userService">
             <security:password-encoder hash="md5">
@@ -61,8 +58,9 @@
 
     <bean id="rocketMQLoginFilter" class="com.ndpmedia.rocketmq.authentication.RocketMQLoginFilter" />
     <bean id="rocketMQUserLoginSuccessHandler" class="com.ndpmedia.rocketmq.authentication.RocketMQUserLoginSuccessHandler" />
+
     <bean id="accessDeniedHandler" class="com.ndpmedia.rocketmq.authentication.RocketMQUserAccessDeniedHandler" >
-        <property name="accessDeniedURL" value="/cockpit/home.jsp" />
+        <property name="accessDeniedURL" value="error/access-denied.jsp" />
     </bean>
 
     <bean id="rocketMQUserLoginFailedHandler"
