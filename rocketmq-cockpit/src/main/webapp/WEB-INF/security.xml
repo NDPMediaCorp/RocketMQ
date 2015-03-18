@@ -60,7 +60,7 @@
     <bean id="rocketMQUserLoginSuccessHandler" class="com.ndpmedia.rocketmq.authentication.RocketMQUserLoginSuccessHandler" />
 
     <bean id="accessDeniedHandler" class="com.ndpmedia.rocketmq.authentication.RocketMQUserAccessDeniedHandler" >
-        <property name="accessDeniedURL" value="error/access-denied.jsp" />
+        <property name="accessDeniedURL" value="error/403.jsp" />
     </bean>
 
     <bean id="rocketMQUserLoginFailedHandler"
