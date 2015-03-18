@@ -47,15 +47,7 @@ function initTable(){
             "bPaginate": true,  //是否分页。
             "bFilter": true,  //是否可过滤。
             "bLengthChange": true, //是否允许自定义每页显示条数.
-            "scrollY": 400,
             "scrollX": true,
-            "columnsDefs":[
-                {
-                    "targets": [0],
-                    "visible": false,
-                    "searchable": false
-                }
-            ],
             "columns": [
                         { "data": "topic" },
                         { "data": "clusterName" },
