@@ -2,6 +2,7 @@ package com.ndpmedia.rocketmq.cockpit.controller;
 
 import com.google.code.kaptcha.Constants;
 import com.google.code.kaptcha.Producer;
+import com.ndpmedia.rocketmq.cockpit.util.RandomWord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +40,8 @@ public class CaptchaImageCreateController {
         // return a jpeg
         response.setContentType("image/jpeg");
         // create the text for the image
-        String capText = captchaProducer.createText();
+        String capText = //captchaProducer.createText();
+                RandomWord.randomWord();
         System.out.println(" ========================== " + capText);
         // store the text in the session
         request.getSession().setAttribute(Constants.KAPTCHA_SESSION_KEY, capText);
