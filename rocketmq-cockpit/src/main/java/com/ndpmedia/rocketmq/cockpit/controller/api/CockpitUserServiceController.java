@@ -27,6 +27,6 @@ public class CockpitUserServiceController {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public List<CockpitUser> list() {
-        return cockpitUserMapper.list();
+        return cockpitUserMapper.list(null);
     }
 }

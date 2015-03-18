@@ -2,6 +2,7 @@ package com.ndpmedia.rocketmq.cockpit.mybatis.mapper;
 
 import com.ndpmedia.rocketmq.cockpit.model.CockpitRole;
 import com.ndpmedia.rocketmq.cockpit.model.CockpitUser;
+import com.ndpmedia.rocketmq.cockpit.model.Status;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public interface CockpitUserMapper {
     CockpitUser get(@Param("id") long id, @Param("userName") String userName);
 
 
-    List<CockpitUser> list();
+    List<CockpitUser> list(@Param("status")Status status);
 
     void grant(@Param("userId") long userId, @Param("roleId") long roleId);
 
