@@ -7,6 +7,25 @@
         VALUES (NULL, #{topic}, #{clusterName}, #{permission}, #{writeQueueNum}, #{readQueueNum}, #{unit}, #{hasUnitSubscription}, #{brokerAddress}, #{order}, #{status.id}, #{createTime}, #{updateTime})
     </insert>
 
+    <insert id="associateTeam">
+        INSERT INTO topic_team_xref(topic_id, team_id)
+        VALUES (#{topicId}, #{teamId})
+    </insert>
+
+    <delete id="removeTopicTeamAssociation">
+        DELETE
+        FROM topic_team_xref
+        WHERE 1 = 1
+
+        <if test="topicId > 0">
+            AND topic_id = #{topicId}
+        </if>
+
+        <if test="teamId > 0">
+            AND team_id = #{teamId}
+        </if>
+    </delete>
+
     <update id="update" parameterType="Topic">
         UPDATE topic SET topic = #{topic}, cluster_name = #{clusterName},
             permission = #{permission}, write_queue_num = #{writeQueueNum},

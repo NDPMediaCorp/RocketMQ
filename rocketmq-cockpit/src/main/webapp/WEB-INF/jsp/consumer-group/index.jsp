@@ -26,7 +26,7 @@
       <table class="table table-hover table-bordered">
         <thead>
         <tr>
-          <td style="display:none">id</td>
+          <td style="display:none;">id</td>
           <td>Cluster Name</td>
           <td>Which Broker When Consume Slowly</td>
           <td>Group Name</td>

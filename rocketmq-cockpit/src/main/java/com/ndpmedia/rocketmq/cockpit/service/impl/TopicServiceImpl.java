@@ -5,11 +5,14 @@ import com.alibaba.rocketmq.common.protocol.body.TopicList;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.alibaba.rocketmq.tools.command.CommandUtil;
 import com.ndpmedia.rocketmq.cockpit.model.Topic;
+import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.TopicMapper;
 import com.ndpmedia.rocketmq.cockpit.service.TopicService;
 import com.ndpmedia.rocketmq.cockpit.util.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,6 +21,9 @@ import java.util.Set;
 public class TopicServiceImpl implements TopicService {
 
     private Logger logger = LoggerFactory.getLogger(TopicServiceImpl.class);
+
+    @Autowired
+    private TopicMapper topicMapper;
 
     @Override
     public Set<String> fetchTopics() {
@@ -116,5 +122,19 @@ public class TopicServiceImpl implements TopicService {
         topicConfig.setReadQueueNums(topic.getReadQueueNum());
         topicConfig.setTopicName(topic.getTopic());
         return topicConfig;
+    }
+
+    @Transactional
+    @Override
+    public void insert(Topic topic, long teamId) {
+        topicMapper.insert(topic);
+        topicMapper.associateTeam(topic.getId(), teamId);
+    }
+
+    @Transactional
+    @Override
+    public void remove(long topicId, long teamId) {
+        topicMapper.delete(topicId);
+        topicMapper.removeTopicTeamAssociation(topicId, teamId);
     }
 }

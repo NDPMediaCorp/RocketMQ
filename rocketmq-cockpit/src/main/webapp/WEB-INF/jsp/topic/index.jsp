@@ -51,19 +51,19 @@
 <div class="col-xs-8 col-xs-offset-2 text-left table-responsive">
     <table class="table table-bordered">
         <tr><td>topic:</td><td>  <input type="text" class="form-control topic" placeholder="topic"></td></tr>
-        <tr><td>writeQueueNum:</td><td>  <input type="text" class="form-control writeQueueNum"
+        <tr class="hide"><td>writeQueueNum:</td><td>  <input type="text" class="form-control writeQueueNum"
         placeholder="writeQueueNum"></td></tr>
-        <tr><td>readQueueNum:</td><td>  <input type="text" class="form-control readQueueNum"
+        <tr class="hide"><td>readQueueNum:</td><td>  <input type="text" class="form-control readQueueNum"
         placeholder="readQueueNum"></td></tr>
-        <tr><td>brokerAddress:</td><td>  <input type="text" class="form-control brokerAddress"
+        <tr class="hide"><td>brokerAddress:</td><td>  <input type="text" class="form-control brokerAddress"
         placeholder="brokerAddress"></td></tr>
-        <tr><td>clusterName:</td><td>  <input type="text" class="form-control clusterName"
-        placeholder="clusterName"></td></tr>
-        <tr><td>permission:</td><td>  <input type="text" class="form-control permission"
+        <tr class="hide"><td>clusterName:</td><td>  <input type="text" class="form-control clusterName"
+        placeholder="clusterName" value="DefaultCluster"></td></tr>
+        <tr class="hide"><td>permission:</td><td>  <input type="text" class="form-control permission"
                 placeholder="permission"></td></tr>
-        <tr><td>unit:</td><td>  <input type="text" class="form-control unit"
+        <tr class="hide"><td>unit:</td><td>  <input type="text" class="form-control unit"
                 placeholder="unit"></td></tr>
-        <tr><td>hasUnitSubscription:</td><td>  <input type="text" class="form-control hasUnitSubscription"
+        <tr class="hide"><td>hasUnitSubscription:</td><td>  <input type="text" class="form-control hasUnitSubscription"
                 placeholder="hasUnitSubscription"></td></tr>
         <tr><td>order:</td><td>  <input type="text" class="form-control order" placeholder="order"></td></tr>
         <tr><td colspan="2">

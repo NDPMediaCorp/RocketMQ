@@ -12,4 +12,7 @@ public interface TopicService {
 
     boolean deleteTopic(Topic topic);
 
+    void insert(Topic topic, long teamId);
+
+    void remove(long topicId, long teamId);
 }
