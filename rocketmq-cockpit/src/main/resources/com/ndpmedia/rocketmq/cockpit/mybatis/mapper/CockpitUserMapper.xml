@@ -38,6 +38,12 @@
         WHERE id = #{id}
     </update>
 
+    <update id="suspend" parameterType="long">
+        UPDATE cockpit_user
+        SET status_id = 3
+        WHERE id = #{id}
+    </update>
+
     <delete id="revoke">
         DELETE FROM cockpit_user_role_xref
         WHERE user_id = #{userId} AND role_id = #{roleId}

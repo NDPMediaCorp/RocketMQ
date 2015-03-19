@@ -11,7 +11,6 @@ import com.ndpmedia.rocketmq.cockpit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -67,13 +66,4 @@ public class UserController {
 
         return cockpitUser;
     }
-
-
-    @RequestMapping(value = "/activate/{id}", method = RequestMethod.GET)
-    @ResponseBody
-    public CockpitUser activate(@PathVariable("id") long id) {
-        cockpitUserMapper.activate(id);
-        return cockpitUserMapper.get(id, null);
-    }
-
 }

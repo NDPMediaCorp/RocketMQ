@@ -31,4 +31,19 @@ public class UserManageController {
             return cockpitUserMapper.list(null);
         }
     }
+
+
+    @RequestMapping(value = "/activate/{id}", method = RequestMethod.GET)
+    @ResponseBody
+    public CockpitUser activate(@PathVariable("id") long id) {
+        cockpitUserMapper.activate(id);
+        return cockpitUserMapper.get(id, null);
+    }
+
+    @RequestMapping(value = "/suspend/{id}", method = RequestMethod.GET)
+    @ResponseBody
+    public CockpitUser suspend(@PathVariable("id") long id) {
+        cockpitUserMapper.suspend(id);
+        return cockpitUserMapper.get(id, null);
+    }
 }

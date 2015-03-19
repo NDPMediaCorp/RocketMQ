@@ -24,6 +24,11 @@ public class UserServiceImpl implements UserService {
 
         if (null != cockpitUser.getTeam() && cockpitUser.getTeam().getId() > 0) {
             teamMapper.addMember(cockpitUser.getTeam().getId(), cockpitUser.getId());
+
         }
+
+        //For now, grant user and watcher role.
+        cockpitUserMapper.grant(cockpitUser.getId(), 3);
+        cockpitUserMapper.grant(cockpitUser.getId(), 4);
     }
 }

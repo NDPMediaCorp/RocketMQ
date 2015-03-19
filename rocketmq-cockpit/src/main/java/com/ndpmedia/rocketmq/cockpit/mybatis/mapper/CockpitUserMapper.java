@@ -30,4 +30,5 @@ public interface CockpitUserMapper {
 
     void activate(long id);
 
+    void suspend(long id);
 }
