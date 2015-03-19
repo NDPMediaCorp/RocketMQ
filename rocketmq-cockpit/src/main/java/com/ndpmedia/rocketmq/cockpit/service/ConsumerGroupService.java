@@ -7,4 +7,6 @@ public interface ConsumerGroupService {
     boolean update(ConsumerGroup consumerGroup);
 
     void insert(ConsumerGroup consumerGroup, long teamId);
+
+    void delete(long consumerGroupId);
 }

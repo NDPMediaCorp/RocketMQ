@@ -9,6 +9,7 @@ import com.ndpmedia.rocketmq.cockpit.service.ConsumerGroupService;
 import com.ndpmedia.rocketmq.cockpit.util.Helper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -45,8 +46,15 @@ public class ConsumerGroupServiceImpl implements ConsumerGroupService {
         return true;
     }
 
+    @Transactional
+    @Override
+    public void delete(long consumerGroupId) {
+        consumerGroupMapper.deleteConsumerGroupTeamAssociation(consumerGroupId, 0);
+        consumerGroupMapper.delete(consumerGroupId);
+    }
 
     @Override
+    @Transactional
     public void insert(ConsumerGroup consumerGroup, long teamId) {
         consumerGroupMapper.insert(consumerGroup);
         consumerGroupMapper.associateTeam(consumerGroup.getId(), teamId);
