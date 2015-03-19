@@ -27,18 +27,18 @@
         <thead>
         <tr>
           <td style="display:none">id</td>
-          <td>cluster_name</td>
-          <td style="display:none">which_broker_when_consume_slowly</td>
-          <td>group_name</td>
-          <td style="display:none">consume_enable</td>
-          <td style="display:none">consume_broadcast_enable</td>
-          <td>broker_address</td>
-          <td style="display:none">broker_id</td>
-          <td style="display:none">retry_max_times</td>
-          <td style="display:none">retry_queue_num</td>
-          <td style="display:none">consume_from_min_enable</td>
-          <td style="display:none">status</td>
-          <td style="display:none">create_time</td>
+          <td>Cluster Name</td>
+          <td>Which Broker When Consume Slowly</td>
+          <td>Group Name</td>
+          <td>Consume Enabled</td>
+          <td>Consume Broadcast Enabled</td>
+          <td>Broker Address</td>
+          <td>Broker ID</td>
+          <td>Retry Max Times</td>
+          <td>Retry Queue Number</td>
+          <td>Consume From Min</td>
+          <td>Status</td>
+          <td>Create Time</td>
           <td>Operation</td>
         </tr>
         </thead>
