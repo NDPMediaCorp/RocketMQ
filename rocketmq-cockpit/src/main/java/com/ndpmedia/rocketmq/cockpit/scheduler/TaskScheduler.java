@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -58,6 +59,15 @@ public class TaskScheduler {
                 logger.warn("[MONITOR][CONSUME PROCESS] main method failed." + e);
             }
         }
+    }
+
+    @Scheduled(cron = "0 0 0 * * * *")
+    public void deleteDeprecatedData() {
+        logger.info("Start to clean deprecated data");
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, -1);
+        int numberOfRecordsDeleted = consumeProgressMapper.bulkDelete(calendar.getTime());
+        logger.info("Deleted " + numberOfRecordsDeleted + " consume progress records.");
     }
 
 }

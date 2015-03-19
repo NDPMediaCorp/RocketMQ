@@ -3,6 +3,7 @@ package com.ndpmedia.rocketmq.cockpit.mybatis.mapper;
 import com.ndpmedia.rocketmq.cockpit.model.ConsumeProgress;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 public interface ConsumeProgressMapper {
@@ -23,4 +24,12 @@ public interface ConsumeProgressMapper {
                                @Param("topic")String topic,
                                @Param("brokerName")String brokerName,
                                @Param("queueId")int queueId);
+
+
+    /**
+     * Delete data that are older than the specified date.
+     * @param date specified date
+     * @return number of rows deleted.
+     */
+    int bulkDelete(Date date);
 }
