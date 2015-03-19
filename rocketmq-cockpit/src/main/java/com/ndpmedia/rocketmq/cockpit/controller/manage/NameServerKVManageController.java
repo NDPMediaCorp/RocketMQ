@@ -24,6 +24,7 @@ public class NameServerKVManageController {
         KV kv = nameServerKVService.get(id);
         if (null != kv) {
             DefaultMQAdminExt mqAdmin = new DefaultMQAdminExt();
+            mqAdmin.start();
             mqAdmin.createAndUpdateKvConfig(kv.getNameSpace(), kv.getKey(), kv.getValue());
             kv.setStatus(Status.ACTIVE);
             nameServerKVService.update(kv);
