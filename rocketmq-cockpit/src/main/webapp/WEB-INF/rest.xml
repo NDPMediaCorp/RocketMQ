@@ -19,11 +19,13 @@
 
     <bean id="nameServerAddressBean" class="com.ndpmedia.rocketmq.nameserver.impl.NameServerAddressServiceImpl" />
     <bean id="ipMappingBean" class="com.ndpmedia.rocketmq.ip.impl.IPMappingServiceImpl" />
+    <bean id="monitorBean" class="com.ndpmedia.rocketmq.monitor.impl.MonitorServiceImpl" />
 
     <jaxrs:server id="restServer" address="/">
         <jaxrs:serviceBeans>
             <ref bean="nameServerAddressBean" />
             <ref bean="ipMappingBean" />
+            <ref bean="monitorBean" />
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider">

@@ -38,6 +38,12 @@
         WHERE id = #{id}
     </update>
 
+    <update id="suspend" parameterType="long">
+        UPDATE cockpit_user
+        SET status_id = 3
+        WHERE id = #{id}
+    </update>
+
     <delete id="revoke">
         DELETE FROM cockpit_user_role_xref
         WHERE user_id = #{userId} AND role_id = #{roleId}
@@ -65,8 +71,10 @@
         FROM cockpit_user AS u
             JOIN team_user_xref AS xref ON u.id = xref.user_id
             JOIN team AS t on xref.team_id = t.id
+        <if test="status != null">
+            WHERE u.status_id = #{status.id}
+        </if>
     </select>
-
 
     <select id="queryRoles" resultType="CockpitRole">
         SELECT r.id, r.name
@@ -75,4 +83,5 @@
         JOIN cockpit_team_group_xref AS txref ON txref.group_id = gxref.group_id
         WHERE txref.team_id = #{teamId}
     </select>
+
 </mapper>

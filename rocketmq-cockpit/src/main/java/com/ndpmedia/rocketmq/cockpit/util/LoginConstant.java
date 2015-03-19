@@ -36,4 +36,6 @@ public interface LoginConstant extends Constant {
     String COOKIE_ENCRYPTION_KEY = "C0ckp1t";
 
     String ACCESS_DENIED_MSG = "ACCESS_DENIED_MSG";
+
+    String COCKPIT_USER_KEY = "cockpit_user_in_session";
 }

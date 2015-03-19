@@ -19,7 +19,13 @@ public class RocketMQUserAccessDeniedHandler implements AccessDeniedHandler, Log
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        response.sendRedirect(accessDeniedURL);
+
+        if (accessDeniedURL.startsWith("/")) {
+            response.sendRedirect(accessDeniedURL);
+        } else {
+            accessDeniedURL = request.getServletContext().getContextPath() + "/" + accessDeniedURL;
+        }
+
         String deniedMessage = accessDeniedException.getMessage();
 
         request.getSession().setAttribute(ACCESS_DENIED_MSG, deniedMessage);

@@ -3,9 +3,9 @@
 <html>
 <head>
     <title>Login Page</title>
-    <script src="http://libs.baidu.com/jquery/1.7.0/jquery.js"></script>
-    <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-    <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <script src="//libs.baidu.com/jquery/1.7.0/jquery.js" type="text/javascript"></script>
+    <script src="//libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js" type="text/javascript"></script>
+    <link href="//libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" type="text/css" rel="stylesheet">
     <%@include file="include/base-path.jsp" %>
     <base href="<%=basePath%>">
     <script type="text/javascript">
@@ -48,20 +48,19 @@
             <td colspan='2' width="100%"><span style="color:red"><%=msg%></span></td>
         </tr>
         <tr>
-            <td width="20%">User:</td>
+            <td width="20%"><label for="j_username">User:</label></td>
             <td><input type='text' id="j_username" name='j_username' value=''></td>
         </tr>
         <tr>
-            <td width="20%">Password:</td>
+            <td width="20%"><label for="j_password">Password:</label></td>
             <td><input type='password' id="j_password" name='j_password'/></td>
         </tr>
         <tr>
             <td width="20%">
                 <div class="chknumber">
-                    <label>verification code：</label>
-                    <td><input name="kaptcha" type="text" id="kaptcha" maxlength="8" class="chknumber_input"/>
-                        <img src="cockpit/captcha-image" width="170" height="40" id="kaptchaImage"
-                             style="margin-bottom: -3px"/>
+                    <label for="kaptcha">verification code：</label>
+                    <input name="kaptcha" type="text" id="kaptcha" maxlength="20" class="chknumber_input">
+                        <img src="cockpit/captcha-image" width="170" height="40" id="kaptchaImage" style="margin-bottom: -3px"  alt="Captcha">
                         <script type="text/javascript">
                             $(function () {
                                 $('#kaptchaImage').click(function () {//生成验证码

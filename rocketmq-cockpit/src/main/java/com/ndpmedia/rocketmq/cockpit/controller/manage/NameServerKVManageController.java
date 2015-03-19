@@ -4,6 +4,7 @@ import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.ndpmedia.rocketmq.cockpit.model.KV;
 import com.ndpmedia.rocketmq.cockpit.model.Status;
 import com.ndpmedia.rocketmq.cockpit.service.NameServerKVService;
+import com.ndpmedia.rocketmq.cockpit.util.Helper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,8 @@ public class NameServerKVManageController {
         KV kv = nameServerKVService.get(id);
         if (null != kv) {
             DefaultMQAdminExt mqAdmin = new DefaultMQAdminExt();
+            mqAdmin.setInstanceName(Helper.getInstanceName());
+            mqAdmin.start();
             mqAdmin.createAndUpdateKvConfig(kv.getNameSpace(), kv.getKey(), kv.getValue());
             kv.setStatus(Status.ACTIVE);
             nameServerKVService.update(kv);
