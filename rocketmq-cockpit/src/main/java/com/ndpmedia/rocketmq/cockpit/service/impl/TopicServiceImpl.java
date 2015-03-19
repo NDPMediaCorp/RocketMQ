@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service("topicService")
@@ -24,6 +26,8 @@ public class TopicServiceImpl implements TopicService {
 
     @Autowired
     private TopicMapper topicMapper;
+
+    private static final List PERMISSIONS = Arrays.asList(2, 4, 6);
 
     @Override
     public Set<String> fetchTopics() {
@@ -127,6 +131,19 @@ public class TopicServiceImpl implements TopicService {
     @Transactional
     @Override
     public void insert(Topic topic, long teamId) {
+
+        if (!PERMISSIONS.contains(topic.getPermission())) {
+            topic.setPermission(6);
+        }
+
+        if (topic.getReadQueueNum() <= 0) {
+            topic.setReadQueueNum(Topic.DEFAULT_READ_QUEUE_NUM);
+        }
+
+        if (topic.getWriteQueueNum() <= 0) {
+            topic.setWriteQueueNum(Topic.DEFAULT_WRITE_QUEUE_NUM);
+        }
+
         topicMapper.insert(topic);
         topicMapper.associateTeam(topic.getId(), teamId);
     }

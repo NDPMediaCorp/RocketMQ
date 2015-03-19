@@ -24,19 +24,19 @@
       <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered table-hover" id="topic" width="90%">
         <thead>
            <tr>
-                      <th>topic</th>
-                      <th>clusterName</th>
-                      <th>brokerAddress</th>
-                      <th>writeQueueNum</th>
-                      <th>readQueueNum</th>
-                      <th>permission</th>
-                      <th>unit</th>
-                      <th>hasUnitSubscription</th>
-                      <th>order</th>
-                      <th>status</th>
-                      <th>createTime</th>
-                      <th>updateTime</th>
-                      <th>Operation</th>
+                  <th>Topic</th>
+                  <th>Cluster Name</th>
+                  <th>Broker Address</th>
+                  <th>Write Queue Number</th>
+                  <th>Read Queue Number</th>
+                  <th>Permission</th>
+                  <th>Unit</th>
+                  <th>Has Unit Subscription</th>
+                  <th>Order</th>
+                  <th>Status</th>
+                  <th>Create Time</th>
+                  <th>Update Time</th>
+                  <th>Operation</th>
             </tr>
         </thead>
         <tbody>
@@ -50,22 +50,22 @@
 
 <div class="col-xs-8 col-xs-offset-2 text-left table-responsive">
     <table class="table table-bordered">
-        <tr><td>topic:</td><td>  <input type="text" class="form-control topic" placeholder="topic"></td></tr>
-        <tr class="hide"><td>writeQueueNum:</td><td>  <input type="text" class="form-control writeQueueNum"
-        placeholder="writeQueueNum"></td></tr>
-        <tr class="hide"><td>readQueueNum:</td><td>  <input type="text" class="form-control readQueueNum"
-        placeholder="readQueueNum"></td></tr>
-        <tr class="hide"><td>brokerAddress:</td><td>  <input type="text" class="form-control brokerAddress"
-        placeholder="brokerAddress"></td></tr>
-        <tr class="hide"><td>clusterName:</td><td>  <input type="text" class="form-control clusterName"
-        placeholder="clusterName" value="DefaultCluster"></td></tr>
-        <tr class="hide"><td>permission:</td><td>  <input type="text" class="form-control permission"
-                placeholder="permission"></td></tr>
-        <tr class="hide"><td>unit:</td><td>  <input type="text" class="form-control unit"
-                placeholder="unit"></td></tr>
-        <tr class="hide"><td>hasUnitSubscription:</td><td>  <input type="text" class="form-control hasUnitSubscription"
-                placeholder="hasUnitSubscription"></td></tr>
-        <tr><td>order:</td><td>  <input type="text" class="form-control order" placeholder="order"></td></tr>
+        <tr><td>Topic:</td><td>  <input type="text" class="form-control topic" placeholder="topic"></td></tr>
+        <tr class="hide"><td>Write Queue Number:</td><td>  <input type="text" class="form-control writeQueueNum"
+        placeholder="Write Queue Number, Default 16"></td></tr>
+        <tr class="hide"><td>Read Queue Number:</td><td>  <input type="text" class="form-control readQueueNum"
+        placeholder="Read Queue Number, Default 16"></td></tr>
+        <tr class="hide"><td>Broker Address:</td><td>  <input type="text" class="form-control brokerAddress"
+        placeholder="IP:10911"></td></tr>
+        <tr class="hide"><td>Cluster Name:</td><td>  <input type="text" class="form-control clusterName"
+        placeholder="Cluster Name" value="DefaultCluster"></td></tr>
+        <tr class="hide"><td>Permission:</td><td>  <input type="text" class="form-control permission"
+                placeholder="Read: 2/Write: 4/Read&Write: 6"></td></tr>
+        <tr class="hide"><td>Unit:</td><td>  <input type="text" class="form-control unit"
+                placeholder="true/false"></td></tr>
+        <tr class="hide"><td>Has Unit Subscription:</td><td>  <input type="text" class="form-control hasUnitSubscription"
+                placeholder="true/false"></td></tr>
+        <tr><td>Order:</td><td>  <input type="text" class="form-control order" placeholder="order"></td></tr>
         <tr><td colspan="2">
     <div class="col-xs-2">
       <button type="submit" class="btn btn-primary addTopic">Add</button>
