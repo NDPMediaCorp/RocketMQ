@@ -7,7 +7,14 @@ $(document).ready(function() {
             var deleteLink = $("<a href='javascript:;' style='margin-left: 20px'  class='deleteKV'>Delete</a>");
             applyLink.attr("rel", item.id);
             deleteLink.attr("rel", item.id);
-            var operation = $("<td></td>").append(applyLink).append(deleteLink);
+            var operation = $("<td></td>");
+
+            if (item.status == "ACTIVE") {
+                operation.append(deleteLink);
+            } else {
+                operation.append(applyLink).append(deleteLink);
+            }
+
             var item = $("<tr><td>" + item.nameSpace + "</td><td>" + item.key + "</td><td>" + item.value + "</td><td>"
             + item.status + "</td></tr>");
             item.append(operation);
@@ -61,7 +68,6 @@ $(document).ready(function() {
                 alert(data);
             }
         });
-
     });
 
     $(".applyKV").live("click", function() {
@@ -70,6 +76,7 @@ $(document).ready(function() {
         var $status = $(this).parent().prev();
         $.get("cockpit/manage/name-server-kv/id/" + id, function(data) {
             $status.text(data.status);
+            id.remove();
         });
     });
 
