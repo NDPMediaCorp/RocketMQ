@@ -21,5 +21,7 @@ public interface ConsumerGroupMapper {
 
     void delete(long id);
 
+    void associateTeam(@Param(value = "consumerGroupId") long consumerGroupId,
+                       @Param(value = "teamId") long teamId);
 
 }

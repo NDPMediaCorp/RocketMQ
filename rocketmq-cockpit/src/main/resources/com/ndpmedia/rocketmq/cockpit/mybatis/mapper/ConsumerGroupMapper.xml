@@ -7,6 +7,11 @@
         VALUES (NULL, #{clusterName}, #{groupName}, #{consumeEnable}, #{consumeBroadcastEnable})
     </insert>
 
+    <insert id="associateTeam">
+        INSERT INTO consumer_group_team_xref(consumer_group_id, team_id)
+                VALUES (#{consumerGroupId}, #{teamId})
+    </insert>
+
     <update id="update" parameterType="ConsumerGroup">
         UPDATE consumer_group
         SET cluster_name = #{clusterName},

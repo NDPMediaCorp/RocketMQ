@@ -4,14 +4,20 @@ import com.alibaba.rocketmq.common.subscription.SubscriptionGroupConfig;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.alibaba.rocketmq.tools.command.CommandUtil;
 import com.ndpmedia.rocketmq.cockpit.model.ConsumerGroup;
+import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.ConsumerGroupMapper;
 import com.ndpmedia.rocketmq.cockpit.service.ConsumerGroupService;
 import com.ndpmedia.rocketmq.cockpit.util.Helper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
 @Service("consumerGroupService")
 public class ConsumerGroupServiceImpl implements ConsumerGroupService {
+
+    @Autowired
+    private ConsumerGroupMapper consumerGroupMapper;
+
     @Override
     public boolean update(ConsumerGroup consumerGroup) {
         DefaultMQAdminExt defaultMQAdminExt = new DefaultMQAdminExt();
@@ -37,6 +43,13 @@ public class ConsumerGroupServiceImpl implements ConsumerGroupService {
             defaultMQAdminExt.shutdown();
         }
         return true;
+    }
+
+
+    @Override
+    public void insert(ConsumerGroup consumerGroup, long teamId) {
+        consumerGroupMapper.insert(consumerGroup);
+        consumerGroupMapper.associateTeam(consumerGroup.getId(), teamId);
     }
 
 
