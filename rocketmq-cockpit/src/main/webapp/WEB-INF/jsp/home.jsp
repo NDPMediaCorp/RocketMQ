@@ -22,6 +22,8 @@ if (null != errSMSG){
         <li><a href="cockpit/broker/">Broker Status</a></li>
         <li><a href="cockpit/topic/">Topic Management</a></li>
         <li><a href="cockpit/consumer-group/">Consumer Group</a></li>
+
+        <li><a href="cockpit/admin/user">Manage User</a></li>
     </ul>
 
     <h1>Console Home</h1>
