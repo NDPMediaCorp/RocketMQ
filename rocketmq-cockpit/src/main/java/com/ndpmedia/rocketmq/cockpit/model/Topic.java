@@ -23,7 +23,8 @@ public class Topic {
 
     private int readQueueNum = DEFAULT_READ_QUEUE_NUM;
 
-    private int permission;
+    //READ and WRITE
+    private int permission = 6;
 
     private boolean unit;
 
