@@ -6,7 +6,6 @@
         VALUES (NULL, #{innerIP}, #{publicIP}, #{createTime}, #{updateTime})
     </insert>
 
-
     <update id="update" parameterType="IPPair">
         UPDATE ip_mapping
         SET inner_ip = #{innerIP}, public_ip = #{publicIP}, create_time = #{createTime}, update_time = #{updateTime}
