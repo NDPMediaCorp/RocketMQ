@@ -12,7 +12,7 @@ $(document).ready(function() {
                 operation.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
             }
             operation.append(operationLink);
-            var item = $("<tr><td style='display:none'>" + consumerGroup.id + "</td><td>" + consumerGroup.clusterName + "</td><td style='display:none'>" + consumerGroup.whichBrokerWhenConsumeSlowly + "</td><td>" + consumerGroup.groupName + "</td><td style='display:none'>" + consumerGroup.consumeEnable + "</td><td style='display:none'>" + consumerGroup.consumeBroadcastEnable + "</td><td>" + consumerGroup.brokerAddress + "</td><td style='display:none'>" + consumerGroup.brokerId + "</td><td style='display:none'>" + consumerGroup.retryMaxTimes + "</td><td style='display:none'>" + consumerGroup.retryQueueNum + "</td><td style='display:none'>" + consumerGroup.consumeFromMinEnable + "</td><td style='display:none'>" + consumerGroup.status + "</td><td style='display:none'>" + consumerGroup.createTime + "</td></tr>");
+            var item = $("<tr><td style='display:none'>" + consumerGroup.id + "</td><td>" + consumerGroup.clusterName + "</td><td>" + consumerGroup.whichBrokerWhenConsumeSlowly + "</td><td>" + consumerGroup.groupName + "</td><td>" + consumerGroup.consumeEnable + "</td><td>" + consumerGroup.consumeBroadcastEnable + "</td><td>" + consumerGroup.brokerAddress + "</td><td>" + consumerGroup.brokerId + "</td><td>" + consumerGroup.retryMaxTimes + "</td><td>" + consumerGroup.retryQueueNum + "</td><td>" + consumerGroup.consumeFromMinEnable + "</td><td>" + consumerGroup.status + "</td><td>" + consumerGroup.createTime + "</td></tr>");
             item.append(operation);
             $(".table-content").append(item);
         });

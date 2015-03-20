@@ -24,4 +24,9 @@ public interface TopicMapper {
      * @return List of topics.
      */
     List<Topic> list(@Param("teamId") long teamId, @Param("topic") String topic);
+
+
+    void associateTeam(@Param("topicId") long topicId, @Param("teamId") long teamId);
+
+    void removeTopicTeamAssociation(@Param("topicId") long topicId, @Param("teamId") long teamId);
 }

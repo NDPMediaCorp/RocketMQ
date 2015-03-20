@@ -7,9 +7,9 @@ import java.util.Date;
  */
 public class Topic {
 
-    public static int DEFAULT_READ_QUEUE_NUM = 16;
+    public static final int DEFAULT_READ_QUEUE_NUM = 16;
 
-    public static int DEFAULT_WRITE_QUEUE_NUM = 16;
+    public static final int DEFAULT_WRITE_QUEUE_NUM = 16;
 
     private long id;
 
@@ -23,7 +23,8 @@ public class Topic {
 
     private int readQueueNum = DEFAULT_READ_QUEUE_NUM;
 
-    private int permission;
+    //READ and WRITE
+    private int permission = 6;
 
     private boolean unit;
 
