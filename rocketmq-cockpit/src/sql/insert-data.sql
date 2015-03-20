@@ -18,8 +18,8 @@ INSERT INTO ip_mapping(inner_ip, public_ip) VALUES ('10.1.36.11',	'54.173.209.19
 INSERT INTO ip_mapping(inner_ip, public_ip) VALUES ('10.2.36.10',	'54.179.161.99');
 
 INSERT INTO team(id, name) VALUES (1, "TP");
-INSERT INTO team(id, name) VALUES (2, "YeahTool");
-INSERT INTO team(id, name) VALUES (3, "Facebook");
+INSERT INTO team(id, name) VALUES (2, "Facebook");
+INSERT INTO team(id, name) VALUES (3, "YeahMobi");
 
 INSERT INTO cockpit_user(id, username, password, email, status_id) VALUES (1, 'root', '320734fbb627d6884a1284acbdaa5db9', "admin@rocketmq.com", 2);
 INSERT INTO cockpit_user(id, username, password, email, status_id) VALUES (2, 'xutao', '23dc3038d25ef09f3ad7c0552b40ef9f', "robert@yeahmobi.com", 2);
