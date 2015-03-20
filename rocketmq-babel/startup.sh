@@ -1,6 +1,6 @@
 #!/bin/sh
 #JAVA_HOME="/usr/java/jdk1.6.0_31"
-APP_LOG=/dianyi/app/justniffer/logs
+APP_LOG=/dianyi/app/justniffer
 if [ ! -d "$APP_LOG" ]; then
   mkdir $APP_LOG -p
 fi
@@ -26,4 +26,4 @@ done
 echo $LIB_JARS
 JAVA_HOME=$JAVA_HOME
 if [ ! -d "$JAVA_HOME" ]; then JAVA_HOME="/usr"; else echo "$JAVA_HOME"; fi;
-nohup $JAVA_HOME/bin/java $JAVA_OPTS -Dworkdir=./  -classpath target/classes:$LIB_JARS $APP_MAIN > $APP_LOG/$server.nohup.log &
+nohup $JAVA_HOME/bin/java $JAVA_OPTS -Dworkdir=./  -classpath target/classes:$LIB_JARS $APP_MAIN > $APP_LOG/logs/$server.nohup.log &
