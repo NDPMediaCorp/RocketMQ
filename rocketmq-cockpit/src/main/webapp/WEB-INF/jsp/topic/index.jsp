@@ -21,7 +21,7 @@
     </div>
   </div>
 
-      <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered table-hover" id="topic" width="90%">
+      <table cellspacing="0" class="display" id="topic" width="100%">
         <thead>
            <tr>
                   <th>Topic</th>
