@@ -36,7 +36,7 @@ public class Topic {
 
     private Date createTime;
 
-    private Date updateTime;
+    private Date updateTime = new Date();
 
     public String getTopic() {
         return topic;
