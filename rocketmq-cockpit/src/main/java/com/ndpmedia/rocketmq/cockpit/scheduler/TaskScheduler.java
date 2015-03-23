@@ -8,16 +8,13 @@ import com.ndpmedia.rocketmq.cockpit.service.TopicService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-@Component
-public class TaskScheduler {
+public class TaskScheduler implements Runnable{
 
     private Logger logger = LoggerFactory.getLogger(TaskScheduler.class);
 
@@ -30,9 +27,8 @@ public class TaskScheduler {
     @Autowired
     private TopicService topicService;
 
-    @Scheduled(fixedRate = 300000)
-    public void queryAccumulation() {
-
+    @Override
+    public void run() {
         Date date = new Date();
         try {
             Set<String> topicList = topicService.fetchTopics();
@@ -61,7 +57,6 @@ public class TaskScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
     public void deleteDeprecatedData() {
         logger.info("Start to clean deprecated data");
         Calendar calendar = Calendar.getInstance();
@@ -69,5 +64,4 @@ public class TaskScheduler {
         int numberOfRecordsDeleted = consumeProgressMapper.bulkDelete(calendar.getTime());
         logger.info("Deleted " + numberOfRecordsDeleted + " consume progress records.");
     }
-
 }
