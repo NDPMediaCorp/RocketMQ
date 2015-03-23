@@ -31,7 +31,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.*;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.SocketAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
@@ -61,6 +67,30 @@ public class RemotingUtil {
 
     private static final int MINIMAL_IPV4_LENGTH = 7;
 
+
+    /**
+     * Refer to http://en.wikipedia.org/wiki/Reserved_IP_addresses
+     */
+    private static final String[] PRIVATE_NETWORK_CIDR = {
+            "0.0.0.0/8"
+            ,"10.0.0.0/8"
+            ,"100.64.0.0/10"
+            ,"127.0.0.0/8"
+            ,"169.254.0.0/16"
+            ,"172.16.0.0/12"
+            ,"192.0.0.0/24"
+            ,"192.0.2.0/24"
+            ,"192.88.99.0/24"
+            ,"192.168.0.0/16"
+            ,"198.18.0.0/15"
+            ,"198.51.100.0/24"
+            ,"203.0.113.0/24"
+            ,"224.0.0.0/4"
+            ,"240.0.0.0/4"
+            ,"255.255.255.255/32"};
+
+    private static final Subnet[] PRIVATE_SUBNET = new Subnet[PRIVATE_NETWORK_CIDR.length];
+
     static {
         if (OS_NAME != null && OS_NAME.toLowerCase().contains("linux")) {
             isLinuxPlatform = true;
@@ -68,6 +98,10 @@ public class RemotingUtil {
 
         if (OS_NAME != null && OS_NAME.toLowerCase().contains("windows")) {
             isWindowsPlatform = true;
+        }
+
+        for (int i = 0; i < PRIVATE_NETWORK_CIDR.length; i++) {
+            PRIVATE_SUBNET[i] = new Subnet(PRIVATE_NETWORK_CIDR[i]);
         }
     }
 
@@ -121,7 +155,16 @@ public class RemotingUtil {
             throw new RuntimeException("IP cannot be null or empty");
         }
 
-        return ip.startsWith("10.") || ip.startsWith("172.16.") || ip.startsWith("192.168.");
+        if (ip.startsWith("127.") || ip.startsWith("10.") || ip.startsWith("192.168.")) {
+            return true;
+        } else {
+            for (Subnet subnet : PRIVATE_SUBNET) {
+                if (subnet.compareAddressToSubnet(ip)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public static String queryPublicIP(String innerIP) {

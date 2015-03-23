@@ -70,5 +70,7 @@
         <if test="queueId > -1">
             AND queue_id = #{queueId}
         </if>
+
+        ORDER BY id DESC LIMIT 1000
     </select>
 </mapper>

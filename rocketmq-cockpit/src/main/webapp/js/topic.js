@@ -40,7 +40,7 @@ $(document).ready(function() {
 });
 
 function initTable(){
-    var table = $('#topic').DataTable({
+    var table = $('#topic').dataTable({
             "processing": true,
             "sAjaxSource": "cockpit/api/topic",
             "sAjaxDataProp": "data",
@@ -64,15 +64,14 @@ function initTable(){
                         { "data": "id",
                           "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
                             if (oData.status != "ACTIVE"){
-                                $(nTd).html("<a href='javascript:void(0);' " + "onclick='_editFun(\"" + oData.id + "\",\"" + oData.topic + "\",\"" + oData.clusterName + "\",\"" + oData.brokerAddress + "\",\"" + oData.writeQueueNum + "\",\"" + oData.readQueueNum + "\",\"" + oData.permission + "\",\"" + oData.unit + "\",\"" + oData.hasUnitSubscription + "\",\"" + oData.order + "\")'>aprove</a>&nbsp;&nbsp;")
-                                .append("<a href='javascript:void(0);' onclick='_deleteFun(\"" + oData.id + "\",\"" + oData.topic + "\",\"" + oData.clusterName + "\",\"" + oData.brokerAddress + "\")'>del</a>");
+                                $(nTd).html("<a href='javascript:void(0);' " + "onclick='_editFun(\"" + oData.id + "\",\"" + oData.topic + "\",\"" + oData.clusterName + "\",\"" + oData.brokerAddress + "\",\"" + oData.writeQueueNum + "\",\"" + oData.readQueueNum + "\",\"" + oData.permission + "\",\"" + oData.unit + "\",\"" + oData.hasUnitSubscription + "\",\"" + oData.order + "\")'>Approve</a>&nbsp;&nbsp;")
+                                .append("<a href='javascript:void(0);' onclick='_deleteFun(\"" + oData.id + "\",\"" + oData.topic + "\",\"" + oData.clusterName + "\",\"" + oData.brokerAddress + "\")'>Delete</a>");
                              }else {
-                                $(nTd).html("<a href='javascript:void(0);' onclick='_deleteFun(\"" + oData.id + "\",\"" + oData.topic + "\",\"" + oData.clusterName + "\",\"" + oData.brokerAddress + "\")'>del</a>");
+                                $(nTd).html("<a href='javascript:void(0);' onclick='_deleteFun(\"" + oData.id + "\",\"" + oData.topic + "\",\"" + oData.clusterName + "\",\"" + oData.brokerAddress + "\")'>Delete</a>");
                              }
                           }
                         }
             ],
-            "sDom": "<'row-fluid'<'span6 myBtnBox'><'span6'f>r>t<'row-fluid'<'span6'i><'span6 'p>>",
             "fnCreatedRow": function (nRow, aData, iDataIndex) {
                         //add selected class
                         $(nRow).click(function () {

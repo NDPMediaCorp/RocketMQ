@@ -15,5 +15,4 @@ public interface IpPairMapper {
     void delete(long id);
 
     void update(IPPair ipPair);
-
 }
