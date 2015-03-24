@@ -9,13 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-public class TaskScheduler implements Runnable{
+@Component
+public class TaskScheduler {
 
     private Logger logger = LoggerFactory.getLogger(TaskScheduler.class);
 
@@ -28,9 +30,9 @@ public class TaskScheduler implements Runnable{
     @Autowired
     private TopicService topicService;
 
-    @Scheduled(fixedDelay = 5000)
-    @Override
-    public void run() {
+    @Scheduled(fixedRate = 300000)
+    public void queryAccumulation() {
+
         Date date = new Date();
         try {
             Set<String> topicList = topicService.fetchTopics();
@@ -59,7 +61,7 @@ public class TaskScheduler implements Runnable{
         }
     }
 
-    @Scheduled(cron = "0 0 0 * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void deleteDeprecatedData() {
         logger.info("Start to clean deprecated data");
         Calendar calendar = Calendar.getInstance();
@@ -67,4 +69,5 @@ public class TaskScheduler implements Runnable{
         int numberOfRecordsDeleted = consumeProgressMapper.bulkDelete(calendar.getTime());
         logger.info("Deleted " + numberOfRecordsDeleted + " consume progress records.");
     }
+
 }
