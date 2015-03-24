@@ -31,7 +31,8 @@ public class MonitorServer
     //初始化bean
     private void init()
     {
+        String _basePath = "xml/";
         applicationContext = new ClassPathXmlApplicationContext(
-                new String[]{"jar path"});
+                new String[]{_basePath + "*.xml"});
     }
 }
