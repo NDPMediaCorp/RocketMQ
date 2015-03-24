@@ -8,14 +8,14 @@
         <groupId>com.alibaba.rocketmq</groupId>
         <version>3.2.2</version>
     </parent>
-    <artifactId>web</artifactId>
+    <artifactId>cockpit-web</artifactId>
 
     <packaging>war</packaging>
 
     <dependencies>
         <dependency>
             <groupId>com.alibaba.rocketmq</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>cockpit-common</artifactId>
             <version>3.2.2</version>
         </dependency>
 

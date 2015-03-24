@@ -12,9 +12,9 @@
     <name>rocketmq-cockpit ${project.version}</name>
 
     <modules>
-        <module>monitor</module>
-        <module>web</module>
-        <module>common</module>
+        <module>cockpit-monitor</module>
+        <module>cockpit-web</module>
+        <module>cockpit-common</module>
     </modules>
 
     <packaging>pom</packaging>
