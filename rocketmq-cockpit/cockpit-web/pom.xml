@@ -55,7 +55,6 @@
             <artifactId>spring-security-config</artifactId>
         </dependency>
 
-
         <!-- CXF -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -103,6 +102,16 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jhlabs</groupId>
+            <artifactId>filters</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -113,7 +122,7 @@
                 <version>9.2.5.v20141112</version>
                 <configuration>
                     <scanIntervalSeconds>10</scanIntervalSeconds>
-                    <jvmArgs>-Xmx1G -Xms1G</jvmArgs>
+                    <jvmArgs>-Xmx1G -Xms1G -XX:MaxPermSize=256M</jvmArgs>
                 </configuration>
             </plugin>
         </plugins>

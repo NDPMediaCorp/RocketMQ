@@ -23,8 +23,7 @@
         <security:intercept-url pattern="/cockpit/captcha-image.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 
         <security:intercept-url pattern="/cockpit/manage/**" access="ROLE_ADMIN"/>
-        <security:intercept-url pattern="/WEB-INF" access="ROLE_USER, ROLE_ADMIN"/>
-
+        <security:intercept-url pattern="/**" access="ROLE_USER, ROLE_ADMIN"/>
 
         <security:form-login authentication-failure-handler-ref="rocketMQUserLoginFailedHandler"
                              authentication-success-handler-ref="rocketMQUserLoginSuccessHandler"

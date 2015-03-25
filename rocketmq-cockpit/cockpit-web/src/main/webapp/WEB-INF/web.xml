@@ -9,10 +9,10 @@
         <param-name>contextConfigLocation</param-name>
         <param-value>
             classpath*:applicationContextCommon.xml
-            classpath*:applicationContext.xml
-            classpath*:rest.xml
-            classpath*:security.xml
-            classpath*:mvc-servlet.xml
+            WEB-INF/applicationContext.xml
+            WEB-INF/cockpit_rest.xml
+            WEB-INF/cockpit_security.xml
+            WEB-INF/mvc-servlet.xml
         </param-value>
     </context-param>
 
@@ -63,7 +63,7 @@
     <servlet>
         <servlet-name>mvc</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
+        <load-on-startup>2</load-on-startup>
     </servlet>
 
     <servlet-mapping>
