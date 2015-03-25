@@ -35,12 +35,10 @@ public class AutoLoginAction {
     private AuthenticationManager myAuthenticationManager;
 
     @RequestMapping(value = "/login.do", method = {RequestMethod.GET, RequestMethod.POST})
-    public void login(HttpServletRequest request, HttpServletResponse response) throws IOException
-    {
+    public void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         boolean hasLoggedIn = false;
-        try
-        {
+        try {
             UsernamePasswordAuthenticationToken token = getToken(request);
 
             token.setDetails(new WebAuthenticationDetails(request));
@@ -50,24 +48,19 @@ public class AutoLoginAction {
 
             response.sendRedirect("../cluster/list.do");
             hasLoggedIn = true;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
-        } finally
-        {
-            if (!hasLoggedIn)
-            {
+        } finally {
+            if (!hasLoggedIn) {
                 response.sendRedirect(
                         request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/");
             }
         }
     }
 
-    private Collection<GrantedAuthority> getAuthority(String role)
-    {
+    private Collection<GrantedAuthority> getAuthority(String role) {
         List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
-        if (role.contains(";"))
-        {
+        if (role.contains(";")) {
             String[] roles = role.split(";");
             for (String ro : roles)
                 authList.add(new SimpleGrantedAuthority(ro));
@@ -99,14 +92,12 @@ public class AutoLoginAction {
             }
         }
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(uid, password,
-                authorities);
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(uid, password, authorities);
 
         return token;
     }
 
-    private String decode(Cookie c) throws Exception
-    {
+    private String decode(Cookie c) throws Exception {
         return new String(SslHelper.decrypt(COOKIE_ENCRYPTION_KEY, c.getValue()));
     }
 
