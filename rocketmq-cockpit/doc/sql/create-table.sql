@@ -144,3 +144,17 @@ CREATE TABLE IF NOT EXISTS consumer_group_team_xref(
   team_id INT NOT NULL REFERENCES team(id) ON DELETE RESTRICT ,
   CONSTRAINT UNIQUE (consumer_group_id, team_id)
 ) ENGINE = INNODB;
+
+
+-- Login
+CREATE TABLE IF NOT EXISTS login (
+  id INT NOT NULL PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  session_id CHAR(24) NOT NULL,
+  login_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  user_id INT NOT NULL REFERENCES cockpit_user(id)
+) ENGINE = INNODB;
+
+CREATE INDEX idx_login_session ON login(session_id) USING HASH;
+
+
+

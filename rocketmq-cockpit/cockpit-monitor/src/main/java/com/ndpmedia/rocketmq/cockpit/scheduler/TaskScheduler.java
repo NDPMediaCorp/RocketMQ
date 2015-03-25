@@ -3,6 +3,7 @@ package com.ndpmedia.rocketmq.cockpit.scheduler;
 import com.alibaba.rocketmq.common.MixAll;
 import com.ndpmedia.rocketmq.cockpit.model.ConsumeProgress;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.ConsumeProgressMapper;
+import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.LoginMapper;
 import com.ndpmedia.rocketmq.cockpit.service.ConsumeProgressService;
 import com.ndpmedia.rocketmq.cockpit.service.TopicService;
 import org.slf4j.Logger;
@@ -26,6 +27,9 @@ public class TaskScheduler {
 
     @Autowired
     private ConsumeProgressService consumeProgressService;
+
+    @Autowired
+    private LoginMapper loginMapper;
 
     @Autowired
     private TopicService topicService;
@@ -68,6 +72,14 @@ public class TaskScheduler {
         calendar.add(Calendar.MONTH, -1);
         int numberOfRecordsDeleted = consumeProgressMapper.bulkDelete(calendar.getTime());
         logger.info("Deleted " + numberOfRecordsDeleted + " consume progress records.");
+    }
+
+
+    @Scheduled(fixedRate = 30000)
+    public void deleteDeprecatedLoginData() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MINUTE, 30);
+        loginMapper.delete(calendar.getTime());
     }
 
 }
