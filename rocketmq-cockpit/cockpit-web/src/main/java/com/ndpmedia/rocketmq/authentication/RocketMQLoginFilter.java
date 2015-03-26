@@ -1,7 +1,6 @@
 package com.ndpmedia.rocketmq.authentication;
 
 import com.google.code.kaptcha.Constants;
-import com.ndpmedia.rocketmq.cockpit.util.FileManager;
 import com.ndpmedia.rocketmq.cockpit.util.LoginConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,19 +15,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Properties;
 
 /**
  * personal filter.just for check retry times.
  */
 public class RocketMQLoginFilter implements Filter, LoginConstant {
-    private static Properties config;
-
     private final Logger logger = LoggerFactory.getLogger(RocketMQLoginFilter.class);
 
-    static {
-        config = FileManager.getConfig();
-    }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -79,11 +72,6 @@ public class RocketMQLoginFilter implements Filter, LoginConstant {
         if (null != session && null != session.getAttribute(username)) {
             int retryTime = Integer.parseInt("" + session.getAttribute(username));
             int retryTimeMAX = FIVE;
-            try {
-                retryTimeMAX = Integer.parseInt(config.getProperty(PROPERTIES_KEY_LOGIN_RETRY_TIME));
-            } catch (NumberFormatException e) {
-                logger.warn("[config.properties]please check your properties.");
-            }
             if (retryTime >= retryTimeMAX) {
                 return true;
             }

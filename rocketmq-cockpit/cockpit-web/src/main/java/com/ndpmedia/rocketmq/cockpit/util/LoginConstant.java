@@ -27,8 +27,6 @@ public interface LoginConstant extends Constant {
 
     String LOGIN_SSO_KEY_AUTHORITY = "SSO_USER_DETAIL_AUTHORITY";
 
-    String PROPERTIES_KEY_LOGIN_RETRY_TIME = "login_retry_time";
-
     String PROPERTIES_KEY_JDBC_DRIVER = "jdbc.driverClassName";
 
     String PROPERTIES_KEY_JDBC_URL = "";

@@ -12,8 +12,6 @@
                            http://www.springframework.org/schema/tx/spring-tx.xsd
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
-    <context:property-placeholder location="classpath*:cockpit_db.properties" />
-    
     <context:component-scan base-package="com.ndpmedia.rocketmq"/>
 
     <tx:annotation-driven transaction-manager="transactionManager" />
@@ -21,7 +19,7 @@
     <mybatis:scan base-package="com.ndpmedia.rocketmq.cockpit.mybatis.mapper" />
 
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
-        <property name="DriverClassName" value="${jdbc.driverClassName}" />
+        <property name="DriverClassName" value="com.mysql.jdbc.Driver" />
         <!-- JDBC连接串 -->
         <property name="url" value="${jdbc.url}" />
         <!-- 数据库用户名称 -->
@@ -50,6 +48,7 @@
         <property name="testOnReturn" value="false" />
 
         <property name="filters" value="stat" />
+
         <property name="proxyFilters">
             <list>
                 <ref bean="statFilter" />

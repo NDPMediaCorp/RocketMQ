@@ -10,7 +10,7 @@ public interface Constant {
 
     String BACKSLASH_SEPARATOR_STRING = "\\";
 
-    String DOLLER = "$";
+    String DOLLAR = "$";
 
     String COLON = ":";
 
