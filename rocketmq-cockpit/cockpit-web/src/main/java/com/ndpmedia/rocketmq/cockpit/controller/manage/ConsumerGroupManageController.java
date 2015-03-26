@@ -1,7 +1,7 @@
 package com.ndpmedia.rocketmq.cockpit.controller.manage;
 
 import com.ndpmedia.rocketmq.cockpit.model.ConsumerGroup;
-import com.ndpmedia.rocketmq.cockpit.service.ConsumerGroupService;
+import com.ndpmedia.rocketmq.cockpit.service.CockpitConsumerGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ConsumerGroupManageController {
 
     @Autowired
-    private ConsumerGroupService consumerGroupService;
+    private CockpitConsumerGroupService cockpitConsumerGroupService;
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public boolean update(@ModelAttribute ConsumerGroup consumerGroup) {
-        return consumerGroupService.update(consumerGroup);
+        return cockpitConsumerGroupService.update(consumerGroup);
     }
 
 }

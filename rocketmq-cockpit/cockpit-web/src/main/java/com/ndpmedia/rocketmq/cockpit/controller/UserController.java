@@ -5,9 +5,8 @@ import com.ndpmedia.rocketmq.cockpit.model.CockpitUser;
 import com.ndpmedia.rocketmq.cockpit.model.Status;
 import com.ndpmedia.rocketmq.cockpit.model.Team;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.CockpitRoleMapper;
-import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.CockpitUserMapper;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.TeamMapper;
-import com.ndpmedia.rocketmq.cockpit.service.UserService;
+import com.ndpmedia.rocketmq.cockpit.service.CockpitUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -22,10 +21,6 @@ import java.util.List;
 @Controller
 @RequestMapping
 public class UserController {
-
-    @Autowired
-    private CockpitUserMapper cockpitUserMapper;
-
     @Autowired
     private TeamMapper teamMapper;
 
@@ -36,7 +31,7 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserService userService;
+    private CockpitUserService cockpitUserService;
 
     @RequestMapping(value = "/register", method = RequestMethod.GET)
     public ModelAndView register() {
@@ -62,7 +57,7 @@ public class UserController {
         team.setId(Long.parseLong(request.getParameter("teamId")));
         cockpitUser.setTeam(team);
 
-        userService.registerUser(cockpitUser);
+        cockpitUserService.registerUser(cockpitUser);
 
         return cockpitUser;
     }

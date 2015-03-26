@@ -6,7 +6,7 @@ import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.alibaba.rocketmq.tools.command.CommandUtil;
 import com.ndpmedia.rocketmq.cockpit.model.Topic;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.TopicMapper;
-import com.ndpmedia.rocketmq.cockpit.service.TopicService;
+import com.ndpmedia.rocketmq.cockpit.service.CockpitTopicService;
 import com.ndpmedia.rocketmq.cockpit.util.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +19,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Service("topicService")
-public class TopicServiceImpl implements TopicService {
+@Service("cockpitTopicService")
+public class CockpitTopicServiceImpl implements CockpitTopicService {
 
-    private Logger logger = LoggerFactory.getLogger(TopicServiceImpl.class);
+    private Logger logger = LoggerFactory.getLogger(CockpitTopicServiceImpl.class);
 
     @Autowired
     private TopicMapper topicMapper;

@@ -6,7 +6,7 @@ import com.alibaba.rocketmq.common.message.MessageQueue;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.ndpmedia.rocketmq.cockpit.model.ConsumeProgress;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.ConsumerGroupMapper;
-import com.ndpmedia.rocketmq.cockpit.service.ConsumeProgressService;
+import com.ndpmedia.rocketmq.cockpit.service.CockpitConsumeProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +17,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-@Service("consumeProgressService")
-public class ConsumeProgressServiceImpl implements ConsumeProgressService {
+@Service("cockpitConsumeProgressService")
+public class CockpitConsumeProgressServiceImpl implements CockpitConsumeProgressService {
 
-    private Logger logger = LoggerFactory.getLogger(ConsumeProgressServiceImpl.class);
+    private Logger logger = LoggerFactory.getLogger(CockpitConsumeProgressServiceImpl.class);
 
     @Autowired
     private ConsumerGroupMapper consumerGroupMapper;

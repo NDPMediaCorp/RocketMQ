@@ -4,8 +4,8 @@ import com.alibaba.rocketmq.common.MixAll;
 import com.ndpmedia.rocketmq.cockpit.model.ConsumeProgress;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.ConsumeProgressMapper;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.LoginMapper;
-import com.ndpmedia.rocketmq.cockpit.service.ConsumeProgressService;
-import com.ndpmedia.rocketmq.cockpit.service.TopicService;
+import com.ndpmedia.rocketmq.cockpit.service.CockpitConsumeProgressService;
+import com.ndpmedia.rocketmq.cockpit.service.CockpitTopicService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,20 +26,20 @@ public class TaskScheduler {
     private ConsumeProgressMapper consumeProgressMapper;
 
     @Autowired
-    private ConsumeProgressService consumeProgressService;
+    private CockpitConsumeProgressService cockpitConsumeProgressService;
 
     @Autowired
     private LoginMapper loginMapper;
 
     @Autowired
-    private TopicService topicService;
+    private CockpitTopicService cockpitTopicService;
 
     @Scheduled(fixedRate = 300000)
     public void queryAccumulation() {
 
         Date date = new Date();
         try {
-            Set<String> topicList = topicService.fetchTopics();
+            Set<String> topicList = cockpitTopicService.fetchTopics();
 
             List<ConsumeProgress> consumeProgressList;
             for (String topic : topicList) {
@@ -48,7 +48,7 @@ public class TaskScheduler {
                     continue;
                 }
 
-                consumeProgressList = consumeProgressService
+                consumeProgressList = cockpitConsumeProgressService
                         .queryConsumerProgress(topic.replace(MixAll.RETRY_GROUP_TOPIC_PREFIX, ""), null, null);
                 for (ConsumeProgress cp : consumeProgressList) {
                     if (null == cp || null == cp.getTopic() || null == cp.getBrokerName()) {

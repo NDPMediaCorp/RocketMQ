@@ -2,9 +2,8 @@ package com.ndpmedia.rocketmq.cockpit.controller.api;
 
 import com.ndpmedia.rocketmq.cockpit.model.KV;
 import com.ndpmedia.rocketmq.cockpit.model.Status;
-import com.ndpmedia.rocketmq.cockpit.service.NameServerKVService;
+import com.ndpmedia.rocketmq.cockpit.service.CockpitNameServerKVService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,28 +18,27 @@ import java.util.List;
 public class NameServerKVServiceController {
 
     @Autowired
-    @Qualifier("nameServerKVService")
-    private NameServerKVService nameServerKVService;
+    private CockpitNameServerKVService cockpitNameServerKVService;
 
     @RequestMapping(method = RequestMethod.PUT)
     @ResponseBody
     public KV add(@RequestBody KV kv) {
-        nameServerKVService.add(kv);
+        cockpitNameServerKVService.add(kv);
         return kv;
     }
 
     @RequestMapping(value = "/id/{id}", method = RequestMethod.GET)
     @ResponseBody
     public KV view(@PathVariable("id") long id) {
-        return nameServerKVService.get(id);
+        return cockpitNameServerKVService.get(id);
     }
 
     @RequestMapping(value = "/id/{id}", method = RequestMethod.DELETE)
     @ResponseBody
     public KV delete(@PathVariable("id") long id) {
-        KV kv = nameServerKVService.get(id);
+        KV kv = cockpitNameServerKVService.get(id);
         if (null != kv) {
-            nameServerKVService.delete(kv);
+            cockpitNameServerKVService.delete(kv);
             kv.setStatus(Status.DELETED);
         }
         return kv;
@@ -49,12 +47,12 @@ public class NameServerKVServiceController {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public List<KV> list() {
-        return nameServerKVService.list();
+        return cockpitNameServerKVService.list();
     }
 
     @RequestMapping(value = "/status/{status}", method = RequestMethod.GET)
     @ResponseBody
     public List<KV> list(@PathVariable(value = "status") String status) {
-        return nameServerKVService.list(Status.valueOf(status));
+        return cockpitNameServerKVService.list(Status.valueOf(status));
     }
 }

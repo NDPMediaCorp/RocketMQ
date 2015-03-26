@@ -4,7 +4,7 @@ import com.ndpmedia.rocketmq.cockpit.model.ConsumeProgress;
 
 import java.util.List;
 
-public interface ConsumeProgressService {
+public interface CockpitConsumeProgressService {
     List<ConsumeProgress> queryConsumerProgress(String groupName, String topic, String broker);
 
 }

@@ -5,7 +5,7 @@ import com.ndpmedia.rocketmq.cockpit.model.Status;
 
 import java.util.List;
 
-public interface NameServerKVService {
+public interface CockpitNameServerKVService {
 
     long add(KV kv);
 

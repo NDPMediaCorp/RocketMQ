@@ -3,15 +3,15 @@ package com.ndpmedia.rocketmq.cockpit.service.impl;
 import com.ndpmedia.rocketmq.cockpit.model.KV;
 import com.ndpmedia.rocketmq.cockpit.model.Status;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.NameServerKVMapper;
-import com.ndpmedia.rocketmq.cockpit.service.NameServerKVService;
+import com.ndpmedia.rocketmq.cockpit.service.CockpitNameServerKVService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 
-@Service("nameServerKVService")
-public class NameServerKVServiceImpl implements NameServerKVService {
+@Service("cockpitNameServerKVService")
+public class CockpitNameServerKVServiceImpl implements CockpitNameServerKVService {
 
     @Autowired
     private NameServerKVMapper nameServerKVMapper;

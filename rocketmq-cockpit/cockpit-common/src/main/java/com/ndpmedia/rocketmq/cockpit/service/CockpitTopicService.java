@@ -4,7 +4,7 @@ import com.ndpmedia.rocketmq.cockpit.model.Topic;
 
 import java.util.Set;
 
-public interface TopicService {
+public interface CockpitTopicService {
 
     Set<String> fetchTopics();
 

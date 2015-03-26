@@ -4,7 +4,7 @@ import com.ndpmedia.rocketmq.cockpit.model.CockpitRole;
 import com.ndpmedia.rocketmq.cockpit.model.CockpitUser;
 import com.ndpmedia.rocketmq.cockpit.model.ConsumerGroup;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.ConsumerGroupMapper;
-import com.ndpmedia.rocketmq.cockpit.service.ConsumerGroupService;
+import com.ndpmedia.rocketmq.cockpit.service.CockpitConsumerGroupService;
 import com.ndpmedia.rocketmq.cockpit.util.LoginConstant;
 import com.ndpmedia.rocketmq.cockpit.util.WebHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class ConsumerGroupServiceController {
     private ConsumerGroupMapper consumerGroupMapper;
 
     @Autowired
-    private ConsumerGroupService consumerGroupService;
+    private CockpitConsumerGroupService cockpitConsumerGroupService;
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
@@ -60,7 +60,7 @@ public class ConsumerGroupServiceController {
     public ConsumerGroup add(@RequestBody ConsumerGroup consumerGroup, HttpServletRequest request) {
         CockpitUser cockpitUser = (CockpitUser)request.getSession().getAttribute(LoginConstant.COCKPIT_USER_KEY);
         long teamId = cockpitUser.getTeam().getId();
-        consumerGroupService.insert(consumerGroup, teamId);
+        cockpitConsumerGroupService.insert(consumerGroup, teamId);
         return consumerGroup;
     }
 
@@ -80,7 +80,7 @@ public class ConsumerGroupServiceController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseBody
     public void delete(@PathVariable("id") long id) {
-        consumerGroupService.delete(id);
+        cockpitConsumerGroupService.delete(id);
     }
 
     private long getTeamId(HttpServletRequest request) {

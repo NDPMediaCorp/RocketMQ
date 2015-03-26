@@ -4,7 +4,7 @@ import com.ndpmedia.rocketmq.cockpit.model.CockpitRole;
 import com.ndpmedia.rocketmq.cockpit.model.CockpitUser;
 import com.ndpmedia.rocketmq.cockpit.model.Topic;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.TopicMapper;
-import com.ndpmedia.rocketmq.cockpit.service.TopicService;
+import com.ndpmedia.rocketmq.cockpit.service.CockpitTopicService;
 import com.ndpmedia.rocketmq.cockpit.util.LoginConstant;
 import com.ndpmedia.rocketmq.cockpit.util.WebHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class TopicServiceController {
     private TopicMapper topicMapper;
 
     @Autowired
-    private TopicService topicService;
+    private CockpitTopicService cockpitTopicService;
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
@@ -55,7 +55,7 @@ public class TopicServiceController {
     @ResponseBody
     public Topic add(@RequestBody Topic topic, HttpServletRequest request) {
         CockpitUser cockpitUser = (CockpitUser)request.getSession().getAttribute(LoginConstant.COCKPIT_USER_KEY);
-        topicService.insert(topic, cockpitUser.getTeam().getId());
+        cockpitTopicService.insert(topic, cockpitUser.getTeam().getId());
         return topic;
     }
 

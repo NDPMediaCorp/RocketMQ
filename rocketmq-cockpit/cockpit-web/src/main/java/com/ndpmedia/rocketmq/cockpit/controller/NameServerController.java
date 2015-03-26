@@ -5,9 +5,8 @@ import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.ndpmedia.rocketmq.cockpit.model.KV;
-import com.ndpmedia.rocketmq.cockpit.service.NameServerKVService;
+import com.ndpmedia.rocketmq.cockpit.service.CockpitNameServerKVService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class NameServerController {
 
     @Autowired
-    @Qualifier("nameServerKVService")
-    private NameServerKVService nameServerKVService;
+    private CockpitNameServerKVService cockpitNameServerKVService;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String showIndex() {
@@ -32,7 +30,7 @@ public class NameServerController {
     @RequestMapping(value = "/kv", method = RequestMethod.GET)
     public ModelAndView listKV() {
         ModelAndView modelAndView = new ModelAndView("name-server/kv/list");
-        modelAndView.addObject("list", nameServerKVService.list());
+        modelAndView.addObject("list", cockpitNameServerKVService.list());
         return modelAndView;
     }
 
@@ -40,7 +38,7 @@ public class NameServerController {
     @ResponseBody
     public void apply(@PathVariable("id") long id)
             throws MQClientException, RemotingException, InterruptedException, MQBrokerException {
-        KV kv = nameServerKVService.get(id);
+        KV kv = cockpitNameServerKVService.get(id);
         if (null != kv) {
             DefaultMQAdminExt mqAdmin = new DefaultMQAdminExt();
             mqAdmin.createAndUpdateKvConfig(kv.getNameSpace(), kv.getKey(), kv.getValue());
