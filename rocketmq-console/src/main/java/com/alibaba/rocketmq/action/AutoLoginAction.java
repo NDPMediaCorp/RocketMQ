@@ -74,7 +74,7 @@ public class AutoLoginAction {
         }
 
         Map<String, Object> user = list.get(0);
-        long userId = (Long)user.get("user_id");
+        long userId = (Integer)user.get("user_id");
         String userName = user.get("username").toString();
         String password = user.get("password").toString();
 

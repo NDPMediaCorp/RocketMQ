@@ -116,10 +116,10 @@ CREATE TABLE IF NOT EXISTS cockpit_role (
   name VARCHAR(32) NOT NULL
 ) ENGINE = INNODB;
 
-CREATE TABLE IF NOT EXISTS cockpit_group_role_xref (
-  group_id INT NOT NULL REFERENCES security_group(id) ON DELETE RESTRICT ,
+CREATE TABLE IF NOT EXISTS cockpit_user_role_xref (
+  user_id INT NOT NULL REFERENCES cockpit_user(id) ON DELETE RESTRICT ,
   role_id INT NOT NULL REFERENCES cockpit_role(id) ON DELETE RESTRICT ,
-  CONSTRAINT UNIQUE (group_id, role_id)
+  CONSTRAINT UNIQUE (user_id, role_id)
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS cockpit_user_login (
@@ -128,7 +128,6 @@ CREATE TABLE IF NOT EXISTS cockpit_user_login (
   retry INT NOT NULL DEFAULT 0,
   lock_time BIGINT NOT NULL DEFAULT 0
 ) ENGINE = INNODB;
-
 
 -- Resource ownership
 
