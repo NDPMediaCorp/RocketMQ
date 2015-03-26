@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ndpmedia.rocketmq.cockpit.mybatis.mapper.LoginMapper">
+
+    <insert id="insert" parameterType="Login" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO login(id, session_id, login_time, user_id)
+        VALUES (NULL, #{sessionId}, #{loginTime}, #{cockpitUser.id})
+    </insert>
+
+    <delete id="delete" parameterType="date">
+       <![CDATA[
+        DELETE
+        FROM login
+        WHERE login_time <= #{date}
+        ]]>
+    </delete>
+
+    <resultMap id="loginMap" type="Login">
+        <id column="id" property="id" />
+
+        <result column="session_id" property="sessionId" />
+        <result column="login_time" property="loginTime" javaType="date" />
+
+        <association property="cockpitUser" column="user_id" javaType="CockpitUser"
+                     select="com.ndpmedia.rocketmq.cockpit.mybatis.mapper.CockpitUserMapper.get" />
+    </resultMap>
+
+    <select id="get" resultMap="loginMap" parameterType="string">
+        SELECT id, session_id, login_time, user_id
+        FROM login
+        WHERE session_id = #{sessionId}
+    </select>
+</mapper>
