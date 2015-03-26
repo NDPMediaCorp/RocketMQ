@@ -63,12 +63,16 @@ public class AutoLoginAction {
         HttpSession session = request.getSession();
         String sessionId = session.getId();
 
+        System.out.println("Session ID: " + sessionId);
+        System.out.println("Request Session IDs: " + request.getRequestedSessionId());
+
+
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, 30);
         List<Map<String, Object>> list = jdbcTemplate.queryForList("SELECT l.user_id, u.username, u.password " +
                 "FROM login AS l " +
                 "  JOIN cockpit_user AS u ON l.user_id = u.id " +
-                " WHERE session_id = ? AND login_time < ?", sessionId, calendar.getTime());
+                " WHERE session_id in (?) AND login_time < ?", request.getRequestedSessionId().replace(';', ','), calendar.getTime());
         if (list.isEmpty()) {
             return null;
         }
