@@ -1,9 +1,7 @@
 package com.alibaba.rocketmq.action;
 
-import com.ndpmedia.rocketmq.cockpit.model.CockpitRole;
-import com.ndpmedia.rocketmq.cockpit.model.Login;
-import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.LoginMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,8 +18,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 /**
  * console auto login.
@@ -30,12 +29,11 @@ import java.util.List;
 @Controller
 @RequestMapping("/authority")
 public class AutoLoginAction {
-
     @Autowired
     private AuthenticationManager myAuthenticationManager;
 
     @Autowired
-    private LoginMapper loginMapper;
+    private JdbcTemplate jdbcTemplate;
 
     @RequestMapping(value = "/login.do", method = {RequestMethod.GET, RequestMethod.POST})
     public void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -65,21 +63,32 @@ public class AutoLoginAction {
         HttpSession session = request.getSession();
         String sessionId = session.getId();
 
-        Login login =  loginMapper.get(sessionId);
-
-        if (null == login) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MINUTE, 30);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList("SELECT l.user_id, u.username, u.password " +
+                "FROM login AS l " +
+                "  JOIN cockpit_user AS u ON l.user_id = u.id " +
+                " WHERE session_id = ? AND login_time < ?", sessionId, calendar.getTime());
+        if (list.isEmpty()) {
             return null;
         }
 
-        return new UsernamePasswordAuthenticationToken(login.getCockpitUser().getUsername(),
-                login.getCockpitUser().getPassword(), wrap(login.getCockpitUser().getCockpitRoles()));
-    }
+        Map<String, Object> user = list.get(0);
+        long userId = (Long)user.get("user_id");
+        String userName = user.get("username").toString();
+        String password = user.get("password").toString();
 
-    private Collection<? extends GrantedAuthority> wrap(List<CockpitRole> cockpitRoles) {
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(cockpitRoles.size());
-        for (CockpitRole role : cockpitRoles) {
-            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        List<Map<String, Object>> roles = jdbcTemplate.queryForList("SELECT r.name " +
+                "FROM cockpit_role AS r " +
+                "JOIN cockpit_user_role_xref AS xref ON xref.role_id = r.id " +
+                "WHERE xref.user_id = ?", userId);
+
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(roles.size());
+        for (Map<String, Object> map : roles) {
+            authorities.add(new SimpleGrantedAuthority(map.get("name").toString()));
         }
-        return authorities;
+
+        return new UsernamePasswordAuthenticationToken(userName,
+                password, authorities);
     }
 }

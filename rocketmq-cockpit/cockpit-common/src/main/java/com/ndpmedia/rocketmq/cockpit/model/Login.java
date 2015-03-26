@@ -3,6 +3,7 @@ package com.ndpmedia.rocketmq.cockpit.model;
 import java.util.Date;
 
 public class Login {
+
     private long id;
 
     private String sessionId;

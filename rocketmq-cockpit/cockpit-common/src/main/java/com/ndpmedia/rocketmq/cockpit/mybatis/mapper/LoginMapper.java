@@ -9,7 +9,4 @@ public interface LoginMapper {
     void insert(Login login);
 
     void delete(Date date);
-
-    Login get(String sessionId);
-
 }
