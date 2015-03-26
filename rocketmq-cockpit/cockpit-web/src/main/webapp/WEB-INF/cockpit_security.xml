@@ -36,7 +36,7 @@
         <!--
         <security:intercept-url pattern="/**" access="ROLE_ADMIN" requires-channel="https" />
         -->
-        <security:session-management>
+        <security:session-management session-fixation-protection="none">
             <security:concurrency-control max-sessions="1" error-if-maximum-exceeded="false"  />
         </security:session-management>
 
