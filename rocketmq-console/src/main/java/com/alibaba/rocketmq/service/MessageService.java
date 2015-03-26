@@ -34,6 +34,8 @@ public class MessageService extends AbstractService {
 
     static final QueryMsgByIdSubCommand queryMsgByIdSubCommand = new QueryMsgByIdSubCommand();
 
+    static final String msgBodyTextKey = "Message Body[UTF-8]:";
+
 
     public Collection<Option> getOptionsForQueryMsgById() {
         return getOptions(queryMsgByIdSubCommand);
@@ -127,6 +129,15 @@ public class MessageService extends AbstractService {
             // bodyTmpFilePath//
             // );
             map.put("Message Body Path:", bodyTmpFilePath);
+
+
+
+            try {
+                map.put(msgBodyTextKey, new String(msg.getBody(), "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                map.put(msgBodyTextKey, "[Failed to encode using UTF-8]");
+            }
+
             return Table.Map2VTable(map);
         }
         catch (Throwable e) {
