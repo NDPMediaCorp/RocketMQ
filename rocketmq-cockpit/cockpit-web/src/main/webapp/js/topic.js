@@ -2,6 +2,7 @@ var oTable;
 
 $(document).ready(function() {
     oTable = initTable();
+    document.getElementById("addTopicDIV").style.display="none";
 
     $(".addTopic").click(function() {
         var topic = $("input.topic").val();
@@ -138,4 +139,9 @@ function initTable(){
                     }
                 }
             });
+    }
+
+    function addButton(){
+        document.getElementById("addButton").style.display="none";
+        document.getElementById("addTopicDIV").style.display="block";
     }

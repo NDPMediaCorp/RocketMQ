@@ -14,6 +14,7 @@
   <script src="js/topic.js" type="application/javascript"></script>
 </head>
 <body>
+
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-8 col-md-offset-2 text-center">
@@ -21,34 +22,7 @@
     </div>
   </div>
 
-      <table cellspacing="0" class="display" id="topic" width="100%">
-        <thead>
-           <tr>
-                  <th>Topic</th>
-                  <th>Cluster Name</th>
-                  <th>Broker Address</th>
-                  <th>Write Queue Number</th>
-                  <th>Read Queue Number</th>
-                  <th>Permission</th>
-                  <th>Unit</th>
-                  <th>Has Unit Subscription</th>
-                  <th>Order</th>
-                  <th>Status</th>
-                  <th>Create Time</th>
-                  <th>Update Time</th>
-                  <th>Operation</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
-
-
-</div>
-
-  <div class="clear-both"></div>
-
-<div class="col-xs-8 col-xs-offset-2 text-left table-responsive">
+<div id="addTopicDIV" class="col-xs-8 col-xs-offset-2 text-left table-responsive">
     <table class="table table-bordered">
         <tr><td>Topic:</td><td>  <input type="text" class="form-control topic" placeholder="topic"></td></tr>
         <tr class="hide"><td>Write Queue Number:</td><td>  <input type="text" class="form-control writeQueueNum"
@@ -73,6 +47,30 @@
         </td></tr>
     </table>
 </div>
+<button id="addButton" onclick="addButton();">Add</button>
+      <table cellspacing="0" class="display" id="topic" width="100%">
+        <thead>
+           <tr>
+                  <th>Topic</th>
+                  <th>Cluster Name</th>
+                  <th>Broker Address</th>
+                  <th>Write Queue Number</th>
+                  <th>Read Queue Number</th>
+                  <th>Permission</th>
+                  <th>Unit</th>
+                  <th>Has Unit Subscription</th>
+                  <th>Order</th>
+                  <th>Status</th>
+                  <th>Create Time</th>
+                  <th>Update Time</th>
+                  <th>Operation</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
 
+
+</div>
 </body>
 </html>
