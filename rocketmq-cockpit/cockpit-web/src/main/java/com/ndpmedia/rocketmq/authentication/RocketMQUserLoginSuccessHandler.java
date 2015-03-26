@@ -1,6 +1,5 @@
 package com.ndpmedia.rocketmq.authentication;
 
-import com.alibaba.rocketmq.remoting.netty.SslHelper;
 import com.ndpmedia.rocketmq.cockpit.model.CockpitUser;
 import com.ndpmedia.rocketmq.cockpit.model.Login;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.LoginMapper;
@@ -9,16 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -46,8 +42,10 @@ public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthentica
             login.setCockpitUser(cockpitUser);
             login.setLoginTime(new Date());
             login.setSessionId(request.getSession().getId());
+            loginMapper.insert(login);
             logger.info("Account {Team: " + cockpitUser.getTeam().getName() +
                     ", Member: " + cockpitUser.getUsername() + "} logs in");
+            httpSession.removeAttribute(LoginConstant.LOGIN_SESSION_ERROR_KEY);
         } else {
             logger.error("Fatal error, principal should be a CockpitUser or sub-class instance");
         }
