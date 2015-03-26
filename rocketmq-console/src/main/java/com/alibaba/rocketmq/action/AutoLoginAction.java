@@ -1,7 +1,7 @@
 package com.alibaba.rocketmq.action;
 
-import com.alibaba.rocketmq.remoting.netty.SslHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,13 +13,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 /**
  * console auto login.
@@ -28,93 +29,66 @@ import java.util.List;
 @Controller
 @RequestMapping("/authority")
 public class AutoLoginAction {
-
-    private static final String COOKIE_ENCRYPTION_KEY = "C0ckp1t";
-
     @Autowired
     private AuthenticationManager myAuthenticationManager;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @RequestMapping(value = "/login.do", method = {RequestMethod.GET, RequestMethod.POST})
-    public void login(HttpServletRequest request, HttpServletResponse response) throws IOException
-    {
+    public void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         boolean hasLoggedIn = false;
-        try
-        {
+        try {
             UsernamePasswordAuthenticationToken token = getToken(request);
-
-            token.setDetails(new WebAuthenticationDetails(request));
-            Authentication authenticatedUser = myAuthenticationManager.authenticate(token);
-
-            SecurityContextHolder.getContext().setAuthentication(authenticatedUser);
-
-            response.sendRedirect("../cluster/list.do");
-            hasLoggedIn = true;
-        } catch (Exception e)
-        {
+            if (null != token) {
+                token.setDetails(new WebAuthenticationDetails(request));
+                Authentication authenticatedUser = myAuthenticationManager.authenticate(token);
+                SecurityContextHolder.getContext().setAuthentication(authenticatedUser);
+                response.sendRedirect("../cluster/list.do");
+                hasLoggedIn = true;
+            }
+        } catch (Exception e) {
             e.printStackTrace();
-        } finally
-        {
-            if (!hasLoggedIn)
-            {
+        } finally {
+            if (!hasLoggedIn) {
                 response.sendRedirect(
                         request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/");
             }
         }
     }
 
-    private Collection<GrantedAuthority> getAuthority(String role)
-    {
-        List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
-        if (role.contains(";"))
-        {
-            String[] roles = role.split(";");
-            for (String ro : roles)
-                authList.add(new SimpleGrantedAuthority(ro));
-        } else {
-            authList.add(new SimpleGrantedAuthority(role));
-        }
-        return authList;
-    }
-
     private UsernamePasswordAuthenticationToken getToken(HttpServletRequest request) throws Exception {
-        String uid = null;
-        String password = null;
 
-        Collection<? extends GrantedAuthority> authorities = null;
+        HttpSession session = request.getSession();
+        String sessionId = session.getId();
 
-        Cookie[] cookies = request.getCookies();
-
-        for (Cookie c : cookies) {
-            if (c.getName().equals("j_username")) {
-                uid = decode(c);
-            }
-
-            if (c.getName().equals("j_password")) {
-                password = decode(c);
-            }
-
-            if (c.getName().equals("j_authority")) {
-                authorities = getAuthority(decode(c));
-            }
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MINUTE, 30);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList("SELECT l.user_id, u.username, u.password " +
+                "FROM login AS l " +
+                "  JOIN cockpit_user AS u ON l.user_id = u.id " +
+                " WHERE session_id = ? AND login_time < ?", sessionId, calendar.getTime());
+        if (list.isEmpty()) {
+            return null;
         }
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(uid, password,
-                authorities);
+        Map<String, Object> user = list.get(0);
+        long userId = (Integer)user.get("user_id");
+        String userName = user.get("username").toString();
+        String password = user.get("password").toString();
 
-        return token;
-    }
+        List<Map<String, Object>> roles = jdbcTemplate.queryForList("SELECT r.name " +
+                "FROM cockpit_role AS r " +
+                "JOIN cockpit_user_role_xref AS xref ON xref.role_id = r.id " +
+                "WHERE xref.user_id = ?", userId);
 
-    private String decode(Cookie c) throws Exception
-    {
-        return new String(SslHelper.decrypt(COOKIE_ENCRYPTION_KEY, c.getValue()));
-    }
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(roles.size());
+        for (Map<String, Object> map : roles) {
+            authorities.add(new SimpleGrantedAuthority(map.get("name").toString()));
+        }
 
-    public AuthenticationManager getMyAuthenticationManager() {
-        return myAuthenticationManager;
-    }
-
-    public void setMyAuthenticationManager(AuthenticationManager myAuthenticationManager) {
-        this.myAuthenticationManager = myAuthenticationManager;
+        return new UsernamePasswordAuthenticationToken(userName,
+                password, authorities);
     }
 }

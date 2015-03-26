@@ -11,24 +11,20 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /**
  * personal provider.
- *
  */
-public class RocketMQUserLoginProvider extends AbstractUserDetailsAuthenticationProvider
-{
+public class RocketMQUserLoginProvider extends AbstractUserDetailsAuthenticationProvider {
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails,
-            UsernamePasswordAuthenticationToken authentication) throws AuthenticationException
-    {
-        if(authentication.getCredentials() == null) {
+                                                  UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+        if (authentication.getCredentials() == null) {
             this.logger.debug("Authentication failed: no credentials provided");
             throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"), userDetails);
         }
     }
 
     @Override
-    protected UserDetails retrieveUser(String s,
-            UsernamePasswordAuthenticationToken authentication) throws AuthenticationException
-    {
+    protected UserDetails retrieveUser(String s, UsernamePasswordAuthenticationToken authentication)
+            throws AuthenticationException {
         UserDetails loadedUser;
         try {
             loadedUser = new User(authentication.getPrincipal().toString(), authentication.getCredentials().toString(), true,

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ndpmedia.rocketmq.cockpit.mybatis.mapper.LoginMapper">
+
+    <insert id="insert" parameterType="Login" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO login(id, session_id, login_time, user_id)
+        VALUES (NULL, #{sessionId}, #{loginTime}, #{cockpitUser.id})
+    </insert>
+
+    <delete id="delete" parameterType="date">
+       <![CDATA[
+        DELETE
+        FROM login
+        WHERE login_time <= #{date}
+        ]]>
+    </delete>
+</mapper>
