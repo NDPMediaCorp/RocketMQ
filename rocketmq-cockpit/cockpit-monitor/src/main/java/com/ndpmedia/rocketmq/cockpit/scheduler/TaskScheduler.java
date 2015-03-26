@@ -78,7 +78,7 @@ public class TaskScheduler {
     @Scheduled(fixedRate = 30000)
     public void deleteDeprecatedLoginData() {
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, 30);
+        calendar.add(Calendar.MINUTE, -30);
         loginMapper.delete(calendar.getTime());
     }
 
