@@ -1420,7 +1420,7 @@ public class DefaultMessageStore implements MessageStore {
 
         public void run() {
             try {
-                this.deleteExpiredFiles();
+                DefaultMessageStore.this.cleanExpiredConsumerQueue();
             } catch (Exception e) {
                 DefaultMessageStore.log.warn(this.getServiceName() + " service has exception. ", e);
             }
