@@ -18,47 +18,42 @@ import java.util.List;
 
 @Controller
 @RequestMapping(value = "/api/consume-progress")
-public class ConsumeProgressServiceController
-{
+public class ConsumeProgressServiceController {
 
     @Autowired
     private ConsumeProgressMapper consumeProgressMapper;
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public List<String> list(HttpServletRequest request)
-    {
+    public List<String> list(HttpServletRequest request) {
         return consumeProgressMapper.consumerGroupList();
     }
 
     @RequestMapping(value = "/{consumerGroup}", method = RequestMethod.GET)
     @ResponseBody
-    public List<String> list(@PathVariable("consumerGroup") String consumerGroup, HttpServletRequest request)
-    {
+    public List<String> list(@PathVariable("consumerGroup") String consumerGroup, HttpServletRequest request) {
         return consumeProgressMapper.topicList(consumerGroup);
     }
 
     @RequestMapping(value = "/{consumerGroup}/{topic}", method = RequestMethod.GET)
     @ResponseBody
     public List<String> list(@PathVariable("consumerGroup") String consumerGroup, @PathVariable("topic") String topic,
-            HttpServletRequest request)
-    {
+            HttpServletRequest request) {
         return consumeProgressMapper.brokerList(consumerGroup, topic);
     }
 
     @RequestMapping(value = "/{consumerGroup}/{topic}/{broker}", method = RequestMethod.GET)
     @ResponseBody
     public List<String> list(@PathVariable("consumerGroup") String consumerGroup, @PathVariable("topic") String topic,
-            @PathVariable("broker") String broker, HttpServletRequest request)
-    {
+            @PathVariable("broker") String broker, HttpServletRequest request) {
         return consumeProgressMapper.queueList(consumerGroup, topic, broker);
     }
 
     @RequestMapping(value = "/{consumerGroup}/{topic}/{broker}/{queue}", method = RequestMethod.GET)
     @ResponseBody
-    public List<ConsumeProgress> list(@PathVariable("consumerGroup") String consumerGroup, @PathVariable("topic") String topic,
-            @PathVariable("broker") String broker, @PathVariable("queue") String queue, HttpServletRequest request)
-    {
+    public List<ConsumeProgress> list(@PathVariable("consumerGroup") String consumerGroup,
+            @PathVariable("topic") String topic, @PathVariable("broker") String broker,
+            @PathVariable("queue") String queue, HttpServletRequest request) {
         if ("-1".equals(topic))
             return consumeProgressMapper.diffList(consumerGroup, null, null, -1);
         if ("-1".equals(broker))
@@ -69,11 +64,9 @@ public class ConsumeProgressServiceController
         return consumeProgressMapper.diffList(consumerGroup, topic, broker, Integer.parseInt(queue));
     }
 
-    private long getTeamId(HttpServletRequest request)
-    {
+    private long getTeamId(HttpServletRequest request) {
         long teamId = 0;
-        if (!WebHelper.hasRole(request, CockpitRole.ROLE_ADMIN))
-        {
+        if (!WebHelper.hasRole(request, CockpitRole.ROLE_ADMIN)) {
             CockpitUser cockpitUser = (CockpitUser) request.getSession().getAttribute(LoginConstant.COCKPIT_USER_KEY);
             teamId = cockpitUser.getTeam().getId();
         }

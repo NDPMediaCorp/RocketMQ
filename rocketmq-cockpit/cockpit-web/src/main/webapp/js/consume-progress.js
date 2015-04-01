@@ -287,7 +287,8 @@ function showCharts(xsets, ysets) {
             title: {
                 text: 'diff (times)'
             },
-            min: 0
+            min: null,
+            startOnTick: false
         },
         tooltip: {
             formatter: function() {
