@@ -13,6 +13,10 @@ import java.util.List;
 public interface MonitorService {
 
     @GET
+    @Path("/monitor/")
+    String monitor();
+
+    @GET
     @Path("/monitor/{consumerGroup}")
     List<ConsumeProgress> monitor(@PathParam("consumerGroup") String consumerGroup);
 

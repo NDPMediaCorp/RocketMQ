@@ -5,9 +5,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
-public interface ConsumeProgressMapper
-{
+public interface ConsumeProgressMapper {
 
     long insert(ConsumeProgress consumeProgress);
 
@@ -22,7 +22,6 @@ public interface ConsumeProgressMapper
     List<String> queueList(@Param("consumerGroup") String consumerGroup, @Param("topic") String topic,
             @Param("brokerName") String brokerName);
 
-
     /**
      * Retrieve consume progress records by specified parameters. All of these parameters are optional.
      *
@@ -34,6 +33,19 @@ public interface ConsumeProgressMapper
      */
     List<ConsumeProgress> diffList(@Param("consumerGroup") String consumerGroup, @Param("topic") String topic,
             @Param("brokerName") String brokerName, @Param("queueId") int queueId);
+
+    /**
+     * Retrieve consume progress records by specified parameters. All of these parameters are optional.
+     *
+     * @param consumerGroup Optional consumer group.
+     * @param topic         Optional topic.
+     * @param brokerName    Optional broker name.
+     * @param queueId       Optional queue ID, use -1 in case all queues are wanted.
+     * @param date    Optional date
+     * @return list of consume progress records.
+     */
+    List<Map<Object, Object>> lastDiff(@Param("consumerGroup") String consumerGroup, @Param("topic") String topic,
+            @Param("brokerName") String brokerName, @Param("queueId") int queueId, @Param("date") Date date);
 
     /**
      * Retrieve consume progress records by specified parameters. All of these parameters are optional.

@@ -162,6 +162,69 @@
         ORDER BY create_time limit 1000
     </select>
 
+    <select id="lastDiff" resultType="map" parameterType="date">
+        SELECT sum(cp.diff) as diff, cp.create_time
+
+        <if test="consumerGroup != null">
+            , cp.consumer_group as consumerGroup, cg.threshold as threshold
+        </if>
+
+        <if test="topic != null">
+            , cp.topic
+        </if>
+
+        <if test="brokerName != null">
+            , cp.broker_name
+        </if>
+
+        <if test="queueId > -1">
+            , cp.queue_id
+        </if>
+        FROM consume_progress  cp
+        LEFT JOIN consumer_group cg
+        ON cp.consumer_group = cg.group_name
+        WHERE 1 = 1
+
+        <if test="consumerGroup != null">
+            AND cp.consumer_group like #{consumerGroup}
+        </if>
+
+        <if test="topic != null">
+            AND cp.topic = #{topic}
+        </if>
+
+        <if test="brokerName != null">
+            AND cp.broker_name = #{brokerName}
+        </if>
+
+        <if test="queueId > -1">
+            AND cp.queue_id = #{queueId}
+        </if>
+
+        <if test="date != null">
+            AND cp.create_time > #{date}
+        </if>
+
+        GROUP BY cp.create_time
+
+        <if test="consumerGroup != null">
+            , cp.consumer_group
+        </if>
+
+        <if test="topic != null">
+            , cp.topic
+        </if>
+
+        <if test="brokerName != null">
+            , cp.broker_name
+        </if>
+
+        <if test="queueId > -1">
+            , cp.queue_id
+        </if>
+        ORDER BY cp.create_time desc
+    </select>
+
     <select id="list" resultMap="consumeProgressMap">
         SELECT id, consumer_group, topic, broker_name, queue_id, broker_offset, consumer_offset, last_timestamp, diff, create_time
         FROM consume_progress
