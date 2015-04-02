@@ -50,6 +50,181 @@
         <result column="consumer_group" property="consumerGroup" />
     </resultMap>
 
+    <select id="consumerGroupList" resultType="string">
+        SELECT consumer_group
+        FROM consume_progress
+        WHERE 1 = 1
+
+        GROUP BY consumer_group
+    </select>
+
+    <select id="topicList" resultType="string">
+        SELECT topic
+        FROM consume_progress
+        WHERE 1 = 1
+
+        <if test="consumerGroup != null">
+            AND consumer_group = #{consumerGroup}
+        </if>
+        GROUP BY topic
+    </select>
+
+    <select id="brokerList" resultType="string">
+        SELECT broker_name
+        FROM consume_progress
+        WHERE 1 = 1
+
+        <if test="consumerGroup != null">
+            AND consumer_group = #{consumerGroup}
+        </if>
+
+        <if test="topic != null">
+            AND topic = #{topic}
+        </if>
+
+        GROUP BY broker_name
+    </select>
+
+    <select id="queueList" resultType="string">
+        SELECT queue_id
+        FROM consume_progress
+        WHERE 1 = 1
+
+        <if test="consumerGroup != null">
+            AND consumer_group = #{consumerGroup}
+        </if>
+
+        <if test="topic != null">
+            AND topic = #{topic}
+        </if>
+
+        <if test="brokerName != null">
+            AND broker_name = #{brokerName}
+        </if>
+
+        GROUP BY queue_id
+    </select>
+
+    <select id="diffList" resultMap="consumeProgressMap">
+        SELECT sum(diff) as diff, create_time
+
+        <if test="consumerGroup != null">
+            , consumer_group
+        </if>
+
+        <if test="topic != null">
+            , topic
+        </if>
+
+        <if test="brokerName != null">
+            , broker_name
+        </if>
+
+        <if test="queueId > -1">
+            , queue_id
+        </if>
+        FROM consume_progress
+        WHERE 1 = 1
+
+        <if test="consumerGroup != null">
+            AND consumer_group = #{consumerGroup}
+        </if>
+
+        <if test="topic != null">
+            AND topic = #{topic}
+        </if>
+
+        <if test="brokerName != null">
+            AND broker_name = #{brokerName}
+        </if>
+
+        <if test="queueId > -1">
+            AND queue_id = #{queueId}
+        </if>
+
+        GROUP BY create_time
+
+        <if test="consumerGroup != null">
+            , consumer_group
+        </if>
+
+        <if test="topic != null">
+            , topic
+        </if>
+
+        <if test="brokerName != null">
+            , broker_name
+        </if>
+
+        <if test="queueId > -1">
+            , queue_id
+        </if>
+        ORDER BY create_time limit 1000
+    </select>
+
+    <select id="lastDiff" resultType="map" parameterType="date">
+        SELECT sum(cp.diff) as diff, cp.create_time
+
+        <if test="consumerGroup != null">
+            , cp.consumer_group as consumerGroup, cg.threshold as threshold
+        </if>
+
+        <if test="topic != null">
+            , cp.topic
+        </if>
+
+        <if test="brokerName != null">
+            , cp.broker_name
+        </if>
+
+        <if test="queueId > -1">
+            , cp.queue_id
+        </if>
+        FROM consume_progress  cp
+        LEFT JOIN consumer_group cg
+        ON cp.consumer_group = cg.group_name
+        WHERE 1 = 1
+
+        <if test="consumerGroup != null">
+            AND cp.consumer_group like #{consumerGroup}
+        </if>
+
+        <if test="topic != null">
+            AND cp.topic = #{topic}
+        </if>
+
+        <if test="brokerName != null">
+            AND cp.broker_name = #{brokerName}
+        </if>
+
+        <if test="queueId > -1">
+            AND cp.queue_id = #{queueId}
+        </if>
+
+        <if test="date != null">
+            AND cp.create_time > #{date}
+        </if>
+
+        GROUP BY cp.create_time
+
+        <if test="consumerGroup != null">
+            , cp.consumer_group
+        </if>
+
+        <if test="topic != null">
+            , cp.topic
+        </if>
+
+        <if test="brokerName != null">
+            , cp.broker_name
+        </if>
+
+        <if test="queueId > -1">
+            , cp.queue_id
+        </if>
+        ORDER BY cp.create_time desc
+    </select>
+
     <select id="list" resultMap="consumeProgressMap">
         SELECT id, consumer_group, topic, broker_name, queue_id, broker_offset, consumer_offset, last_timestamp, diff, create_time
         FROM consume_progress
@@ -70,7 +245,6 @@
         <if test="queueId > -1">
             AND queue_id = #{queueId}
         </if>
-
-        ORDER BY id DESC LIMIT 1000
+        ORDER BY consumer_group , topic, broker_name, queue_id, create_time desc limit 1000
     </select>
 </mapper>
