@@ -34,4 +34,24 @@ public class NameServerKVManageController {
         return kv;
     }
 
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public boolean delete(@PathVariable("id") long id){
+        DefaultMQAdminExt mqAdmin = new DefaultMQAdminExt();
+        try {
+            KV kv = cockpitNameServerKVService.get(id);
+            if (null != kv) {
+                mqAdmin.setInstanceName(Helper.getInstanceName());
+                mqAdmin.start();
+                mqAdmin.deleteKvConfig(kv.getNameSpace(), kv.getKey());
+            }
+        }catch (Exception e){
+            return false;
+        }
+        finally {
+            mqAdmin.shutdown();
+        }
+        return true;
+    }
+
 }

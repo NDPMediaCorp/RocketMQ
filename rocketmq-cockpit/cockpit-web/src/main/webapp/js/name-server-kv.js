@@ -58,16 +58,28 @@ $(document).ready(function() {
         var id = $(this).attr("rel");
         var row = $(this).parent().parent();
         $.ajax({
-            url: "cockpit/api/name-server-kv/id/" + id,
+            async: false,
+            url: "cockpit/manage/name-server-kv/delete/" + id,
             type: "DELETE",
             dataType: "json",
-            success: function(data) {
-                row.remove();
-            },
-            error: function(data) {
-                alert(data);
+            contentType: "application/json",
+            success: function(backdata) {
+                if (backdata){
+                   $.ajax({
+                       url: "cockpit/api/name-server-kv/id/" + id,
+                       type: "DELETE",
+                       dataType: "json",
+                       success: function(data) {
+                           row.remove();
+                       },
+                       error: function(data) {
+                           alert(data);
+                       }
+                   });
+                }
             }
         });
+
     });
 
     $(".applyKV").live("click", function() {
