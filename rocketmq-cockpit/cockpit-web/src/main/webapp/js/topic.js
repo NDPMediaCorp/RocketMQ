@@ -3,6 +3,7 @@ var oTable;
 $(document).ready(function() {
     oTable = initTable();
     document.getElementById("addTopicDIV").style.display="none";
+    document.getElementById("sendMessageTestDIV").style.display="none";
 
     $(".addTopic").click(function() {
         var topic = $("input.topic").val();
@@ -38,6 +39,33 @@ $(document).ready(function() {
                     });
         }
     });
+
+    $(".send").click(function() {
+            var topic = $("input.send_topic").val();
+            var producerGroup = $("input.send_producerGroup").val();
+            var tag = $("input.send_tag").val();
+            var key = $("input.send_key").val();
+            var body = $("input.send_body").val();
+
+            if ($.trim(topic) === "") {
+                return false;
+            } else {
+                $.ajax({
+                            async: false,
+                            url: "cockpit/api/producer/" + producerGroup + "/" + topic + "/" + tag + "/" + key + "/" + body,
+                            type: "GET",
+                            dataType: "json",
+                            contentType: 'application/json',
+                            success: function(backdata) {
+                                alert(backdata);
+                                location.reload(true);
+                            },
+                            error: function() {
+
+                            }
+                        });
+            }
+        });
 });
 
 function initTable(){
@@ -68,7 +96,8 @@ function initTable(){
                                 $(nTd).html("<a href='javascript:void(0);' " + "onclick='_editFun(\"" + oData.id + "\",\"" + oData.topic + "\",\"" + oData.clusterName + "\",\"" + oData.brokerAddress + "\",\"" + oData.writeQueueNum + "\",\"" + oData.readQueueNum + "\",\"" + oData.permission + "\",\"" + oData.unit + "\",\"" + oData.hasUnitSubscription + "\",\"" + oData.order + "\")'>Approve</a>&nbsp;&nbsp;")
                                 .append("<a href='javascript:void(0);' onclick='_deleteFun(\"" + oData.id + "\",\"" + oData.topic + "\",\"" + oData.clusterName + "\",\"" + oData.brokerAddress + "\")'>Delete</a>");
                              }else {
-                                $(nTd).html("<a href='javascript:void(0);' onclick='_deleteFun(\"" + oData.id + "\",\"" + oData.topic + "\",\"" + oData.clusterName + "\",\"" + oData.brokerAddress + "\")'>Delete</a>");
+                                $(nTd).html("<a href='javascript:void(0);' " + "onclick='_sendFun(\"" + oData.topic + "\")'>test</a>&nbsp;&nbsp;")
+                                .append("<a href='javascript:void(0);' onclick='_deleteFun(\"" + oData.id + "\",\"" + oData.topic + "\",\"" + oData.clusterName + "\",\"" + oData.brokerAddress + "\")'>Delete</a>");
                              }
                           }
                         }
@@ -88,60 +117,66 @@ function initTable(){
         return table;
 }
 
-    function _deleteFun(id, topic, cluster_name, broker_address) {
+function _deleteFun(id, topic, cluster_name, broker_address) {
+    $.ajax({
+        async: false,
+        data: JSON.stringify({"id":id, "topic":topic, "clusterName":cluster_name}),
+        url: "cockpit/manage/topic/",
+        type: "DELETE",
+        dataType: "json",
+        contentType: "application/json",
+        success: function(backdata) {
+            if (backdata){
+                $.ajax({
+                    async: false,
+                        url: "cockpit/api/topic/" + id,
+                        type: "DELETE",
+                        dataType: "json",
+                        contentType: "application/json; charset=UTF-8",
+                        complete: function() {
+                            window.location.reload(true);
+                        }
+                    });
+            }
+        }
+    });
+}
+
+function _editFun(id, topic, cluster_name, broker_address, write_queue_num, read_queue_num, permission, unit, has_unit_subscription,  order) {
+        var ob = JSON.stringify({"id":id, "topic":topic,"writeQueueNum":write_queue_num,"readQueueNum":read_queue_num,
+                                 "brokerAddress":broker_address, "clusterName":cluster_name, "permission":permission,
+                                 "unit":unit, "hasUnitSubscription":has_unit_subscription, "order":order});
         $.ajax({
             async: false,
-            data: JSON.stringify({"id":id, "topic":topic, "clusterName":cluster_name}),
-            url: "cockpit/manage/topic/",
-            type: "DELETE",
+            data: ob,
+            url: "cockpit/manage/topic",
+            type: "POST",
             dataType: "json",
             contentType: "application/json",
             success: function(backdata) {
-                if (backdata){
+                if (backdata) {
                     $.ajax({
                         async: false,
-                            url: "cockpit/api/topic/" + id,
-                            type: "DELETE",
-                            dataType: "json",
-                            contentType: "application/json; charset=UTF-8",
-                            complete: function() {
-                                window.location.reload(true);
-                            }
-                        });
+                        url: "cockpit/api/topic/" + id,
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/json",
+                        complete: function() {
+                            window.location.reload(true);
+                        }
+                    });
                 }
             }
         });
-    }
+}
 
-    function _editFun(id, topic, cluster_name, broker_address, write_queue_num, read_queue_num, permission, unit, has_unit_subscription,  order) {
-            var ob = JSON.stringify({"id":id, "topic":topic,"writeQueueNum":write_queue_num,"readQueueNum":read_queue_num,
-                                     "brokerAddress":broker_address, "clusterName":cluster_name, "permission":permission,
-                                     "unit":unit, "hasUnitSubscription":has_unit_subscription, "order":order});
-            $.ajax({
-                async: false,
-                data: ob,
-                url: "cockpit/manage/topic",
-                type: "POST",
-                dataType: "json",
-                contentType: "application/json",
-                success: function(backdata) {
-                    if (backdata) {
-                        $.ajax({
-                            async: false,
-                            url: "cockpit/api/topic/" + id,
-                            type: "POST",
-                            dataType: "json",
-                            contentType: "application/json",
-                            complete: function() {
-                                window.location.reload(true);
-                            }
-                        });
-                    }
-                }
-            });
-    }
+function _sendFun(topic) {
+    document.getElementById("sendMessageTestDIV").style.display = "block";
+    $("input.send_topic").val(topic);
+}
 
-    function addButton(){
-        document.getElementById("addButton").style.display="none";
-        document.getElementById("addTopicDIV").style.display="block";
-    }
+function addButton(){
+    document.getElementById("addButton").style.display="none";
+
+    document.getElementById("addTopicDIV").style.display="block";
+}

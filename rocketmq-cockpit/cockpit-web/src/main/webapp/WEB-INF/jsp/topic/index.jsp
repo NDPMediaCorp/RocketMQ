@@ -47,6 +47,24 @@
         </td></tr>
     </table>
 </div>
+
+<div id="sendMessageTestDIV" class="col-xs-8 col-xs-offset-2 text-left table-responsive">
+    <table class="table table-bordered">
+        <tr><td>Topic:</td><td>  <input type="text" class="form-control send_topic" placeholder="topic"></td></tr>
+        <tr><td>Producer Group:</td><td>  <input type="text" class="form-control send_producerGroup"
+        placeholder="Producer Group"></td></tr>
+        <tr><td>tag:</td><td>  <input type="text" class="form-control send_tag" placeholder="tag"></td></tr>
+        <tr><td>key:</td><td>  <input type="text" class="form-control send_key" placeholder="key"></td></tr>
+        <tr><td>Message Body:</td><td>  <input type="text" class="form-control send_body" placeholder=""
+        value="test context"></td></tr>
+        <tr><td colspan="2">
+    <div class="col-xs-2">
+      <button type="submit" class="btn btn-primary send">send</button>
+    </div>
+        </td></tr>
+    </table>
+</div>
+
 <button id="addButton" onclick="addButton();">Add</button>
       <table cellspacing="0" class="display" id="topic" width="100%">
         <thead>
