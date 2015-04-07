@@ -67,6 +67,7 @@ $(document).ready(function() {
         }
     };
     // Apply the theme
+    Highcharts.setOptions({ global: { useUTC: false } });
     var highchartsOptions = Highcharts.setOptions(Highcharts.theme);
 
 
