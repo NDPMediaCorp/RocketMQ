@@ -17,6 +17,7 @@ public class MessageTranslate {
         cockpitMessage.setStorTime(message.getStoreTimestamp());
         cockpitMessage.setBody(message.getBody());
         cockpitMessage.setProperties(message.getProperties());
+        cockpitMessage.setContent(new String(message.getBody()));
         return cockpitMessage;
     }
 }

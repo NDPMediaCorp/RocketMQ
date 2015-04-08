@@ -32,6 +32,11 @@ public class CockpitMessage {
     private byte[] body;
 
     /**
+     * 消息文字体
+     */
+    private String              content;
+
+    /**
      * 消息属性，都是系统属性，禁止应用设置
      */
     private Map<String, String> properties;
@@ -95,5 +100,13 @@ public class CockpitMessage {
 
     public void setStorTime(long storTime) {
         this.storTime = storTime;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

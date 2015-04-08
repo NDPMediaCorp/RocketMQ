@@ -70,7 +70,10 @@ $(document).ready(function() {
                 document.getElementById("queryKEY").style.display = "none";
                 document.getElementById("queryID").style.display = "block";
                 $(".itable-content").children().remove();
-                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties" + message.properties + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>Message body:" + message.body + "</td></tr>");
+                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic
+                + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys +
+                "</td></tr>" + "<tr><td>Userproperties" + message.properties + "</td></tr>" + "<tr><td>Storetime:" +
+                message.storTime + "</td></tr>" + "<tr><td>Message body:" + message.content + "</td></tr>");
                 $(".itable-content").append(item);
             },
             error: function() {
