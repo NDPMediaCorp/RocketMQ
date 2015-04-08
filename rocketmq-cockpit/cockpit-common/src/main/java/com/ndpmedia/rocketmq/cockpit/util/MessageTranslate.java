@@ -3,6 +3,8 @@ package com.ndpmedia.rocketmq.cockpit.util;
 import com.alibaba.rocketmq.common.message.*;
 import com.ndpmedia.rocketmq.cockpit.model.CockpitMessage;
 
+import java.util.Date;
+
 /**
  * Created by robert.xu on 2015/4/8.
  */
@@ -14,7 +16,7 @@ public class MessageTranslate {
         cockpitMessage.setTags(message.getTags());
         cockpitMessage.setKeys(message.getKeys());
         cockpitMessage.setTopic(message.getTopic());
-        cockpitMessage.setStorTime(message.getStoreTimestamp());
+        cockpitMessage.setStorTime(new Date(message.getStoreTimestamp()));
         cockpitMessage.setBody(message.getBody());
         cockpitMessage.setProperties(message.getProperties());
         cockpitMessage.setContent(new String(message.getBody()));

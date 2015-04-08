@@ -1,5 +1,6 @@
 package com.ndpmedia.rocketmq.cockpit.model;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -34,7 +35,7 @@ public class CockpitMessage {
     /**
      * 消息文字体
      */
-    private String              content;
+    private String content;
 
     /**
      * 消息属性，都是系统属性，禁止应用设置
@@ -44,7 +45,7 @@ public class CockpitMessage {
     /**
      * 消息存储时间戳
      */
-    private long storTime;
+    private Date storTime;
 
     public String getMsgId() {
         return msgId;
@@ -94,11 +95,11 @@ public class CockpitMessage {
         this.properties = properties;
     }
 
-    public long getStorTime() {
+    public Date getStorTime() {
         return storTime;
     }
 
-    public void setStorTime(long storTime) {
+    public void setStorTime(Date storTime) {
         this.storTime = storTime;
     }
 

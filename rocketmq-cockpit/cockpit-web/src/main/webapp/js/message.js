@@ -25,7 +25,12 @@ $(document).ready(function() {
             dataType: "json",
             success: function(message) {
                 $(".itable-content").children().remove();
-                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties" + message.properties + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>Message body:" + message.body + "</td></tr>");
+                var pro = message.properties;
+                var cons = getMapValue(pro);
+                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic
+                + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys +
+                "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Storetime:" + message
+                .storTime + "</td></tr>" + "<tr><td>Message body:" + message.content + "</td></tr>");
                 $(".itable-content").append(item);
 
             }
@@ -69,10 +74,13 @@ $(document).ready(function() {
             success: function(message) {
                 document.getElementById("queryKEY").style.display = "none";
                 document.getElementById("queryID").style.display = "block";
+                document.getElementById("queryType").options[0].selected=true;
                 $(".itable-content").children().remove();
+                var pro = message.properties;
+                var cons = getMapValue(pro);
                 var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic
                 + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys +
-                "</td></tr>" + "<tr><td>Userproperties" + message.properties + "</td></tr>" + "<tr><td>Storetime:" +
+                "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Storetime:" +
                 message.storTime + "</td></tr>" + "<tr><td>Message body:" + message.content + "</td></tr>");
                 $(".itable-content").append(item);
             },
@@ -83,3 +91,16 @@ $(document).ready(function() {
     });
 
 });
+
+function getMapValue(sourceMap){
+    var cons = "{";
+    var index = 0;
+    for (var i in sourceMap){
+        if(index++ > 0){
+            cons = cons + ","
+        }
+        cons = cons + i + "=" + sourceMap[i];
+    }
+    cons = cons + "}";
+    return cons;
+}

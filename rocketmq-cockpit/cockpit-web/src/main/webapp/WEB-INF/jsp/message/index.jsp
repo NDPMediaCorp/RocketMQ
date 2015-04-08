@@ -24,6 +24,8 @@
     <option value="1">Query Message By KEY</option>
   </select>
 
+<br />
+<br />
   <div class="clear-both"></div>
   <div id="queryID" style="display:block">
 
@@ -35,6 +37,7 @@
       <button type="submit" class="btn btn-primary queryByID">query</button>
     </div>
 
+<br />
     <br />
     <div class="row">
       <div class="col-xs-8 col-xs-offset-2 text-left table-responsive">
@@ -63,6 +66,7 @@
       <button type="submit" class="btn btn-primary queryByKEY">query</button>
     </div>
 
+<br />
     <br />
     <div class="row">
       <div class="col-xs-8 col-xs-offset-2 text-left table-responsive">
