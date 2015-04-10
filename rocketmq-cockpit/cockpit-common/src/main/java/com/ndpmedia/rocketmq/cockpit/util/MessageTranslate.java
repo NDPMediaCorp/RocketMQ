@@ -17,9 +17,13 @@ public class MessageTranslate {
         cockpitMessage.setKeys(message.getKeys());
         cockpitMessage.setTopic(message.getTopic());
         cockpitMessage.setStorTime(new Date(message.getStoreTimestamp()));
+        cockpitMessage.setBornTime(new Date(message.getBornTimestamp()));
+        cockpitMessage.setStoreHost(message.getStoreHost().toString());
+        cockpitMessage.setBornHost(message.getBornHostString());
         cockpitMessage.setBody(message.getBody());
         cockpitMessage.setProperties(message.getProperties());
         cockpitMessage.setContent(new String(message.getBody()));
+
         return cockpitMessage;
     }
 }

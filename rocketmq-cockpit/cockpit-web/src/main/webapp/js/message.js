@@ -27,10 +27,7 @@ $(document).ready(function() {
                 $(".itable-content").children().remove();
                 var pro = message.properties;
                 var cons = getMapValue(pro);
-                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic
-                + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys +
-                "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Storetime:" + message
-                .storTime + "</td></tr>" + "<tr><td>Message body:" + message.content + "</td></tr>");
+                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td>Messagebody:" + message.content + "</td></tr>");
                 $(".itable-content").append(item);
 
             }
@@ -78,10 +75,7 @@ $(document).ready(function() {
                 $(".itable-content").children().remove();
                 var pro = message.properties;
                 var cons = getMapValue(pro);
-                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic
-                + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys +
-                "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Storetime:" +
-                message.storTime + "</td></tr>" + "<tr><td>Message body:" + message.content + "</td></tr>");
+                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td>Messagebody:" + message.content + "</td></tr>");
                 $(".itable-content").append(item);
             },
             error: function() {

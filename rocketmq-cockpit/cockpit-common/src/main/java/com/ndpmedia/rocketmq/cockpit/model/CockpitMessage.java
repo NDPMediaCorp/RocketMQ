@@ -1,7 +1,6 @@
 package com.ndpmedia.rocketmq.cockpit.model;
 
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by robert.xu on 2015/4/8.
@@ -46,6 +45,15 @@ public class CockpitMessage {
      * 消息存储时间戳
      */
     private Date storTime;
+
+    /**
+     * 消息生成时间戳
+     */
+    private Date bornTime;
+
+    private String bornHost;
+
+    private String storeHost;
 
     public String getMsgId() {
         return msgId;
@@ -109,5 +117,29 @@ public class CockpitMessage {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Date getBornTime() {
+        return bornTime;
+    }
+
+    public void setBornTime(Date bornTime) {
+        this.bornTime = bornTime;
+    }
+
+    public String getBornHost() {
+        return bornHost;
+    }
+
+    public void setBornHost(String bornHost) {
+        this.bornHost = bornHost;
+    }
+
+    public String getStoreHost() {
+        return storeHost;
+    }
+
+    public void setStoreHost(String storeHost) {
+        this.storeHost = storeHost;
     }
 }
