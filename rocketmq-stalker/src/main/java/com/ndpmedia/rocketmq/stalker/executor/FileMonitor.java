@@ -10,6 +10,7 @@ import java.nio.channels.FileChannel.MapMode;
 
 /**
  * Created by robert.xu on 2015/4/9.
+ * file monitor thread
  */
 public class FileMonitor extends Thread {
 

@@ -1,11 +1,11 @@
 package com.ndpmedia.rocketmq.stalker.config;
 
 import java.io.*;
-import java.nio.file.FileSystemAlreadyExistsException;
 import java.util.Properties;
 
 /**
  * Created by robert.xu on 2015/4/9.
+ * loaded properties from base property and system property:sql.config
  */
 public class DataConfig implements Constant {
 

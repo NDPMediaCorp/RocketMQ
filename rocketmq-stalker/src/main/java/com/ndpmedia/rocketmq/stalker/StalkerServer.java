@@ -14,17 +14,16 @@ import java.util.List;
 public class StalkerServer {
 
     public static void main(String[] args){
-        init();
+        init(args);
     }
 
-    public static void init(){
+    public static void init(String[] paths){
         //初始化配置，拉起整体服务，整体服务内部包含：1 日志扫描线程组 2 日志扫描线程组监控
 
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath*:applicationContext.xml");
 
         List<FileMonitor> fileMonitors = new ArrayList<FileMonitor>();
-        String[] paths = {"d:/store.log"};
-//        String[] paths = {"/dianyi/log/store.log","/dianyi/log/gc.log"};
+
         for (String path:paths){
             FileMonitor fileMonitor = new FileMonitor(path);
             fileMonitor.start();

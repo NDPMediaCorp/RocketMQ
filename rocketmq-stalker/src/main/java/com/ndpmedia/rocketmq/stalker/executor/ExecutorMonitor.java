@@ -4,6 +4,7 @@ import java.util.List;
 
 /**
  * Created by robert.xu on 2015/4/9.
+ * monitor thread . when analysis thread is interrupted try to restart it.
  */
 public class ExecutorMonitor extends Thread{
 
