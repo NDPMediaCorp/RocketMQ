@@ -15,6 +15,13 @@ public class ExecutorMonitor extends Thread{
         while(true){
             System.out.println(" executor monitor wake up .");
 
+            try {
+                sleep(30 * 1000);
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             if (null == fileMonitors || fileMonitors.isEmpty()) {
                 System.out.println(" no file monitor is running .");
 
@@ -29,15 +36,6 @@ public class ExecutorMonitor extends Thread{
                 fileMonitors.remove(fileMonitor);
                 file2.start();
                 fileMonitors.add(file2);
-            }
-
-
-
-            try {
-                sleep(30 * 1000);
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
     }

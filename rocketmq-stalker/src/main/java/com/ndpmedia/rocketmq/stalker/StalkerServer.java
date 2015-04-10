@@ -25,6 +25,8 @@ public class StalkerServer {
         List<FileMonitor> fileMonitors = new ArrayList<FileMonitor>();
 
         for (String path:paths){
+            if (null == path || path.isEmpty())
+                continue;
             FileMonitor fileMonitor = new FileMonitor(path);
             fileMonitor.start();
 
