@@ -20,6 +20,7 @@ public class StalkerServer {
     public static void init(String[] paths){
         //初始化配置，拉起整体服务，整体服务内部包含：1 日志扫描线程组 2 日志扫描线程组监控
 
+        //因使用数据库，需初始化数据源
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath*:applicationContext.xml");
 
         List<FileMonitor> fileMonitors = new ArrayList<FileMonitor>();

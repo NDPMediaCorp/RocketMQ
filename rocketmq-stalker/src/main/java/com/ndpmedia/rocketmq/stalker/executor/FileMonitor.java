@@ -40,13 +40,15 @@ public class FileMonitor extends Thread {
 
             String line = tailFile.makeFile(index);
 
-            if (null == line || !line.contains(DataConfig.getProperties().getProperty("log.type"))) {
+            if (null == line) {
                 waitFileChange(2*1000);
+            }else if (!line.contains(DataConfig.getProperties().getProperty("log.type"))) {
+                //不匹配格式暂不设定处理内容
 
             }else {
-                System.out.println(line);
                 FileFormat fileFormat = FileFormatFactory.getFileFormat(0);
-                fileFormat.check(line);
+                if (!fileFormat.check(line))
+                    continue;
             }
 
             index = tailFile.getLastIndex();

@@ -23,16 +23,24 @@ public class DataConfig implements Constant {
             InputStream inputStream = DataConfig.class.getClassLoader().getResourceAsStream("stalker.properties");
 
             properties.load(inputStream);
-
-            String ex = System.getProperty("sql.config");
-
-            if (null != ex){
-                File f = new File(ex);
-                properties.load(new FileInputStream(f));
-            }
         }
         catch (IOException e) {
             e.printStackTrace();
+            System.out.println("try to load base properties failed, try to check base path ");
+        }
+
+
+        String ex = System.getProperty("sql.config");
+
+        if (null != ex){
+            File f = new File(ex);
+            try {
+                properties.load(new FileInputStream(f));
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                System.out.println(" try to load expand properties failed, try to check system property:sql.config");
+            }
         }
     }
 

@@ -22,7 +22,7 @@ public class TranslateHelper {
         try {
             map = (Map<String, Object>) JSON.parse(base);
         }catch (Exception e){
-            System.out.println(" this log is not right .");
+            System.out.println(" this log is not format .");
         }
         return map;
     }

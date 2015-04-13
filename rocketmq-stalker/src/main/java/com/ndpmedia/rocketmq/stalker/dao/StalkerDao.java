@@ -12,7 +12,6 @@ public class StalkerDao {
     private static JdbcTemplate jdbcTemplate;
 
     public static int update(String sql){
-        System.out.println(sql);
         return jdbcTemplate.update(sql);
     }
 
