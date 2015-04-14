@@ -109,13 +109,13 @@ $(document).ready(function() {
                 dataType: "json",
                 success: function(backdata) {
                     var line = topic;
-                    var firstB = 0;
+                    var firstB = -1;
                     backdata.reverse();
                     backdata.forEach(function(consumeProgress){
                         var temp = [];
                         var time = consumeProgress.createTime.replace(new RegExp("-","gm"),"/");
                         temp.push((new Date(time)).getTime());
-                        if (0 === firstB){
+                        if (-1 === firstB){
 
                         }else{
                             temp.push((consumeProgress.brokerOffset - firstB)/(5*60));
