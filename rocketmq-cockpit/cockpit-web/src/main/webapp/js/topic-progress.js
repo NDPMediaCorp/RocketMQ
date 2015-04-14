@@ -118,7 +118,7 @@ $(document).ready(function() {
                         if (-1 === firstB){
 
                         }else{
-                            temp.push((consumeProgress.brokerOffset - firstB)/(5*60));
+                            temp.push(Math.round(100*(consumeProgress.brokerOffset - firstB)/(5*60))/100);
 
                             x.push(temp);
                         }
