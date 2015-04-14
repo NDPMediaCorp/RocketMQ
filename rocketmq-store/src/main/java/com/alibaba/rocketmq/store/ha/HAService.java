@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.zip.CRC32;
 
 
 /**
@@ -65,6 +66,8 @@ public class HAService {
     private final GroupTransferService groupTransferService;
     // Slave订阅对象
     private final HAClient haClient;
+
+    private CRC32 checksum = new CRC32();
 
 
     public HAService(final DefaultMessageStore defaultMessageStore) throws IOException {
@@ -302,7 +305,7 @@ public class HAService {
                     }
 
                     if (!transferOK) {
-                        log.warn("transfer messsage to slave timeout, " + req.getNextOffset());
+                        log.warn("transfer message to slave timeout, " + req.getNextOffset());
                     }
 
                     req.wakeupCustomer(transferOK);
@@ -353,7 +356,7 @@ public class HAService {
         private long lastWriteTimestamp = System.currentTimeMillis();
         // Slave向Master汇报Offset，汇报到哪里
         private long currentReportedOffset = 0;
-        private int dispatchPostion = 0;
+        private int dispatchPosition = 0;
         // 从Master接收数据Buffer
         private ByteBuffer byteBufferRead = ByteBuffer.allocate(ReadMaxBufferSize);
         private ByteBuffer byteBufferBackup = ByteBuffer.allocate(ReadMaxBufferSize);
@@ -385,11 +388,9 @@ public class HAService {
 
 
         private boolean reportSlaveMaxOffset(final long maxOffset) {
-            this.reportOffset.position(0);
-            this.reportOffset.limit(8);
+            this.reportOffset.clear();
             this.reportOffset.putLong(maxOffset);
-            this.reportOffset.position(0);
-            this.reportOffset.limit(8);
+            this.reportOffset.flip();
 
             for (int i = 0; i < 3 && this.reportOffset.hasRemaining(); i++) {
                 try {
@@ -405,22 +406,13 @@ public class HAService {
             return !this.reportOffset.hasRemaining();
         }
 
-
-        // private void reallocateByteBuffer() {
-        // ByteBuffer bb = ByteBuffer.allocate(ReadMaxBufferSize);
-        // int remain = this.byteBufferRead.limit() - this.dispatchPostion;
-        // bb.put(this.byteBufferRead.array(), this.dispatchPostion, remain);
-        // this.dispatchPostion = 0;
-        // this.byteBufferRead = bb;
-        // }
-
         /**
          * Buffer满了以后，重新整理一次
          */
         private void reallocateByteBuffer() {
-            int remain = ReadMaxBufferSize - this.dispatchPostion;
+            int remain = ReadMaxBufferSize - this.dispatchPosition;
             if (remain > 0) {
-                this.byteBufferRead.position(this.dispatchPostion);
+                this.byteBufferRead.position(this.dispatchPosition);
 
                 this.byteBufferBackup.position(0);
                 this.byteBufferBackup.limit(ReadMaxBufferSize);
@@ -431,7 +423,7 @@ public class HAService {
 
             this.byteBufferRead.position(remain);
             this.byteBufferRead.limit(ReadMaxBufferSize);
-            this.dispatchPostion = 0;
+            this.dispatchPosition = 0;
         }
 
 
@@ -478,14 +470,15 @@ public class HAService {
 
 
         private boolean dispatchReadRequest() {
-            final int MSG_HEADER_SIZE = 8 + 4; // phyoffset + size
+            final int MSG_HEADER_SIZE = 8 + 4 + 8; // phyoffset + size + checksum
             int readSocketPos = this.byteBufferRead.position();
 
             while (true) {
-                int diff = this.byteBufferRead.position() - this.dispatchPostion;
+                int diff = this.byteBufferRead.position() - this.dispatchPosition;
                 if (diff >= MSG_HEADER_SIZE) {
-                    long masterPhyOffset = this.byteBufferRead.getLong(this.dispatchPostion);
-                    int bodySize = this.byteBufferRead.getInt(this.dispatchPostion + 8);
+                    long masterPhyOffset = this.byteBufferRead.getLong(this.dispatchPosition);
+                    int bodySize = this.byteBufferRead.getInt(this.dispatchPosition + 8);
+                    long checksum = this.byteBufferRead.getLong(this.dispatchPosition + 8 + 4);
 
                     long slavePhyOffset = HAService.this.defaultMessageStore.getMaxPhyOffset();
 
@@ -501,20 +494,32 @@ public class HAService {
                     // 可以凑够一个请求
                     if (diff >= (MSG_HEADER_SIZE + bodySize)) {
                         byte[] bodyData = new byte[bodySize];
-                        this.byteBufferRead.position(this.dispatchPostion + MSG_HEADER_SIZE);
+                        this.byteBufferRead.position(this.dispatchPosition + MSG_HEADER_SIZE);
                         this.byteBufferRead.get(bodyData);
+                        HAService.this.checksum.reset();
+                        HAService.this.checksum.update(bodyData);
+                        if (checksum == HAService.this.checksum.getValue()) {
+                            // TODO 结果是否需要处理，暂时不处理
+                            boolean appendResult = HAService.this.defaultMessageStore
+                                    .appendToCommitLog(masterPhyOffset, bodyData);
+                            if (!appendResult) {
+                                log.error("Append replicated data failed!");
+                            }
 
-                        // TODO 结果是否需要处理，暂时不处理
-                        HAService.this.defaultMessageStore.appendToCommitLog(masterPhyOffset, bodyData);
+                            this.byteBufferRead.position(readSocketPos);
+                            this.dispatchPosition += MSG_HEADER_SIZE + bodySize;
 
-                        this.byteBufferRead.position(readSocketPos);
-                        this.dispatchPostion += MSG_HEADER_SIZE + bodySize;
-
-                        if (!reportSlaveMaxOffsetPlus()) {
+                            if (!reportSlaveMaxOffsetPlus()) {
+                                return false;
+                            }
+                            continue;
+                        } else {
+                            log.error("Replication data checksum mis-match!");
+                            reportSlaveMaxOffset(this.currentReportedOffset);
+                            //clear the dirty data.
+                            byteBufferRead.clear();
                             return false;
                         }
-
-                        continue;
                     }
                 }
 
@@ -588,7 +593,7 @@ public class HAService {
                 }
 
                 this.lastWriteTimestamp = 0;
-                this.dispatchPostion = 0;
+                this.dispatchPosition = 0;
 
                 this.byteBufferBackup.position(0);
                 this.byteBufferBackup.limit(ReadMaxBufferSize);
@@ -652,31 +657,6 @@ public class HAService {
 
             log.info(this.getServiceName() + " service end");
         }
-
-
-        //
-        // private void disableWriteFlag() {
-        // if (this.socketChannel != null) {
-        // SelectionKey sk = this.socketChannel.keyFor(this.selector);
-        // if (sk != null) {
-        // int ops = sk.interestOps();
-        // ops &= ~SelectionKey.OP_WRITE;
-        // sk.interestOps(ops);
-        // }
-        // }
-        // }
-        //
-        //
-        // private void enableWriteFlag() {
-        // if (this.socketChannel != null) {
-        // SelectionKey sk = this.socketChannel.keyFor(this.selector);
-        // if (sk != null) {
-        // int ops = sk.interestOps();
-        // ops |= SelectionKey.OP_WRITE;
-        // sk.interestOps(ops);
-        // }
-        // }
-        // }
 
         @Override
         public String getServiceName() {
