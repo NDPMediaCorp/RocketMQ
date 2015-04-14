@@ -24,6 +24,7 @@ if (null != errSMSG){
         <li><a href="cockpit/message/">Query Message</a></li>
         <li><a href="cockpit/consumer-group/">Consumer Group</a></li>
         <li><a href="cockpit/consume-progress/">Consume Progress</a></li>
+        <li><a href="cockpit/topic-progress/">Topic Progress</a></li>
         <li><a href="cockpit/admin/user">Manage User</a></li>
     </ul>
     <ul>

@@ -44,6 +44,10 @@
     <div class="col-xs-2">
       <button type="submit" class="btn btn-primary addTopic">Add</button>
     </div>
+    <div class="col-xs-2">
+      <button type="submit" class="btn btn-primary cancelTopic">cancel</button>
+    </div>
+
         </td></tr>
     </table>
 </div>
@@ -60,6 +64,9 @@
         <tr><td colspan="2">
     <div class="col-xs-2">
       <button type="submit" class="btn btn-primary send">send</button>
+    </div>
+    <div class="col-xs-2">
+      <button type="submit" class="btn btn-primary cancelMes">cancel</button>
     </div>
         </td></tr>
     </table>

@@ -40,6 +40,22 @@ $(document).ready(function() {
         }
     });
 
+    $(".cancelTopic").click(function() {
+        document.getElementById("addTopicDIV").style.display="none";
+        document.getElementById("addButton").style.display="block";
+        $("input.topic").val("");
+        $("input.order").val("");
+    });
+
+    $(".cancelMes").click(function() {
+        document.getElementById("sendMessageTestDIV").style.display="none";
+        $("input.send_topic").val("");
+        $("input.send_producerGroup").val("");
+        $("input.send_tag").val("");
+        $("input.send_key").val("");
+        $("input.send_body").val("");
+    });
+
     $(".send").click(function() {
             var topic = $("input.send_topic").val();
             var producerGroup = $("input.send_producerGroup").val();

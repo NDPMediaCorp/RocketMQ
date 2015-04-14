@@ -137,6 +137,9 @@ $(document).ready(function() {
         selectT.onchange = function (){
             var consumerGroup = $("#selectC").children('option:selected').val();
             var topic = $(this).children('option:selected').val();
+            if (topic.indexOf("%") != -1){
+                        topic = topic.replace(new RegExp("%","gm"), "%25");
+                    }
             hideBroker();
             if (-1 != topic){
                $.ajax({
@@ -167,6 +170,9 @@ $(document).ready(function() {
         selectB.onchange = function (){
             var consumerGroup = $("#selectC").children('option:selected').val();
             var topic = $("#selectT").children('option:selected').val();
+            if (topic.indexOf("%") != -1){
+                        topic = topic.replace(new RegExp("%","gm"), "%25");
+                    }
             var broker = $(this).children('option:selected').val();
             hideQueue();
             if (-1 != broker){
@@ -195,6 +201,11 @@ $(document).ready(function() {
         var x = [];
         var consumerGroup = "undefined" === typeof($("#selectC").children('option:selected').val()) ? "-1" : $("#selectC").children('option:selected').val();
         var topic = "undefined" === typeof($("#selectT").children('option:selected').val()) ? "-1" : $("#selectT").children('option:selected').val();
+
+        if (topic.indexOf("%") != -1){
+            topic = topic.replace(new RegExp("%","gm"), "%25");
+        }
+
         var broker = "undefined" === typeof($("#selectB").children('option:selected').val()) ? "-1" : $("#selectB").children('option:selected').val();
         var queue = "undefined" === typeof($("#selectQ").children('option:selected').val()) ? "-1" : $("#selectQ").children('option:selected').val();
         if ($.trim(consumerGroup) === "" || "-1" === consumerGroup) {
@@ -232,6 +243,8 @@ $(document).ready(function() {
                         temp.push(consumeProgress.diff);
                         x.push(temp);
                     });
+
+                    x.reverse();
                     showCharts(line, x);
                 }
             });

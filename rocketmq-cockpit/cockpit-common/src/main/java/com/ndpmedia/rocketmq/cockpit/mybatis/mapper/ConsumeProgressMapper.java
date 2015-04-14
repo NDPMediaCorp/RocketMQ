@@ -60,6 +60,14 @@ public interface ConsumeProgressMapper {
             @Param("brokerName") String brokerName, @Param("queueId") int queueId);
 
     /**
+     *
+     * @param topic
+     * @return
+     */
+    List<ConsumeProgress> brokerTPSList(@Param("consumerGroup") String consumerGroup, @Param("topic") String topic,
+            @Param("brokerName") String brokerName, @Param("queueId") int queueId);
+
+    /**
      * Delete data that are older than the specified date.
      *
      * @param date specified date
