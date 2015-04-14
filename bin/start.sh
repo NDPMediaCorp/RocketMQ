@@ -52,7 +52,11 @@ function main() {
          name_server;
       ;;
       broker)
-         broker $2 $3;
+         if [ $# == 3 ]; then
+            broker $2 $3;
+         elif [ $# == 4 ]; then
+            broker $2 $3 $4;
+         fi
       ;;
       *)
       exit 1;
