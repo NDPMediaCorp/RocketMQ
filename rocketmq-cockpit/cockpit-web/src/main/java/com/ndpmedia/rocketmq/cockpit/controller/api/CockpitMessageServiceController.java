@@ -11,6 +11,11 @@ import com.ndpmedia.rocketmq.cockpit.util.MessageTranslate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,20 +34,15 @@ public class CockpitMessageServiceController {
             defaultMQAdminExt.start();
             MessageExt messageExt = defaultMQAdminExt.viewMessage(id);
             return MessageTranslate.translateFrom(messageExt);
-        }
-        catch (MQClientException e) {
+        } catch (MQClientException e) {
             e.printStackTrace();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-        catch (RemotingException e) {
+        } catch (RemotingException e) {
             e.printStackTrace();
-        }
-        catch (MQBrokerException e) {
+        } catch (MQBrokerException e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             defaultMQAdminExt.shutdown();
         }
         return null;
@@ -56,20 +56,44 @@ public class CockpitMessageServiceController {
             defaultMQAdminExt.start();
             QueryResult queryResult = defaultMQAdminExt.queryMessage(topic, key, 32, 0, Long.MAX_VALUE);
             List<CockpitMessage> result = new ArrayList<CockpitMessage>();
-            for (MessageExt messageExt:queryResult.getMessageList()){
+            for (MessageExt messageExt : queryResult.getMessageList()) {
                 result.add(MessageTranslate.translateFrom(messageExt));
             }
             return result;
-        }
-        catch (MQClientException e) {
+        } catch (MQClientException e) {
             e.printStackTrace();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             defaultMQAdminExt.shutdown();
         }
         return null;
+    }
+
+    @RequestMapping(value = "/download/{msgId}", method = RequestMethod.GET)
+    public void downloadMsg(@PathVariable("msgId") String msgId, HttpServletRequest request, HttpServletResponse response) {
+        CockpitMessage cockpitMessage = this.getMessageByID(msgId);
+
+        response.setContentType("application/x-download");
+        String file = msgId;
+        String tempFileName = null;
+        try {
+            tempFileName = URLEncoder.encode(file, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        response.addHeader("Content-Disposition", "attachment;filename=" + tempFileName);
+        OutputStream downOut = null;
+
+        try {
+            downOut = response.getOutputStream();
+            byte[] buffer = cockpitMessage.getBody();
+            downOut.write(buffer, 0, buffer.length);
+            downOut.flush();
+
+        } catch (Exception ex) {
+            downOut = null;
+        }
+
     }
 }

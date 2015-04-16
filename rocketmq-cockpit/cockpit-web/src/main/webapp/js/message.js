@@ -17,6 +17,10 @@ $(document).ready(function() {
 
     $(".queryByID").click(function() {
         var msgId = $("input.msgId").val();
+        if (msgId.length != 32){
+            alert(" wrong message id ");
+            return;
+        }
         $.ajax({
             async: false,
             url: "cockpit/api/message" + "/" + msgId,
@@ -25,11 +29,12 @@ $(document).ready(function() {
             dataType: "json",
             success: function(message) {
                 $(".itable-content").children().remove();
-                var pro = message.properties;
-                var cons = getMapValue(pro);
-                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td>Messagebody:" + message.content + "</td></tr>");
-                $(".itable-content").append(item);
-
+                if (null != message){
+                    var pro = message.properties;
+                    var cons = getMapValue(pro);
+                    var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td>Messagebody:[length]" + message.body.length + "   <a href='cockpit/api/message/download/" + message.msgId + "'>download</a></td></tr>");
+                    $(".itable-content").append(item);
+                }
             }
         });
 
@@ -46,14 +51,16 @@ $(document).ready(function() {
             dataType: "json",
             success: function(backdata) {
                 $(".ktable-content").children().remove();
-                backdata.forEach(function(message) {
-                    var operationLink = $("<a class='operationItem' href='javascript:;'>Operation</a>");
-                    operationLink.attr("rel", message.msgId);
-                    var operation = $("<td></td>").append(operationLink);
-                    var item = $("<tr><td>" + message.msgId + "</td><td>" + message.tags + "</td><td>" + message.keys + "</td><td>" + message.storTime + "</td></tr>");
-                    item.append(operation);
-                    $(".ktable-content").append(item);
-                });
+                if (null != backdata){
+                    backdata.forEach(function(message) {
+                        var operationLink = $("<a class='operationItem' href='javascript:;'>Operation</a>");
+                        operationLink.attr("rel", message.msgId);
+                        var operation = $("<td></td>").append(operationLink);
+                        var item = $("<tr><td>" + message.msgId + "</td><td>" + message.tags + "</td><td>" + message.keys + "</td><td>" + message.storTime + "</td></tr>");
+                     item.append(operation);
+                        $(".ktable-content").append(item);
+                   });
+                }
             }
         });
 
@@ -75,7 +82,7 @@ $(document).ready(function() {
                 $(".itable-content").children().remove();
                 var pro = message.properties;
                 var cons = getMapValue(pro);
-                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td>Messagebody:" + message.content + "</td></tr>");
+                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td>Messagebody:[length]" + message.body.length + "   <a href='cockpit/api/message/download/" + message.msgId + "'>download</a></td></tr>");
                 $(".itable-content").append(item);
             },
             error: function() {
