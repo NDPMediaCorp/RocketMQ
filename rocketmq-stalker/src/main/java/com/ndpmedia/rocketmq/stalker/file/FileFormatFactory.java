@@ -2,6 +2,7 @@ package com.ndpmedia.rocketmq.stalker.file;
 
 /**
  * Created by robert.xu on 2015/4/10.
+ * base factory. base on type value.
  */
 public class FileFormatFactory {
 

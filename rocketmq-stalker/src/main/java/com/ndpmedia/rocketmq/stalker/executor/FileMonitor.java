@@ -35,24 +35,27 @@ public class FileMonitor extends Thread {
 
     @Override
     public void run() {
+        int retryTime = 0;
+
         while (true) {
             index = mbb.getLong(0);
 
             String line = tailFile.makeFile(index);
 
             if (null == line) {
-                waitFileChange(2*1000);
-            }else if (!line.contains(DataConfig.getProperties().getProperty("log.type"))) {
+                waitFileChange(2 * 1000);
+            } else if (!line.contains(DataConfig.getProperties().getProperty("log.type"))) {
                 //不匹配格式暂不设定处理内容
-
-            }else {
+            } else {
                 FileFormat fileFormat = FileFormatFactory.getFileFormat(0);
-                if (!fileFormat.check(line))
+                //符合校验标准，却校验失败，将重返执行校验流程，再次校验该内容。重试5次后放弃。
+                if (!fileFormat.check(line) && retryTime++ < 5) {
                     continue;
+                }
             }
 
             index = tailFile.getLastIndex();
-
+            retryTime = 0;
             mbb.putLong(0, index);
         }
     }
@@ -66,19 +69,17 @@ public class FileMonitor extends Thread {
                 indexRAF.writeLong(0L);
 
             mbb = indexRAF.getChannel().map(MapMode.READ_WRITE, 0, 16);
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void waitFileChange(long millisecond){
-        try{
+    private void waitFileChange(long millisecond) {
+        try {
             sleep(millisecond);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

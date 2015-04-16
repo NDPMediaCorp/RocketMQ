@@ -4,6 +4,7 @@ import java.io.*;
 
 /**
  * Created by robert.xu on 2015/4/9.
+ * like file reader,one time read one line.
  */
 public class TailFile {
 

@@ -6,19 +6,18 @@ import java.util.List;
  * Created by robert.xu on 2015/4/9.
  * monitor thread . when analysis thread is interrupted try to restart it.
  */
-public class ExecutorMonitor extends Thread{
+public class ExecutorMonitor extends Thread {
 
     private List<FileMonitor> fileMonitors;
 
     @Override
     public void run() {
-        while(true){
+        while (true) {
             System.out.println(" executor monitor wake up .");
 
             try {
                 sleep(30 * 1000);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
@@ -28,8 +27,8 @@ public class ExecutorMonitor extends Thread{
                 continue;
             }
 
-            for (FileMonitor fileMonitor:fileMonitors){
-                if(fileMonitor.isAlive())
+            for (FileMonitor fileMonitor : fileMonitors) {
+                if (fileMonitor.isAlive())
                     continue;
                 System.out.println(" file monitor " + fileMonitor.getPath() + " is stopped. try to restart .");
                 FileMonitor file2 = new FileMonitor(fileMonitor.getPath());
