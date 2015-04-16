@@ -10,18 +10,32 @@ function name_server() {
 
 function broker() {
   if [ $1 == "master" ]; then
-#     nohup sh mqbroker -n lizhanhui:9876\;holly:9876 -c ../conf/2m-2s-sync/broker-a.properties &
      if [ $# == 1 ] || [ $2 == "sync" ]; then
-        nohup sh mqbroker -c ../conf/2m-2s-sync/broker-a.properties &
+        if [ $# -lt 3 ] || [ $3 == "a" ]; then
+            nohup sh mqbroker -c ../conf/2m-2s-sync/broker-a.properties &
+        elif [ $3 == "b" ]; then
+            nohup sh mqbroker -c ../conf/2m-2s-sync/broker-b.properties &
+        fi
      elif [ $2 == "async" ]; then
-        nohup sh mqbroker -c ../conf/2m-2s-async/broker-a.properties &
+        if [ $# -lt 3 ] || [ $3 == "a" ]; then
+           nohup sh mqbroker -c ../conf/2m-2s-async/broker-a.properties &
+        elif [ $3 == "b" ]; then
+           nohup sh mqbroker -c ../conf/2m-2s-async/broker-b.properties &
+        fi
      fi
   elif [ $1 == "slave" ]; then
-#     nohup sh mqbroker -n lizhanhui:9876\;holly:9876 -c ../conf/2m-2s-sync/broker-a-s.properties &
      if [ $# == 1 ] || [ $2 == "sync" ]; then
-        nohup sh mqbroker -c ../conf/2m-2s-sync/broker-a-s.properties &
+        if [ $# -lt 3 ] || [ $3 == "a" ]; then
+           nohup sh mqbroker -c ../conf/2m-2s-sync/broker-a-s.properties &
+        elif [ $3 == "b" ]; then
+           nohup sh mqbroker -c ../conf/2m-2s-sync/broker-b-s.properties &
+        fi
      elif [ $2 == "async" ]; then
-        nohup sh mqbroker -c ../conf/2m-2s-async/broker-a-s.properties &
+        if [ $# -lt 3 ] || [ $3 == "a" ]; then
+           nohup sh mqbroker -c ../conf/2m-2s-async/broker-a-s.properties &
+        elif [ $3 == "b" ]; then
+           nohup sh mqbroker -c ../conf/2m-2s-async/broker-b-s.properties &
+        fi
      fi
   else
      echo "Please enter role, be it 'master' or 'slave'";
@@ -38,7 +52,11 @@ function main() {
          name_server;
       ;;
       broker)
-         broker $2 $3;
+         if [ $# == 3 ]; then
+            broker $2 $3;
+         elif [ $# == 4 ]; then
+            broker $2 $3 $4;
+         fi
       ;;
       *)
       exit 1;

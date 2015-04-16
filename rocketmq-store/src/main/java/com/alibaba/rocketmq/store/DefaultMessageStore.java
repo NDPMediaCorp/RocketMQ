@@ -220,18 +220,19 @@ public class DefaultMessageStore implements MessageStore {
         }, 1000 * 60, this.messageStoreConfig.getCleanResourceInterval(), TimeUnit.MILLISECONDS);
 
         // 定时清理完全不使用的队列
-        // this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-        // @Override
-        // public void run() {
-        // DefaultMessageStore.this.cleanExpiredConsumerQueue();
-        // }
-        // }, 1, 1, TimeUnit.HOURS);
+        this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                DefaultMessageStore.this.cleanExpiredConsumerQueue();
+            }
+        }, 1, 1, TimeUnit.HOURS);
     }
 
 
     private void cleanFilesPeriodically() {
-        this.cleanCommitLogService.run();
-        this.cleanConsumeQueueService.run();
+        if (cleanCommitLogService.run()) {
+            cleanConsumeQueueService.run();
+        }
     }
 
 
@@ -1119,8 +1120,8 @@ public class DefaultMessageStore implements MessageStore {
     }
 
 
-    public void putMessagePostionInfo(String topic, int queueId, long offset, int size, long tagsCode,
-                                      long storeTimestamp, long logicOffset) {
+    public void putMessagePositionInfo(String topic, int queueId, long offset, int size, long tagsCode,
+                                       long storeTimestamp, long logicOffset) {
         ConsumeQueue cq = this.findConsumeQueue(topic, queueId);
         cq.putMessagePostionInfoWrapper(offset, size, tagsCode, storeTimestamp, logicOffset);
     }
@@ -1200,14 +1201,13 @@ public class DefaultMessageStore implements MessageStore {
         }
 
 
-        public void run() {
+        public boolean run() {
             try {
-                this.deleteExpiredFiles();
-
-                this.redeleteHangedFile();
+               return this.deleteExpiredFiles() | this.redeleteHangedFile();
             } catch (Exception e) {
                 DefaultMessageStore.log.warn(this.getServiceName() + " service has exception. ", e);
             }
+            return false;
         }
 
 
@@ -1219,7 +1219,7 @@ public class DefaultMessageStore implements MessageStore {
         /**
          * 最前面的文件有可能Hang住，定期检查一下
          */
-        private void redeleteHangedFile() {
+        private boolean redeleteHangedFile() {
             int interval = DefaultMessageStore.this.getMessageStoreConfig().getRedeleteHangedFileInterval();
             long currentTimestamp = System.currentTimeMillis();
             if ((currentTimestamp - this.lastRedeleteTimestamp) > interval) {
@@ -1228,13 +1228,15 @@ public class DefaultMessageStore implements MessageStore {
                         DefaultMessageStore.this.getMessageStoreConfig()
                                 .getDestroyMappedFileIntervalForcibly();
                 if (DefaultMessageStore.this.commitLog.retryDeleteFirstFile(destroyMappedFileIntervalForcibly)) {
-                    // TODO
+                    return true;
                 }
             }
+
+            return false;
         }
 
 
-        private void deleteExpiredFiles() {
+        private boolean deleteExpiredFiles() {
             int deleteCount = 0;
             long fileReservedTime = DefaultMessageStore.this.getMessageStoreConfig().getFileReservedTime();
             int deletePhysicFilesInterval =
@@ -1272,7 +1274,7 @@ public class DefaultMessageStore implements MessageStore {
                         DefaultMessageStore.this.commitLog.deleteExpiredFile(fileReservedTime,
                                 deletePhysicFilesInterval, destroyMappedFileIntervalForcibly, cleanAtOnce);
                 if (deleteCount > 0) {
-                    // TODO
+                    return true;
                 }
                 // 危险情况：磁盘满了，但是又无法删除文件
                 else if (spaceFull) {
@@ -1280,6 +1282,7 @@ public class DefaultMessageStore implements MessageStore {
                     log.warn("disk space will be full soon, but delete file failed.");
                 }
             }
+            return false;
         }
 
 
@@ -1420,7 +1423,7 @@ public class DefaultMessageStore implements MessageStore {
 
         public void run() {
             try {
-                this.deleteExpiredFiles();
+                deleteExpiredFiles();
             } catch (Exception e) {
                 DefaultMessageStore.log.warn(this.getServiceName() + " service has exception. ", e);
             }
@@ -1593,7 +1596,7 @@ public class DefaultMessageStore implements MessageStore {
                         case MessageSysFlag.TransactionNotType:
                         case MessageSysFlag.TransactionCommitType:
                             // 将请求发到具体的Consume Queue
-                            DefaultMessageStore.this.putMessagePostionInfo(req.getTopic(), req.getQueueId(),
+                            DefaultMessageStore.this.putMessagePositionInfo(req.getTopic(), req.getQueueId(),
                                     req.getCommitLogOffset(), req.getMsgSize(), req.getTagsCode(),
                                     req.getStoreTimestamp(), req.getConsumeQueueOffset());
                             break;

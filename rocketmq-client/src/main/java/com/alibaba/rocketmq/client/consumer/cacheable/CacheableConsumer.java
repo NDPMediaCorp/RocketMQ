@@ -10,7 +10,6 @@ import com.alibaba.rocketmq.common.ThreadFactoryImpl;
 import com.alibaba.rocketmq.common.consumer.ConsumeFromWhere;
 import com.alibaba.rocketmq.common.message.MessageExt;
 import com.alibaba.rocketmq.common.protocol.heartbeat.MessageModel;
-import com.alibaba.rocketmq.remoting.common.RemotingUtil;
 import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatistics;
 import org.slf4j.Logger;
 
@@ -37,7 +36,7 @@ public class CacheableConsumer {
 
     private static final AtomicLong CONSUMER_NAME_COUNTER = new AtomicLong();
 
-    private static final String BASE_INSTANCE_NAME = "CacheableConsumer@";
+    private static final String BASE_INSTANCE_NAME = "CacheableConsumer";
 
     private static final int NUMBER_OF_CONSUMER = 4;
 
@@ -92,7 +91,7 @@ public class CacheableConsumer {
     private AtomicLong failureCounter = new AtomicLong(0L);
 
     private static String getInstanceName() {
-        return BASE_INSTANCE_NAME + RemotingUtil.getLocalAddress(false) + "_" + CONSUMER_NAME_COUNTER.incrementAndGet();
+        return BASE_INSTANCE_NAME + "_" + CONSUMER_NAME_COUNTER.incrementAndGet();
     }
 
     /**

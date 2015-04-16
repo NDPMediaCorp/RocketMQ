@@ -29,6 +29,12 @@ import java.util.Map;
 @Controller
 @RequestMapping("/authority")
 public class AutoLoginAction {
+
+    private static final String SQL_QUERY_USER_BY_SESSION_IDS = "SELECT l.user_id, u.username, u.password " +
+            "FROM login AS l " +
+            "  JOIN cockpit_user AS u ON l.user_id = u.id " +
+            " WHERE session_id in (%s) AND login_time < ? ";
+
     @Autowired
     private AuthenticationManager myAuthenticationManager;
 
@@ -58,17 +64,32 @@ public class AutoLoginAction {
         }
     }
 
+    private String arrayToString(String[] items) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String item : items) {
+            stringBuilder.append("'").append(item.trim()).append("', ");
+        }
+
+        return stringBuilder.substring(0, stringBuilder.length() - 2);
+    }
+
     private UsernamePasswordAuthenticationToken getToken(HttpServletRequest request) throws Exception {
 
         HttpSession session = request.getSession();
         String sessionId = session.getId();
 
+        System.out.println("Session ID: " + sessionId);
+        System.out.println("Request Session IDs: " + request.getRequestedSessionId());
+
+        String requestSessionId = request.getRequestedSessionId();
+
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, 30);
-        List<Map<String, Object>> list = jdbcTemplate.queryForList("SELECT l.user_id, u.username, u.password " +
-                "FROM login AS l " +
-                "  JOIN cockpit_user AS u ON l.user_id = u.id " +
-                " WHERE session_id = ? AND login_time < ?", sessionId, calendar.getTime());
+
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(
+                String.format(SQL_QUERY_USER_BY_SESSION_IDS, arrayToString(requestSessionId.split(";"))),
+                calendar.getTime());
+
         if (list.isEmpty()) {
             return null;
         }
