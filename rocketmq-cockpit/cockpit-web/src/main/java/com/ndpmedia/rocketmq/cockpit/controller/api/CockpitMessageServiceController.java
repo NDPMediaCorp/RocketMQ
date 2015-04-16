@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.OutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -75,25 +75,20 @@ public class CockpitMessageServiceController {
         CockpitMessage cockpitMessage = this.getMessageByID(msgId);
 
         response.setContentType("application/x-download");
-        String file = msgId;
         String tempFileName = null;
         try {
-            tempFileName = URLEncoder.encode(file, "UTF-8");
+            tempFileName = URLEncoder.encode(msgId, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         response.addHeader("Content-Disposition", "attachment;filename=" + tempFileName);
-        OutputStream downOut = null;
+        byte[] buffer = cockpitMessage.getBody();
 
         try {
-            downOut = response.getOutputStream();
-            byte[] buffer = cockpitMessage.getBody();
-            downOut.write(buffer, 0, buffer.length);
-            downOut.flush();
-
-        } catch (Exception ex) {
-            downOut = null;
+            response.getOutputStream().write(buffer, 0, buffer.length);
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
     }
 }
