@@ -43,6 +43,12 @@ $(document).ready(function() {
     $(".queryByKEY").click(function() {
         var topic = $("input.msgTopic").val();
         var key = $("input.msgKey").val();
+
+        if ("" === topic || "" === key){
+            alert(" please input topic and key");
+            return;
+        }
+
         $.ajax({
             async: false,
             url: "cockpit/api/message" + "/" + topic + "/" + key,
