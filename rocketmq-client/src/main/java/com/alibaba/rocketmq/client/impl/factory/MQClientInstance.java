@@ -261,6 +261,7 @@ public class MQClientInstance {
             }
         }, 1, 1, TimeUnit.MINUTES);
 
+        // Update trace level dynamically.
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
