@@ -261,27 +261,29 @@ public class MQClientInstance {
             }
         }, 1, 1, TimeUnit.MINUTES);
 
-        // Update trace level dynamically.
-        this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    KVTable kvTable = getMQClientAPIImpl()
-                            .getKVListByNamespace(NSConfigKey.STALKER_LEVEL.getNamespace(), 3000);
+        if (clientConfig instanceof DefaultMQProducer) {
+            // Update trace level dynamically.
+            this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        KVTable kvTable = getMQClientAPIImpl()
+                                .getKVListByNamespace(NSConfigKey.STALKER_LEVEL.getNamespace(), 3000);
 
-                    String traceLevel = kvTable.getTable().get(NSConfigKey.STALKER_LEVEL.getKey());
-                    String ipRange = kvTable.getTable().get(NSConfigKey.STALKER_IP_RANGE.getKey());
+                        String traceLevel = kvTable.getTable().get(NSConfigKey.STALKER_LEVEL.getKey());
+                        String ipRange = kvTable.getTable().get(NSConfigKey.STALKER_IP_RANGE.getKey());
 
-                    if (MQHelper.isIPinRange(ipRange, RemotingUtil.getLocalAddress())) {
-                        if (clientConfig instanceof DefaultMQProducer) {
-                            ((DefaultMQProducer)clientConfig).setTraceLevel(traceLevel);
+                        if (MQHelper.isIPinRange(ipRange, RemotingUtil.getLocalAddress())) {
+                            if (clientConfig instanceof DefaultMQProducer) {
+                                ((DefaultMQProducer)clientConfig).setTraceLevel(traceLevel);
+                            }
                         }
+                    } catch (Exception e) {
+                        log.error("ScheduledTask, adjust trace settings exception", e);
                     }
-                } catch (Exception e) {
-                    log.error("ScheduledTask, adjust trace settings exception", e);
                 }
-            }
-        }, 30, 30, TimeUnit.SECONDS);
+            }, 30, 30, TimeUnit.SECONDS);
+        }
     }
 
 
