@@ -29,6 +29,7 @@ import com.alibaba.rocketmq.remoting.RPCHook;
 import com.alibaba.rocketmq.remoting.exception.RemotingException;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 /**
@@ -87,7 +88,8 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      */
     private boolean unitMode = false;
 
-    private TraceLevel traceLevel = TraceLevel.PRODUCTION;
+    private volatile TraceLevel traceLevel = TraceLevel.NONE;
+    private volatile AtomicLong traceCounter = new AtomicLong(0L);
 
     public DefaultMQProducer() {
         this(MixAll.DEFAULT_PRODUCER_GROUP, null);
@@ -348,7 +350,35 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
         return traceLevel;
     }
 
-    public void setTraceLevel(TraceLevel traceLevel) {
-        this.traceLevel = traceLevel;
+    public void setTraceLevel(String level) {
+        if (null == level || level.isEmpty()) {
+            traceLevel = TraceLevel.NONE;
+        }
+
+        if ("DEBUG".equals(level)) {
+            traceLevel = TraceLevel.DEBUG;
+            return;
+        }
+
+        if ("MEDIUM".equals(level)) {
+            traceLevel = TraceLevel.MEDIUM;
+            return;
+        }
+
+
+        if ("PRODUCTION".equals(level)) {
+            traceLevel = TraceLevel.PRODUCTION;
+            return;
+        }
+
+
+        if ("NONE".equals(level)) {
+            traceLevel = TraceLevel.NONE;
+        }
     }
+
+    public AtomicLong getTraceCounter() {
+        return traceCounter;
+    }
+
 }

@@ -16,6 +16,7 @@
 package com.alibaba.rocketmq.client.impl.factory;
 
 import com.alibaba.rocketmq.client.ClientConfig;
+import com.alibaba.rocketmq.client.MQHelper;
 import com.alibaba.rocketmq.client.admin.MQAdminExtInner;
 import com.alibaba.rocketmq.client.exception.MQBrokerException;
 import com.alibaba.rocketmq.client.exception.MQClientException;
@@ -31,18 +32,21 @@ import com.alibaba.rocketmq.common.MQVersion;
 import com.alibaba.rocketmq.common.MixAll;
 import com.alibaba.rocketmq.common.ServiceState;
 import com.alibaba.rocketmq.common.UtilAll;
+import com.alibaba.rocketmq.common.constant.NSConfigKey;
 import com.alibaba.rocketmq.common.constant.PermName;
 import com.alibaba.rocketmq.common.filter.FilterAPI;
 import com.alibaba.rocketmq.common.message.MessageExt;
 import com.alibaba.rocketmq.common.message.MessageQueue;
 import com.alibaba.rocketmq.common.protocol.body.ConsumeMessageDirectlyResult;
 import com.alibaba.rocketmq.common.protocol.body.ConsumerRunningInfo;
+import com.alibaba.rocketmq.common.protocol.body.KVTable;
 import com.alibaba.rocketmq.common.protocol.heartbeat.*;
 import com.alibaba.rocketmq.common.protocol.route.BrokerData;
 import com.alibaba.rocketmq.common.protocol.route.QueueData;
 import com.alibaba.rocketmq.common.protocol.route.TopicRouteData;
 import com.alibaba.rocketmq.remoting.RPCHook;
 import com.alibaba.rocketmq.remoting.common.RemotingHelper;
+import com.alibaba.rocketmq.remoting.common.RemotingUtil;
 import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.alibaba.rocketmq.remoting.netty.NettyClientConfig;
 import org.slf4j.Logger;
@@ -256,6 +260,30 @@ public class MQClientInstance {
                 }
             }
         }, 1, 1, TimeUnit.MINUTES);
+
+        if (clientConfig instanceof DefaultMQProducer) {
+            // Update trace level dynamically.
+            this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        KVTable kvTable = getMQClientAPIImpl()
+                                .getKVListByNamespace(NSConfigKey.STALKER_LEVEL.getNamespace(), 3000);
+
+                        String traceLevel = kvTable.getTable().get(NSConfigKey.STALKER_LEVEL.getKey());
+                        String ipRange = kvTable.getTable().get(NSConfigKey.STALKER_IP_RANGE.getKey());
+
+                        if (MQHelper.isIPinRange(ipRange, RemotingUtil.getLocalAddress())) {
+                            if (clientConfig instanceof DefaultMQProducer) {
+                                ((DefaultMQProducer)clientConfig).setTraceLevel(traceLevel);
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("ScheduledTask, adjust trace settings exception", e);
+                    }
+                }
+            }, 30, 30, TimeUnit.SECONDS);
+        }
     }
 
 

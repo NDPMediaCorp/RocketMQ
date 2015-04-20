@@ -15,6 +15,7 @@
  */
 package com.alibaba.rocketmq.client.consumer.rebalance;
 
+import com.alibaba.rocketmq.client.MQHelper;
 import com.alibaba.rocketmq.client.consumer.AllocateMessageQueueStrategy;
 import com.alibaba.rocketmq.client.consumer.DefaultMQPushConsumer;
 import com.alibaba.rocketmq.client.exception.MQClientException;
@@ -114,7 +115,7 @@ public class AllocateMessageQueueByDataCenter implements AllocateMessageQueueStr
             HashMap<String, String> configMap = kvTable.getTable();
             suspendConsumerIPRanges = configMap.get(NSConfigKey.DC_SUSPEND_CONSUMER_BY_IP_RANGE.getKey());
             if (null != suspendConsumerIPRanges && !suspendConsumerIPRanges.trim().isEmpty()) {
-                ranges = buildIPRanges(suspendConsumerIPRanges);
+                ranges = MQHelper.buildIPRanges(suspendConsumerIPRanges);
             }
         } catch (InterruptedException e) {
             LOGGER.error("Error fetching suspended consumers", e);
@@ -282,65 +283,15 @@ public class AllocateMessageQueueByDataCenter implements AllocateMessageQueueStr
                 : result.get(currentConsumerID);
     }
 
-    /**
-     * <p>
-     * Valid ranges may be a single IPv4 address or two IPv4 addresses joined by "-". If the latter form is used, we
-     * assume the starting IP is smaller or equal to the ending IP. Multiple ranges are concatenated by semi-colon ";".
-     * </p>
-     *
-     * <p>
-     *     For example, the following ranges are all valid:
-     *     <ul>
-     *         <li>10.2.2.1</li>
-     *         <li>10.1.36.10-10.1.36.14;10.2.2.1</li>
-     *         <li>10.1.36.10-10.1.36.14;10.2.2.1-10.3.255.255</li>
-     *     </ul>
-     * </p>
-     *
-     * @param range ranges of IP address, conforming to the rules described above.
-     * @return Numerical representation of the ranges list.
-     */
-    private List<Pair<Long, Long>> buildIPRanges(String range) {
-        String[] ipRanges = range.split(";");
-        List<Pair<Long, Long>> numericalIPRanges = new ArrayList<Pair<Long, Long>>();
-        for (String ipRange : ipRanges) {
-            if (ipRange.contains("-")) {
-                String[] ipAddresses = ipRange.split("-");
-                if (ipAddresses.length == 2) {
-                    long ipStart = Helper.ipAddressToNumber(ipAddresses[0]);
-                    long ipEnd = Helper.ipAddressToNumber(ipAddresses[1]);
-
-                    if (ipStart > 0 && ipStart <= ipEnd) {
-                        Pair<Long, Long> rangeItem = new Pair<Long, Long>(ipStart, ipEnd);
-                        numericalIPRanges.add(rangeItem);
-                    } else {
-                        LOGGER.error("Starting range IP: {} is less than ending IP: {}", ipAddresses[0], ipAddresses[1]);
-                    }
-                }
-            } else {
-                long numericalIP = Helper.ipAddressToNumber(ipRange);
-                if (numericalIP > 0) {
-                    Pair<Long, Long> rangeItem = new Pair<Long, Long>(numericalIP, numericalIP);
-                    numericalIPRanges.add(rangeItem);
-                } else {
-                    LOGGER.error("Ignoring mal-formed IP address: {}", ipRange);
-                }
-            }
-        }
-
-        return numericalIPRanges;
-
-    }
-
     private static boolean isSuspended(List<Pair<Long, Long>> ranges, String consumerId) {
         if (null == ranges || ranges.isEmpty()) {
             return false;
         }
         if (consumerId.contains("@")) {
             String currentConsumerIP = consumerId.split("@")[0];
-            Matcher matcher = Helper.IP_PATTERN.matcher(currentConsumerIP);
+            Matcher matcher = MQHelper.IP_PATTERN.matcher(currentConsumerIP);
             if (matcher.matches()) {
-                long currentConsumerIPInNumerical = Helper.ipAddressToNumber(currentConsumerIP);
+                long currentConsumerIPInNumerical = MQHelper.ipAddressToNumber(currentConsumerIP);
                 if (currentConsumerIPInNumerical > 0) {
                     for (Pair<Long, Long> range : ranges) {
                         if (range.getObject1() <= currentConsumerIPInNumerical
@@ -425,7 +376,7 @@ public class AllocateMessageQueueByDataCenter implements AllocateMessageQueueStr
         }
         String clientIP = clientID.split("@")[0];
 
-        Matcher matcher = Helper.IP_PATTERN.matcher(clientIP);
+        Matcher matcher = MQHelper.IP_PATTERN.matcher(clientIP);
 
         if (!matcher.matches()) {
             return -1;
