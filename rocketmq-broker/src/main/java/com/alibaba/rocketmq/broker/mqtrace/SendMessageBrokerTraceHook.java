@@ -33,8 +33,8 @@ public class SendMessageBrokerTraceHook implements SendMessageHook {
         }
 
         long timeStamp = System.currentTimeMillis();
-        logger.info("TracerId: {}, TimeStamp: {}, ProducerGroup: {}, BornHost: {}, Topic: {}, Tags: {}, MsgId: {} --> " +
-                        "Broker: {}, MessageQueue: {}, OffSet: {}, Status: {}, Source: {}",
+        logger.info("\"TracerId\": \"{}\", \"TimeStamp\": \"{}\", \"ProducerGroup\": \"{}\", \"BornHost\": \"{}\", \"Topic\": \"{}\", \"Tags\": \"{}\", \"MsgId\": \"{}\", " +
+                        "\"Broker\": \"{}\", \"MessageQueue\": \"{}\", \"OffSet\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\"",
                 properties.get(MessageConst.PROPERTY_MESSAGE_TRACE_ID),
                 timeStamp,
                 context.getProducerGroup(),
@@ -58,8 +58,8 @@ public class SendMessageBrokerTraceHook implements SendMessageHook {
         }
         
         long timeStamp = System.currentTimeMillis();
-        logger.info("TracerId: {}, TimeStamp: {}, ProducerGroup: {}, BornHost: {}, Topic: {}, Tags: {}, MsgId: {} --> " +
-                        "Broker: {}, MessageQueue: {}, OffSet: {}, Status: {}, Source: {}",
+        logger.info("\"TracerId\": \"{}\", \"TimeStamp\": \"{}\", \"ProducerGroup\": \"{}\", \"BornHost\": \"{}\", \"Topic\": \"{}\", \"Tags\": \"{}\", \"MsgId\": \"{}\", " +
+                        "\"Broker\": \"{}\", \"MessageQueue\": \"{}\", \"OffSet\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\"",
                 properties.get(MessageConst.PROPERTY_MESSAGE_TRACE_ID),
                 timeStamp,
                 context.getProducerGroup(),

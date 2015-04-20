@@ -30,8 +30,8 @@ public class ConsumeMessageClientTraceHook implements ConsumeMessageHook {
                 continue;
             }
 
-            logger.info("TracerId: {}, MsgId: {}, TimeStamp: {}, Broker: {}, MessageQueue: {} --> " +
-                            "ConsumerGroup: {}, Client: {}, Topic: {}, Tags: {}, Status: {}, Source: {}",
+            logger.info("\"TracerId\": \"{}\", \"MsgId\": \"{}\", \"TimeStamp\": \"{}\", \"Broker\": \"{}\", \"MessageQueue\": \"{}\", " +
+                            "\"ConsumerGroup\": \"{}\", \"Client\": \"{}\", \"Topic\": \"{}\", \"Tags\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\"",
                     messageExt.getTracerId(),
                     messageExt.getMsgId(),
                     timeStamp,
@@ -54,8 +54,8 @@ public class ConsumeMessageClientTraceHook implements ConsumeMessageHook {
                 continue;
             }
 
-            logger.info("TracerId: {}, MsgId: {}, TimeStamp: {}, Broker: {}, MessageQueue: {} --> " +
-                            "ConsumerGroup: {}, Client: {}, Topic: {}, Tags: {}, Status: {}, Source: {}",
+            logger.info("\"TracerId\": \"{}\", \"MsgId\": \"{}\", \"TimeStamp\": \"{}\", \"Broker\": \"{}\", \"MessageQueue\": \"{}\", " +
+                            "\"ConsumerGroup\": \"{}\", \"Client\": \"{}\", \"Topic\": \"{}\", \"Tags\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\"",
                     messageExt.getTracerId(),
                     messageExt.getMsgId(),
                     timeStamp,
