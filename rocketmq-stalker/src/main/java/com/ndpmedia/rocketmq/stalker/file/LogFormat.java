@@ -18,9 +18,9 @@ public class LogFormat implements FileFormat {
      */
     @Override
     public boolean check(String log) {
-        String base = log.substring(
-                log.indexOf(DataConfig.getProperties().getProperty("log.type")) + (DataConfig.getProperties()
-                        .getProperty("log.type")).length());
+        if (log.matches("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.*"))
+            log = log.substring(20);
+        String base = log.substring(log.indexOf("-") + 1);
 
         Map<String, Object> map = TranslateHelper.translateStringToMap(base);
 
