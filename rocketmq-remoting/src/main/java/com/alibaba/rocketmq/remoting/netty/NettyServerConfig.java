@@ -15,6 +15,8 @@
  */
 package com.alibaba.rocketmq.remoting.netty;
 
+import com.alibaba.rocketmq.option.CommandOption;
+
 /**
  * Netty服务端配置
  * 
@@ -37,9 +39,7 @@ public class NettyServerConfig {
     private boolean ssl = false;
 
     public NettyServerConfig() {
-        if ("true".equals(System.getenv("ROCKETMQ_ENABLE_SSL")) || "true".equals(System.getProperty("enable_ssl"))) {
-            ssl = true;
-        }
+        ssl = CommandOption.hasOption(CommandOption.OPTION_SSL);
     }
 
     public int getListenPort() {

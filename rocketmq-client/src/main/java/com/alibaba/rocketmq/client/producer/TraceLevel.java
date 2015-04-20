@@ -14,5 +14,10 @@ public enum TraceLevel {
     /**
      * Trace every 1024 messages.
      */
-    PRODUCTION
+    PRODUCTION,
+
+    /**
+     * Do NOT trace message.
+     */
+    NONE
 }

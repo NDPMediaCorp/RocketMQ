@@ -85,7 +85,7 @@ public class MultiThreadMQProducer {
                 defaultMQProducer.setDefaultTopicQueueNums(configuration.getDefaultTopicQueueNumber());
                 defaultMQProducer.setRetryTimesWhenSendFailed(configuration.getRetryTimesBeforeSendingFailureClaimed());
                 defaultMQProducer.setSendMsgTimeout(configuration.getSendMessageTimeOutInMilliSeconds());
-                defaultMQProducer.setTraceLevel(TraceLevel.PRODUCTION);
+                defaultMQProducer.setTraceLevel(TraceLevel.PRODUCTION.name());
                 defaultMQProducers.add(defaultMQProducer);
             }
 
