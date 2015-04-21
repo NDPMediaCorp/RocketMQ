@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.zip.CRC32;
 
 
 /**
@@ -46,6 +47,7 @@ public class HAConnection {
     private volatile long slaveRequestOffset = -1;
     // Slave收到数据后，应答Offset
     private volatile long slaveAckOffset = -1;
+    private CRC32 checksum = new CRC32();
 
 
     public HAConnection(final HAService haService, final SocketChannel socketChannel) throws IOException {
@@ -67,7 +69,6 @@ public class HAConnection {
      * 向Slave传输数据协议 <Phy Offset> <Body Size> <Body Data><br>
      * 从Slave接收数据协议 <Phy Offset>
      */
-
     public void start() {
         this.readSocketService.start();
         this.writeSocketService.start();
@@ -95,6 +96,19 @@ public class HAConnection {
 
     public SocketChannel getSocketChannel() {
         return socketChannel;
+    }
+
+    private long getChecksum(ByteBuffer buffer) {
+        checksum.reset();
+        if (buffer.hasArray()) {
+            checksum.update(buffer.array());
+        } else {
+            byte[] data = new byte[buffer.limit()];
+            buffer.get(data);
+            checksum.update(data);
+            buffer.rewind();
+        }
+        return checksum.getValue();
     }
 
     /**
@@ -243,7 +257,7 @@ public class HAConnection {
         private final Selector selector;
         private final SocketChannel socketChannel;
         // 要传输的数据
-        private final int HEADER_SIZE = 8 + 4;
+        private final int HEADER_SIZE = 8 + 4 + 8; //nextTransferFrom + data length + CRC32 checksum of data.
         private final ByteBuffer byteBufferHeader = ByteBuffer.allocate(HEADER_SIZE);
         private long nextTransferFromWhere = -1;
         private SelectMappedBufferResult selectMappedBufferResult;
@@ -276,14 +290,9 @@ public class HAConnection {
                     // Slave如果本地没有数据，请求的Offset为0，那么master则从物理文件最后一个文件开始传送数据
                     if (-1 == this.nextTransferFromWhere) {
                         if (0 == HAConnection.this.slaveRequestOffset) {
-                            long masterOffset =
-                                    HAConnection.this.haService.getDefaultMessageStore().getCommitLog()
-                                        .getMaxOffset();
-                            masterOffset =
-                                    masterOffset
-                                            - (masterOffset % HAConnection.this.haService
-                                                .getDefaultMessageStore().getMessageStoreConfig()
-                                                .getMappedFileSizeCommitLog());
+                            long masterOffset = HAConnection.this.haService.getDefaultMessageStore().getCommitLog().getMaxOffset();
+                            masterOffset = masterOffset -
+                                    (masterOffset % HAConnection.this.haService.getDefaultMessageStore().getMessageStoreConfig().getMappedFileSizeCommitLog());
 
                             if (masterOffset < 0) {
                                 masterOffset = 0;
@@ -310,10 +319,10 @@ public class HAConnection {
                             .getMessageStoreConfig().getHaSendHeartbeatInterval()) {
                             // 向Slave发送心跳
                             // Build Header
-                            this.byteBufferHeader.position(0);
-                            this.byteBufferHeader.limit(HEADER_SIZE);
+                            this.byteBufferHeader.clear();
                             this.byteBufferHeader.putLong(this.nextTransferFromWhere);
                             this.byteBufferHeader.putInt(0);
+                            this.byteBufferHeader.putLong(0L);
                             this.byteBufferHeader.flip();
 
                             this.lastWriteOver = this.transferData();
@@ -337,9 +346,8 @@ public class HAConnection {
                         int size = selectResult.getSize();
                         if (size > HAConnection.this.haService.getDefaultMessageStore()
                             .getMessageStoreConfig().getHaTransferBatchSize()) {
-                            size =
-                                    HAConnection.this.haService.getDefaultMessageStore()
-                                        .getMessageStoreConfig().getHaTransferBatchSize();
+                            size = HAConnection.this.haService.getDefaultMessageStore()
+                                    .getMessageStoreConfig().getHaTransferBatchSize();
                         }
 
                         long thisOffset = this.nextTransferFromWhere;
@@ -349,10 +357,10 @@ public class HAConnection {
                         this.selectMappedBufferResult = selectResult;
 
                         // Build Header
-                        this.byteBufferHeader.position(0);
-                        this.byteBufferHeader.limit(HEADER_SIZE);
+                        this.byteBufferHeader.clear();
                         this.byteBufferHeader.putLong(thisOffset);
                         this.byteBufferHeader.putInt(size);
+                        this.byteBufferHeader.putLong(getChecksum(selectMappedBufferResult.getByteBuffer()));
                         this.byteBufferHeader.flip();
 
                         this.lastWriteOver = this.transferData();
