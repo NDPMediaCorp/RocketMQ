@@ -37,6 +37,7 @@ public class ClientConfig {
     private int pollNameServerInterval = 1000 * 30;
     private int heartbeatBrokerInterval = 1000 * 30;
     private int persistConsumerOffsetInterval = 1000 * 5;
+    private ClientType clientType;
 
     private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
 
@@ -79,6 +80,7 @@ public class ClientConfig {
         cc.pollNameServerInterval = pollNameServerInterval;
         cc.heartbeatBrokerInterval = heartbeatBrokerInterval;
         cc.persistConsumerOffsetInterval = persistConsumerOffsetInterval;
+        cc.clientType = clientType;
         return cc;
     }
 
@@ -152,6 +154,25 @@ public class ClientConfig {
         this.persistConsumerOffsetInterval = persistConsumerOffsetInterval;
     }
 
+    public ClientType getClientType() {
+        return clientType;
+    }
+
+    public void setClientType(ClientType clientType) {
+        this.clientType = clientType;
+    }
+
+    public boolean isProducer() {
+        return clientType == ClientType.PRODUCER;
+    }
+
+    public boolean isConsumer() {
+        return clientType == ClientType.CONSUMER;
+    }
+
+    public boolean isAdminTool() {
+        return clientType == ClientType.ADMIN_TOOL;
+    }
 
     @Override
     public String toString() {
@@ -159,6 +180,6 @@ public class ClientConfig {
                 + instanceName + ", clientCallbackExecutorThreads=" + clientCallbackExecutorThreads
                 + ", pollNameServerInterval=" + pollNameServerInterval + ", heartbeatBrokerInterval="
                 + heartbeatBrokerInterval + ", persistConsumerOffsetInterval="
-                + persistConsumerOffsetInterval + "]";
+                + persistConsumerOffsetInterval + ", clientType=" + clientType + "]";
     }
 }

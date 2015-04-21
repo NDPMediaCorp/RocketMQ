@@ -16,6 +16,7 @@
 package com.alibaba.rocketmq.client.producer;
 
 import com.alibaba.rocketmq.client.ClientConfig;
+import com.alibaba.rocketmq.client.ClientType;
 import com.alibaba.rocketmq.client.QueryResult;
 import com.alibaba.rocketmq.client.exception.MQBrokerException;
 import com.alibaba.rocketmq.client.exception.MQClientException;
@@ -110,6 +111,7 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
         this.producerGroup = producerGroup;
         defaultMQProducerImpl = new DefaultMQProducerImpl(this, rpcHook);
         defaultMQProducerImpl.registerSendMessageHook(new SendMessageClientTraceHook("DefaultMQProducerTracer"));
+        setClientType(ClientType.PRODUCER);
     }
 
 

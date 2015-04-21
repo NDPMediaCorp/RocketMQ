@@ -261,7 +261,7 @@ public class MQClientInstance {
             }
         }, 1, 1, TimeUnit.MINUTES);
 
-        if (clientConfig instanceof DefaultMQProducer) {
+        if (clientConfig.isProducer()) {
             // Update trace level dynamically.
             this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
                 @Override
