@@ -17,8 +17,10 @@ package com.alibaba.rocketmq.client.impl;
 
 import com.alibaba.rocketmq.client.ClientConfig;
 import com.alibaba.rocketmq.client.impl.factory.MQClientInstance;
+import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
 import com.alibaba.rocketmq.remoting.RPCHook;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -50,8 +52,16 @@ public class MQClientManager {
         String clientId = clientConfig.buildMQClientId();
         MQClientInstance instance = this.factoryTable.get(clientId);
         if (null == instance) {
-            instance = new MQClientInstance(clientConfig.cloneClientConfig(),
+
+            //Currently, we only need set reference to DefaultMQProducer instance.
+            ClientConfig config = clientConfig.cloneClientConfig();
+            if (clientConfig instanceof DefaultMQProducer) {
+                config.setWeakReference(new WeakReference(clientConfig));
+            }
+
+            instance = new MQClientInstance(config,
                     this.factoryIndexGenerator.getAndIncrement(), clientId, rpcHook);
+
             MQClientInstance prev = this.factoryTable.putIfAbsent(clientId, instance);
             if (prev != null) {
                 instance = prev;

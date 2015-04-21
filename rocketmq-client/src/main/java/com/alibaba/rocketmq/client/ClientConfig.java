@@ -19,6 +19,7 @@ import com.alibaba.rocketmq.common.MixAll;
 import com.alibaba.rocketmq.common.UtilAll;
 import com.alibaba.rocketmq.remoting.common.RemotingUtil;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -38,6 +39,7 @@ public class ClientConfig {
     private int heartbeatBrokerInterval = 1000 * 30;
     private int persistConsumerOffsetInterval = 1000 * 5;
     private ClientType clientType;
+    private WeakReference weakReference;
 
     private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
 
@@ -68,6 +70,8 @@ public class ClientConfig {
         this.pollNameServerInterval = cc.pollNameServerInterval;
         this.heartbeatBrokerInterval = cc.heartbeatBrokerInterval;
         this.persistConsumerOffsetInterval = cc.persistConsumerOffsetInterval;
+        this.clientType = cc.clientType;
+        this.weakReference = cc.weakReference;
     }
 
 
@@ -81,6 +85,7 @@ public class ClientConfig {
         cc.heartbeatBrokerInterval = heartbeatBrokerInterval;
         cc.persistConsumerOffsetInterval = persistConsumerOffsetInterval;
         cc.clientType = clientType;
+        cc.weakReference = weakReference;
         return cc;
     }
 
@@ -172,6 +177,14 @@ public class ClientConfig {
 
     public boolean isAdminTool() {
         return clientType == ClientType.ADMIN_TOOL;
+    }
+
+    public WeakReference getWeakReference() {
+        return weakReference;
+    }
+
+    public void setWeakReference(WeakReference weakReference) {
+        this.weakReference = weakReference;
     }
 
     @Override

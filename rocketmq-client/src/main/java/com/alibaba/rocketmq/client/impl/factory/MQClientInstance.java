@@ -274,15 +274,16 @@ public class MQClientInstance {
                         String ipRange = kvTable.getTable().get(NSConfigKey.STALKER_IP_RANGE.getKey());
 
                         if (MQHelper.isIPinRange(ipRange, RemotingUtil.getLocalAddress())) {
-                            if (clientConfig instanceof DefaultMQProducer) {
-                                ((DefaultMQProducer)clientConfig).setTraceLevel(traceLevel);
+                            Object weakRef2DefaultMQProducer = clientConfig.getWeakReference().get();
+                            if (null != weakRef2DefaultMQProducer) {
+                                ((DefaultMQProducer)weakRef2DefaultMQProducer).setTraceLevel(traceLevel);
                             }
                         }
                     } catch (Exception e) {
                         log.error("ScheduledTask, adjust trace settings exception", e);
                     }
                 }
-            }, 30, 30, TimeUnit.SECONDS);
+            }, 0, 30, TimeUnit.SECONDS);
         }
     }
 
