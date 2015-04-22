@@ -23,6 +23,12 @@ public class TailFile {
 
         try {
             randomAccessFile = new RandomAccessFile(file, "r");
+
+            if (index > randomAccessFile.length()){
+                lastIndex = randomAccessFile.length();
+                return "";
+            }
+
             randomAccessFile.seek(index);
             String temp = randomAccessFile.readLine();
             lastIndex = randomAccessFile.getFilePointer();
