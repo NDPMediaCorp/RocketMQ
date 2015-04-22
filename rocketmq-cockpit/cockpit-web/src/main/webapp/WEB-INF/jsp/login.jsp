@@ -56,6 +56,10 @@
             <td><input type='password' id="j_password" name='j_password'/></td>
         </tr>
         <tr>
+            <td width="20%"><label for="j_remember-me">Remember Me</label></td>
+            <td><input type="checkbox" id="j_remember-me" name="remember-me"></td>
+        </tr>
+        <tr>
             <td width="20%">
                 <div class="chknumber">
                     <label for="kaptcha">verification code：</label>
