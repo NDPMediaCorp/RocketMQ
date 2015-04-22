@@ -7,7 +7,10 @@ import com.alibaba.rocketmq.common.message.MessageExt;
 import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.ndpmedia.rocketmq.cockpit.model.CockpitMessage;
+import com.ndpmedia.rocketmq.cockpit.model.CockpitMessageFlow;
+import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.CockpitMessageMapper;
 import com.ndpmedia.rocketmq.cockpit.util.MessageTranslate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +28,9 @@ import java.util.List;
 @Controller
 @RequestMapping(value = "/api/message")
 public class CockpitMessageServiceController {
+
+    @Autowired
+    private CockpitMessageMapper cockpitMessageMapper;
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseBody
@@ -90,5 +96,12 @@ public class CockpitMessageServiceController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @RequestMapping(value = "/flow/{id}", method = RequestMethod.GET)
+    @ResponseBody
+    public List<CockpitMessageFlow> getFlowByID(@PathVariable("id") String id){
+        String tracerId = cockpitMessageMapper.tracerId(id);
+        return cockpitMessageMapper.list(tracerId);
     }
 }
