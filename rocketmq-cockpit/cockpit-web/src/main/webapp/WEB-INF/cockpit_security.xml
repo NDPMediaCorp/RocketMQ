@@ -41,6 +41,8 @@
         </security:session-management>
 
         <security:access-denied-handler ref="accessDeniedHandler" />
+
+        <security:remember-me remember-me-parameter="remember-me" token-validity-seconds="3600" />
     </security:http>
 
     <security:authentication-manager alias="authenticationManager">
