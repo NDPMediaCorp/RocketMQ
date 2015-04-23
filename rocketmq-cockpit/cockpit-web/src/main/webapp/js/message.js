@@ -13,6 +13,7 @@ $(document).ready(function() {
             document.getElementById("queryID").style.display = "none";
             document.getElementById("queryKEY").style.display = "block";
         }
+        document.getElementById("flow").style.display = "none";
     } ;
 
     $(".queryByID").click(function() {
@@ -29,6 +30,7 @@ $(document).ready(function() {
             dataType: "json",
             success: function(message) {
                 $(".itable-content").children().remove();
+                document.getElementById("flow").style.display = "none";
                 if (null != message){
                     var operationLink = $("<a class='flowItem' href='javascript:;'>flow</a>");
                     operationLink.attr("rel", message.msgId);
@@ -61,6 +63,7 @@ $(document).ready(function() {
             contentType: "application/json; charset=UTF-8",
             dataType: "json",
             success: function(backdata) {
+                document.getElementById("flow").style.display = "none";
                 $(".ktable-content").children().remove();
                 if (null != backdata){
                     backdata.forEach(function(message) {
@@ -88,6 +91,7 @@ $(document).ready(function() {
             dataType: "json",
             success: function(message) {
                 document.getElementById("queryKEY").style.display = "none";
+                document.getElementById("flow").style.display = "none";
                 document.getElementById("queryID").style.display = "block";
                 document.getElementById("queryType").options[0].selected=true;
                 $(".itable-content").children().remove();
