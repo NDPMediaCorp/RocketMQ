@@ -12,6 +12,6 @@ public class SSOServiceImpl implements SSOService {
 
     @Override
     public Login authenticate(String token) {
-        return null;
+        return loginMapper.getByToken(token);
     }
 }
