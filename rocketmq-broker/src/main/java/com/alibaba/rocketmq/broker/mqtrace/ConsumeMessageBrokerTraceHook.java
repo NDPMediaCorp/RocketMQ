@@ -27,7 +27,8 @@ public class ConsumeMessageBrokerTraceHook implements ConsumeMessageHook {
             long timeStamp = System.currentTimeMillis();
             for (String msgId : context.getMessageIds().keySet()) {
                 logger.info("\"MsgId\": \"{}\", \"TimeStamp\": \"{}\", \"Broker\": \"{}\", \"MessageQueue\": \"{}\", " +
-                                "\"ConsumerGroup\": \"{}\", \"Client\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\"",
+                            "\"ConsumerGroup\": \"{}\", \"Client\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\", " +
+                            "\"From\":\"{}\", \"To\":\"{}\"",
                         msgId,
                         timeStamp,
                         context.getStoreHost(),
@@ -35,7 +36,9 @@ public class ConsumeMessageBrokerTraceHook implements ConsumeMessageHook {
                         context.getConsumerGroup(),
                         context.getClientHost(),
                         "CLIENT REQUEST",
-                        "BROKER");
+                        "BROKER",
+                        context.getStoreHost(),
+                        context.getClientHost());
             }
 //        }
     }
@@ -46,7 +49,8 @@ public class ConsumeMessageBrokerTraceHook implements ConsumeMessageHook {
             long timeStamp = System.currentTimeMillis();
             for (String msgId : context.getMessageIds().keySet()) {
                 logger.info("\"MsgId\": \"{}\", \"TimeStamp\": \"{}\", \"ConsumerGroup\": \"{}\", \"Client\": \"{}\", " +
-                                "\"Broker\": \"{}\", \"MessageQueue\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\"",
+                                "\"Broker\": \"{}\", \"MessageQueue\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\", " +
+                                "\"From\":\"{}\", \"To\":\"{}\"",
                         msgId,
                         timeStamp,
                         context.getConsumerGroup(),
@@ -54,7 +58,9 @@ public class ConsumeMessageBrokerTraceHook implements ConsumeMessageHook {
                         context.getStoreHost(),
                         context.getQueueId(),
                         context.getStatus(),
-                        "BROKER");
+                        "BROKER",
+                        context.getStoreHost(),
+                        context.getClientHost());
             }
 //        }
     }

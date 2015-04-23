@@ -18,6 +18,8 @@
         <result column="client" property="client" />
         <result column="message_queue" property="messageQueue" />
         <result column="offset" property="offSet" />
+        <result column="ip_from" property="ipFrom" />
+        <result column="ip_to" property="ipTo" />
         <result column="create_time" property="createTime" />
         <result column="time_stamp" property="timeStamp" />
     </resultMap>

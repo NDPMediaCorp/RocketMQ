@@ -27,7 +27,8 @@ public class SendMessageClientTraceHook implements SendMessageHook {
 
         long timeStamp = System.currentTimeMillis();
         logger.info("\"TracerId\": \"{}\", \"TimeStamp\": \"{}\", \"ProducerGroup\": \"{}\", \"BornHost\": \"{}\", \"Topic\": \"{}\", \"Tags\": \"{}\", \"MsgId\": \"{}\", " +
-                        "\"Broker\": \"{}\", \"MessageQueue\": \"{}\", \"OffSet\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\"",
+                        "\"Broker\": \"{}\", \"MessageQueue\": \"{}\", \"OffSet\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\", " +
+                        "\"From\":\"{}\", \"To\":\"{}\"",
                 context.getMessage().getTracerId(),
                 timeStamp,
                 context.getProducerGroup(),
@@ -39,7 +40,9 @@ public class SendMessageClientTraceHook implements SendMessageHook {
                 context.getMq().getQueueId(),
                 null,
                 "BEFORE_SEND",
-                "PRODUCER");
+                "PRODUCER",
+                context.getBornHost(),
+                context.getBrokerAddr());
     }
 
     @Override
@@ -50,7 +53,8 @@ public class SendMessageClientTraceHook implements SendMessageHook {
 
         long timeStamp = System.currentTimeMillis();
         logger.info("\"TracerId\": \"{}\", \"TimeStamp\": \"{}\", \"ProducerGroup\": \"{}\", \"BornHost\": \"{}\", \"Topic\": \"{}\", \"Tags\": \"{}\", \"MsgId\": \"{}\", " +
-                        "\"Broker\": \"{}\", \"MessageQueue\": \"{}\", \"OffSet\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\"",
+                        "\"Broker\": \"{}\", \"MessageQueue\": \"{}\", \"OffSet\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\", " +
+                        "\"From\":\"{}\", \"To\":\"{}\"",
                 context.getMessage().getTracerId(),
                 timeStamp,
                 context.getProducerGroup(),
@@ -62,7 +66,9 @@ public class SendMessageClientTraceHook implements SendMessageHook {
                 null == context.getMq() ? null : context.getMq().getQueueId(),
                 null == context.getSendResult() ? "UNKNOWN" : context.getSendResult().getQueueOffset(),
                 null == context.getSendResult() ? "AFTER_SEND" : context.getSendResult().getSendStatus().toString(),
-                "PRODUCER");
+                "PRODUCER",
+                context.getBornHost(),
+                context.getBrokerAddr());
 
     }
 }

@@ -34,7 +34,8 @@ public class SendMessageBrokerTraceHook implements SendMessageHook {
 
         long timeStamp = System.currentTimeMillis();
         logger.info("\"TracerId\": \"{}\", \"TimeStamp\": \"{}\", \"ProducerGroup\": \"{}\", \"BornHost\": \"{}\", \"Topic\": \"{}\", \"Tags\": \"{}\", \"MsgId\": \"{}\", " +
-                        "\"Broker\": \"{}\", \"MessageQueue\": \"{}\", \"OffSet\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\"",
+                    "\"Broker\": \"{}\", \"MessageQueue\": \"{}\", \"OffSet\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\", " +
+                    "\"From\":\"{}\", \"To\":\"{}\"",
                 properties.get(MessageConst.PROPERTY_MESSAGE_TRACE_ID),
                 timeStamp,
                 context.getProducerGroup(),
@@ -46,7 +47,9 @@ public class SendMessageBrokerTraceHook implements SendMessageHook {
                 context.getQueueId(),
                 context.getQueueOffset(),
                 "RECEIVED",
-                "BROKER");
+                "BROKER",
+                context.getBornHost(),
+                context.getBrokerAddr());
 
     }
 
@@ -59,7 +62,8 @@ public class SendMessageBrokerTraceHook implements SendMessageHook {
         
         long timeStamp = System.currentTimeMillis();
         logger.info("\"TracerId\": \"{}\", \"TimeStamp\": \"{}\", \"ProducerGroup\": \"{}\", \"BornHost\": \"{}\", \"Topic\": \"{}\", \"Tags\": \"{}\", \"MsgId\": \"{}\", " +
-                        "\"Broker\": \"{}\", \"MessageQueue\": \"{}\", \"OffSet\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\"",
+                        "\"Broker\": \"{}\", \"MessageQueue\": \"{}\", \"OffSet\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\", " +
+                        "\"From\":\"{}\", \"To\":\"{}\"",
                 properties.get(MessageConst.PROPERTY_MESSAGE_TRACE_ID),
                 timeStamp,
                 context.getProducerGroup(),
@@ -71,7 +75,9 @@ public class SendMessageBrokerTraceHook implements SendMessageHook {
                 context.getQueueId(),
                 context.getQueueOffset(),
                 "STORED",
-                "BROKER");
+                "BROKER",
+                context.getBornHost(),
+                context.getBrokerAddr());
 
     }
 }

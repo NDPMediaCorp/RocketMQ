@@ -57,6 +57,10 @@ public class CockpitMessageFlow {
 
     private String offSet;
 
+    private String ipFrom;
+
+    private String ipTo;
+
     private Date createTime;
 
     private long timeStamp;
@@ -187,5 +191,21 @@ public class CockpitMessageFlow {
 
     public void setClient(String client) {
         this.client = client;
+    }
+
+    public String getIpFrom() {
+        return ipFrom;
+    }
+
+    public void setIpFrom(String ipFrom) {
+        this.ipFrom = ipFrom;
+    }
+
+    public String getIpTo() {
+        return ipTo;
+    }
+
+    public void setIpTo(String ipTo) {
+        this.ipTo = ipTo;
     }
 }

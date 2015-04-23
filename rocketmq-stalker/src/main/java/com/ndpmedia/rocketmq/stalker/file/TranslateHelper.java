@@ -84,5 +84,7 @@ public class TranslateHelper implements Constant{
         sqlKey.put("TimeStamp", "time_stamp");
         sqlKey.put("ConsumerGroup", "consumer_group");
         sqlKey.put("Client", "client");
+        sqlKey.put("From", "ip_from");
+        sqlKey.put("To", "ip_to");
     }
 }

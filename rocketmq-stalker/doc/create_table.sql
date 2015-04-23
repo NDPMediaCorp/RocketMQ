@@ -15,8 +15,10 @@ producer_group VARCHAR(255),
 consumer_group VARCHAR(255),
 broker  VARCHAR(255),
 client  VARCHAR(255),
-message_queue INT,
+message_queue VARCHAR(255),
 offset VARCHAR(255),
+ip_from VARCHAR(255),
+ip_to VARCHAR(255),
 create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 time_stamp BIGINT NOT NULL DEFAULT 0
 ) ENGINE = INNODB;
