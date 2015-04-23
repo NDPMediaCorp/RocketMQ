@@ -24,7 +24,9 @@ public class LogFormat implements FileFormat {
 
         Map<String, Object> map = TranslateHelper.translateStringToMap(base);
 
-        String sql = TranslateHelper.translateSQLFromMap(map);
+        String sql = "";
+        if (null != map && !map.isEmpty())
+            sql = TranslateHelper.translateSQLFromMap(map);
 
         try {
             //记录SQL影响行数

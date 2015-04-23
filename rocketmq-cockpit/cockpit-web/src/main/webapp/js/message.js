@@ -124,7 +124,7 @@ $(document).ready(function() {
                 $(".ftable-content").children().remove();
                 if (null != backdata){
                     backdata.forEach(function(cockpitMessageFlow) {
-                        var item = $("<tr><td>tracer:" + cockpitMessageFlow.tracerId + "</td><td>source:" + cockpitMessageFlow.source + "</td><td>status:" + cockpitMessageFlow.status + "</td><td>time:" + new Date(cockpitMessageFlow.timeStamp) + "</td></tr>");
+                        var item = $("<tr><td>source:" + cockpitMessageFlow.source + "</td><td>status:" + cockpitMessageFlow.status + "</td><td>time:" + new Date(cockpitMessageFlow.timeStamp) + "</td></tr>");
 
                         $(".ftable-content").append(item);
                    });
