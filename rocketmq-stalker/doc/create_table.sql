@@ -4,11 +4,11 @@ USE stalker;
 
 CREATE TABLE IF NOT EXISTS message_flow (
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-topic VARCHAR(255) NOT NULL,
-tags   VARCHAR(255) NOT NULL,
+topic VARCHAR(255) ,
+tags   VARCHAR(255) ,
 msg_id  VARCHAR(255),
 tracer_id VARCHAR(255) ,
-born_host VARCHAR(255) NOT NULL,
+born_host VARCHAR(255) ,
 status  VARCHAR(255),
 source  VARCHAR(255),
 producer_group VARCHAR(255),

@@ -24,7 +24,7 @@
         SELECT tracer_id
         FROM message_flow
         WHERE 1 = 1
-            AND tracer_id != null
+            AND tracer_id IS NOT NULL
         <if test="id != null">
             AND msg_id = #{id}
         </if>
