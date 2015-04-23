@@ -6,6 +6,7 @@ import com.ndpmedia.rocketmq.stalker.config.DataConfig;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 
 /**
  * Created by robert.xu on 2015/4/10.
@@ -41,7 +42,8 @@ public class TranslateHelper implements Constant{
         Set<Entry<String, Object>> set = map.entrySet();
 
         for (Entry<String, Object> entry : set) {
-            sql = sql.replaceAll("#" + entry.getKey(), entry.getValue() + "");
+            String re = Matcher.quoteReplacement(entry.getValue() + "");
+            sql = sql.replaceAll("#" + entry.getKey(), re);
         }
 
         return sql;
