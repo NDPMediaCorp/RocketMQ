@@ -3,6 +3,7 @@ package com.alibaba.rocketmq.interceptor;
 final class Helper {
 
     static final String TOKEN_KEY = "token";
+    static final String REDIRECT_KEY = "redirect";
 
     private Helper() {
 

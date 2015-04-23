@@ -7,6 +7,7 @@ public class Login {
     private String userId;
     private String token;
     private Date loginTime;
+    private String redirect;
 
     public long getId() {
         return id;
@@ -38,5 +39,13 @@ public class Login {
 
     public void setLoginTime(Date loginTime) {
         this.loginTime = loginTime;
+    }
+
+    public String getRedirect() {
+        return redirect;
+    }
+
+    public void setRedirect(String redirect) {
+        this.redirect = redirect;
     }
 }
