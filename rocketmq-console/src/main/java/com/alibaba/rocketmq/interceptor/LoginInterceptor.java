@@ -31,7 +31,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 
     private String getAuthURL(HttpServletRequest request) {
         return  request.getScheme() + "://" + request.getServerName()
-                + ":" + request.getServerPort() + "/rocketmq/sso?token=";
+                + ":" + request.getServerPort() + "/rocketmq/sso/";
     }
 
 

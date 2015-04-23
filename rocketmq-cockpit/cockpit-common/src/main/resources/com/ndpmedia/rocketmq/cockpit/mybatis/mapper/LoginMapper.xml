@@ -14,4 +14,18 @@
         WHERE login_time <= #{date}
         ]]>
     </delete>
+
+    <resultMap id="loginMap" type="Login">
+        <id column="id" property="id" />
+        <result column="login_time" property="loginTime" javaType="java.util.Date" jdbcType="timestamp" />
+        <result column="user_id" property="userId" />
+        <result column="token" property="token" />
+    </resultMap>
+
+    <select id="getByToken" parameterType="string" resultMap="loginMap">
+        SELECT id, login_time, user_id, token
+        FROM login
+        WHEN token = #{token}
+    </select>
+
 </mapper>

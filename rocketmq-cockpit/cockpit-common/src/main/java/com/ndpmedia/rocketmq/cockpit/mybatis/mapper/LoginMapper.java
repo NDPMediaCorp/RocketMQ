@@ -9,4 +9,6 @@ public interface LoginMapper {
     void insert(Login login);
 
     void delete(Date date);
+
+    Login getByToken(String token);
 }

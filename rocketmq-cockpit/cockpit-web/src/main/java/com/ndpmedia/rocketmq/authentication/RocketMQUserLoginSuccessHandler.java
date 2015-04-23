@@ -44,14 +44,14 @@ public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthentica
             Login login = new Login();
             login.setCockpitUser(cockpitUser);
             login.setLoginTime(new Date());
-            login.setSessionId(request.getSession().getId());
+            login.setToken(UUID.randomUUID().toString().replace("-", ""));
             loginMapper.insert(login);
             logger.info("Account {Team: " + cockpitUser.getTeam().getName() +
                     ", Member: " + cockpitUser.getUsername() + "} logs in");
             httpSession.removeAttribute(LoginConstant.LOGIN_SESSION_ERROR_KEY);
 
 
-            String redirectURL = request.getParameter(LoginConstant.REDIRECT_URL);
+            String redirectURL = request.getParameter(LoginConstant.REDIRECT_KEY);
             if (null != redirectURL && redirectURL.trim().length() > 0) {
                 byte[] redirectBytes = Base64.decodeBase64(redirectURL);
                 StringBuilder stringBuilder = new StringBuilder(redirectBytes.length * 2);
@@ -62,8 +62,10 @@ public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthentica
                 } else {
                     stringBuilder.append("&");
                 }
-                stringBuilder.append("token=").append(UUID.randomUUID());
+                stringBuilder.append("token=").append(login.getToken())
+                        .append("&").append(LoginConstant.REDIRECT_KEY).append("=").append(redirectURL);
                 response.sendRedirect(stringBuilder.toString());
+                return;
             }
 
         } else {
