@@ -30,7 +30,9 @@ public class LogFormat implements FileFormat {
 
         try {
             //记录SQL影响行数
-            int i = StalkerDao.update(sql);
+            if (null != sql && !sql.isEmpty()) {
+                int i = StalkerDao.update(sql);
+            }
         } catch (Exception e) {
             System.out.println(" try to save file analysis result failed.");
             e.printStackTrace();
