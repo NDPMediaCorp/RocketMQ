@@ -34,7 +34,7 @@ public class ConsumeMessageBrokerTraceHook implements ConsumeMessageHook {
                         context.getQueueId(),
                         context.getConsumerGroup(),
                         context.getClientHost(),
-                        context.getStatus(),
+                        "CLIENT REQUEST",
                         "BROKER");
             }
 //        }
