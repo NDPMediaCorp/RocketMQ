@@ -41,7 +41,7 @@ public class ConsumeMessageClientTraceHook implements ConsumeMessageHook {
                     MixAll.localhostName(),
                     messageExt.getTopic(),
                     messageExt.getTags(),
-                    context.getStatus(),
+                    "LOAD",
                     "CONSUMER");
         }
     }
