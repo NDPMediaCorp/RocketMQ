@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CockpitMessageMapper {
 
-    List<CockpitMessageFlow> list(@Param("id") String id);
+    List<CockpitMessageFlow> list(@Param("msgId") String msgId, @Param("tracerId") String tracerId);
 
     String tracerId(@Param("id") String id);
 }

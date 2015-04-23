@@ -102,6 +102,6 @@ public class CockpitMessageServiceController {
     @ResponseBody
     public List<CockpitMessageFlow> getFlowByID(@PathVariable("id") String id){
         String tracerId = cockpitMessageMapper.tracerId(id);
-        return cockpitMessageMapper.list(null == tracerId ? "-1" : tracerId);
+        return cockpitMessageMapper.list(id, tracerId);
     }
 }
