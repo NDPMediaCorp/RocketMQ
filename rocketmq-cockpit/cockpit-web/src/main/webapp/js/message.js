@@ -95,10 +95,14 @@ $(document).ready(function() {
                 document.getElementById("queryID").style.display = "block";
                 document.getElementById("queryType").options[0].selected=true;
                 $(".itable-content").children().remove();
+                    var operationLink = $("<a class='flowItem' href='javascript:;'>flow</a>");
+                    operationLink.attr("rel", message.msgId);
+                    var operation = $("<td>message flow: </td>").append(operationLink);
                 var pro = message.properties;
                 var cons = getMapValue(pro);
-                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td>Messagebody:[length]" + message.body.length + "   <a href='cockpit/api/message/download/" + message.msgId + "'>download</a></td></tr><tr><td>message flow: <a class='flowItem' href='javascript:;'>flow</a> </td></tr>");
+                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td>Messagebody:[length]" + message.body.length + "   <a href='cockpit/api/message/download/" + message.msgId + "'>download</a></td></tr>");
                 $(".itable-content").append(item);
+                    $(".itable-content").append($("<tr></tr>").append(operation));
             },
             error: function() {
                 alert("Error");
