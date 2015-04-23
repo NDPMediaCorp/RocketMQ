@@ -138,12 +138,12 @@ CREATE TABLE IF NOT EXISTS consumer_group_team_xref(
 -- Login
 CREATE TABLE IF NOT EXISTS login (
   id INT NOT NULL PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  session_id VARCHAR(50) NOT NULL,
   login_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  user_id INT NOT NULL REFERENCES cockpit_user(id)
+  user_id INT NOT NULL REFERENCES cockpit_user(id),
+  token CHAR(32) NOT NULL
 ) ENGINE = INNODB;
 
-CREATE INDEX idx_login_session ON login(session_id) USING HASH;
+CREATE INDEX idx_token ON login(token) USING HASH;
 
 
 

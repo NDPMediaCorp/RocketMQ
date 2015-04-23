@@ -3,8 +3,8 @@
 <mapper namespace="com.ndpmedia.rocketmq.cockpit.mybatis.mapper.LoginMapper">
 
     <insert id="insert" parameterType="Login" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO login(id, session_id, login_time, user_id)
-        VALUES (NULL, #{sessionId}, #{loginTime}, #{cockpitUser.id})
+        INSERT INTO login(id, token, login_time, user_id)
+        VALUES (NULL, #{token}, #{loginTime}, #{cockpitUser.id})
     </insert>
 
     <delete id="delete" parameterType="date">
