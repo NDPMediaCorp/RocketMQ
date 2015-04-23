@@ -49,10 +49,10 @@ public class ConsumeMessageBrokerTraceHook implements ConsumeMessageHook {
                                 "\"Broker\": \"{}\", \"MessageQueue\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\"",
                         msgId,
                         timeStamp,
-                        context.getStoreHost(),
-                        context.getQueueId(),
                         context.getConsumerGroup(),
                         context.getClientHost(),
+                        context.getStoreHost(),
+                        context.getQueueId(),
                         context.getStatus(),
                         "BROKER");
             }
