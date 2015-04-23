@@ -2,11 +2,9 @@ package com.ndpmedia.rocketmq.stalker.file;
 
 import com.alibaba.fastjson.JSON;
 import com.ndpmedia.rocketmq.stalker.config.Constant;
-import com.ndpmedia.rocketmq.stalker.config.DataConfig;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
 
 /**
  * Created by robert.xu on 2015/4/10.
@@ -37,15 +35,54 @@ public class TranslateHelper implements Constant{
     }
 
     public static String translateSQLFromMap(Map<String, Object> map) {
-        String sql = DataConfig.getProperties().getProperty("sql.producer.insert");
+        StringBuffer sql = new StringBuffer(" INSERT INTO message_flow");
 
         Set<Entry<String, Object>> set = map.entrySet();
 
+        getKeys(sql, set);
+
+        sql.append(" values(");
+        int index = 0;
         for (Entry<String, Object> entry : set) {
-            String re = Matcher.quoteReplacement(entry.getValue() + "");
-            sql = sql.replaceAll("#" + entry.getKey(), re);
+            if (0 != index++)
+                sql.append(",");
+            sql.append("'");
+            sql.append(entry.getValue());
+            sql.append("'");
+        }
+        sql.append(");");
+
+        return sql.toString();
+    }
+
+    private static void getKeys(StringBuffer sql, Set<Entry<String, Object>> set){
+        sql.append("(");
+        int index = 0;
+        for (Entry<String, Object> entry:set){
+            if (0 != index++)
+                sql.append(", ");
+            sql.append(sqlKey.get(entry.getKey()));
         }
 
-        return sql;
+        sql.append(")");
+    }
+
+    private static Map<String, String> sqlKey = new HashMap<String, String>();
+
+    static{
+        sqlKey.put("Topic", "topic");
+        sqlKey.put("Tags", "tags");
+        sqlKey.put("MsgId", "msg_id");
+        sqlKey.put("TracerId", "tracer_id");
+        sqlKey.put("BornHost", "born_host");
+        sqlKey.put("Status", "status");
+        sqlKey.put("Source", "source");
+        sqlKey.put("ProducerGroup", "producer_group");
+        sqlKey.put("Broker", "broker");
+        sqlKey.put("MessageQueue", "message_queue");
+        sqlKey.put("OffSet", "offset");
+        sqlKey.put("TimeStamp", "time_stamp");
+        sqlKey.put("ConsumerGroup", "consumer_group");
+        sqlKey.put("Client", "client");
     }
 }

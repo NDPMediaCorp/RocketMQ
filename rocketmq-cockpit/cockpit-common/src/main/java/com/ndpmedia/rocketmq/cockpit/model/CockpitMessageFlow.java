@@ -45,9 +45,13 @@ public class CockpitMessageFlow {
      */
     private String producerGroup;
 
+    private String consumerGroup;
+
     private String bornHost;
 
     private String broker;
+
+    private String client;
 
     private String messageQueue;
 
@@ -167,5 +171,21 @@ public class CockpitMessageFlow {
 
     public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
+    }
+
+    public String getConsumerGroup() {
+        return consumerGroup;
+    }
+
+    public void setConsumerGroup(String consumerGroup) {
+        this.consumerGroup = consumerGroup;
+    }
+
+    public String getClient() {
+        return client;
+    }
+
+    public void setClient(String client) {
+        this.client = client;
     }
 }

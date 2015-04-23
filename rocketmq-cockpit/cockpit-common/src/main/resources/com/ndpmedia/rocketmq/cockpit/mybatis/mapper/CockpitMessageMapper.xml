@@ -13,7 +13,9 @@
         <result column="status" property="status" />
         <result column="source" property="source" />
         <result column="producer_group" property="producerGroup" />
+        <result column="consumer_group" property="consumerGroup" />
         <result column="broker" property="broker" />
+        <result column="client" property="client" />
         <result column="message_queue" property="messageQueue" />
         <result column="offset" property="offSet" />
         <result column="create_time" property="createTime" />
