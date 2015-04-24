@@ -17,7 +17,7 @@
 
     <resultMap id="loginMap" type="Login">
         <id column="id" property="id" />
-        <result column="login_time" property="loginTime" javaType="java.util.Date" jdbcType="timestamp" />
+        <result column="login_time" property="loginTime" javaType="date"/>
         <result column="user_id" property="userId" />
         <result column="token" property="token" />
     </resultMap>
