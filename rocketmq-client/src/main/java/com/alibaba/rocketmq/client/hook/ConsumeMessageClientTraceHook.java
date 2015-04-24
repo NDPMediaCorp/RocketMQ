@@ -31,7 +31,8 @@ public class ConsumeMessageClientTraceHook implements ConsumeMessageHook {
             }
 
             logger.info("\"TracerId\": \"{}\", \"MsgId\": \"{}\", \"TimeStamp\": \"{}\", \"Broker\": \"{}\", \"MessageQueue\": \"{}\", " +
-                            "\"ConsumerGroup\": \"{}\", \"Client\": \"{}\", \"Topic\": \"{}\", \"Tags\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\"",
+                            "\"ConsumerGroup\": \"{}\", \"Client\": \"{}\", \"Topic\": \"{}\", \"Tags\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\", " +
+                            "\"From\":\"{}\", \"To\":\"{}\"",
                     messageExt.getTracerId(),
                     messageExt.getMsgId(),
                     timeStamp,
@@ -41,8 +42,10 @@ public class ConsumeMessageClientTraceHook implements ConsumeMessageHook {
                     MixAll.localhostName(),
                     messageExt.getTopic(),
                     messageExt.getTags(),
-                    context.getStatus(),
-                    "CONSUMER");
+                    "LOAD",
+                    "CONSUMER",
+                    context.getMq().getBrokerName(),
+                    MixAll.localhostName());
         }
     }
 
@@ -55,7 +58,8 @@ public class ConsumeMessageClientTraceHook implements ConsumeMessageHook {
             }
 
             logger.info("\"TracerId\": \"{}\", \"MsgId\": \"{}\", \"TimeStamp\": \"{}\", \"Broker\": \"{}\", \"MessageQueue\": \"{}\", " +
-                            "\"ConsumerGroup\": \"{}\", \"Client\": \"{}\", \"Topic\": \"{}\", \"Tags\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\"",
+                            "\"ConsumerGroup\": \"{}\", \"Client\": \"{}\", \"Topic\": \"{}\", \"Tags\": \"{}\", \"Status\": \"{}\", \"Source\": \"{}\", " +
+                            "\"From\":\"{}\", \"To\":\"{}\"",
                     messageExt.getTracerId(),
                     messageExt.getMsgId(),
                     timeStamp,
@@ -66,7 +70,9 @@ public class ConsumeMessageClientTraceHook implements ConsumeMessageHook {
                     messageExt.getTopic(),
                     messageExt.getTags(),
                     context.getStatus(),
-                    "CONSUMER");
+                    "CONSUMER",
+                    context.getMq().getBrokerName(),
+                    MixAll.localhostName());
         }
 
     }

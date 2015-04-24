@@ -1,5 +1,6 @@
 package com.ndpmedia.rocketmq.stalker.executor;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -13,16 +14,16 @@ public class ExecutorMonitor extends Thread {
     @Override
     public void run() {
         while (true) {
-            System.out.println(" executor monitor wake up .");
+            System.out.println(new Date().toString() + " executor monitor wake up .");
 
             try {
                 sleep(30 * 1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.out.println(new Date().toString() + " executor monitor interrupted .");
             }
 
             if (null == fileMonitors || fileMonitors.isEmpty()) {
-                System.out.println(" no file monitor is running .");
+                System.out.println(new Date().toString() + " no file monitor is running .");
 
                 continue;
             }
@@ -30,7 +31,7 @@ public class ExecutorMonitor extends Thread {
             for (FileMonitor fileMonitor : fileMonitors) {
                 if (fileMonitor.isAlive())
                     continue;
-                System.out.println(" file monitor " + fileMonitor.getPath() + " is stopped. try to restart .");
+                System.out.println(new Date().toString() + " file monitor " + fileMonitor.getPath() + " is stopped. try to restart .");
                 FileMonitor file2 = new FileMonitor(fileMonitor.getPath());
                 fileMonitors.remove(fileMonitor);
                 file2.start();

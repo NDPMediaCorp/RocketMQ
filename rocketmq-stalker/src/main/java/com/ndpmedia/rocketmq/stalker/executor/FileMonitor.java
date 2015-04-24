@@ -6,6 +6,7 @@ import com.ndpmedia.rocketmq.stalker.file.*;
 import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.Date;
 
 
 /**
@@ -70,9 +71,9 @@ public class FileMonitor extends Thread {
 
             mbb = indexRAF.getChannel().map(MapMode.READ_WRITE, 0, 16);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.out.println(new Date().toString() + " read index save failed. index file not found.");
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(new Date().toString() + " read index IP failed.");
         }
     }
 

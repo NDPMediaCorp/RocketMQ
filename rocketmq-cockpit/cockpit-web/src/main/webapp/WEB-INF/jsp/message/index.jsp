@@ -10,6 +10,14 @@
   <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
   <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
   <script src="js/message.js" type="application/javascript"></script>
+  <script src="js/raphael-min.js" type="application/javascript"></script>
+        <style type="text/css" media="screen">
+            #holder {
+                -moz-border-radius: 10px;
+                -webkit-border-radius: 10px;
+                border: solid 1px #333;
+            }
+        </style>
 </head>
 <body>
 <div class="container-fluid">
@@ -90,6 +98,19 @@
     </div>
   </div>
 
+  <div id="flow" style="display:none">
+    <div class="row">
+      <div class="col-xs-8 col-xs-offset-2 text-left table-responsive">
+        <table class="table table-condense table-hover table-bordered">
+          <tbody class="table-striped ftable-content">
+          </tbody>
+        </table>
+
+        <div class="clear-both"></div>
+
+      </div>
+    </div>
+  </div>
 </div>
 </body>
 </html>

@@ -13,6 +13,7 @@ $(document).ready(function() {
             document.getElementById("queryID").style.display = "none";
             document.getElementById("queryKEY").style.display = "block";
         }
+        document.getElementById("flow").style.display = "none";
     } ;
 
     $(".queryByID").click(function() {
@@ -29,11 +30,17 @@ $(document).ready(function() {
             dataType: "json",
             success: function(message) {
                 $(".itable-content").children().remove();
+                document.getElementById("flow").style.display = "none";
                 if (null != message){
+                    var operationLink = $("<a class='flowItem' href='javascript:;'>flow</a>");
+                    operationLink.attr("rel", message.msgId);
+                    var operation = $("<td>message flow: </td>").append(operationLink);
                     var pro = message.properties;
                     var cons = getMapValue(pro);
                     var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td>Messagebody:[length]" + message.body.length + "   <a href='cockpit/api/message/download/" + message.msgId + "'>download</a></td></tr>");
+
                     $(".itable-content").append(item);
+                    $(".itable-content").append($("<tr></tr>").append(operation));
                 }
             }
         });
@@ -56,14 +63,15 @@ $(document).ready(function() {
             contentType: "application/json; charset=UTF-8",
             dataType: "json",
             success: function(backdata) {
+                document.getElementById("flow").style.display = "none";
                 $(".ktable-content").children().remove();
                 if (null != backdata){
                     backdata.forEach(function(message) {
-                        var operationLink = $("<a class='operationItem' href='javascript:;'>Operation</a>");
+                        var operationLink = $("<a class='operationItem' href='javascript:;'>detail</a>    <a class='flowItem' href='javascript:;'>flow</a>");
                         operationLink.attr("rel", message.msgId);
                         var operation = $("<td></td>").append(operationLink);
                         var item = $("<tr><td>" + message.msgId + "</td><td>" + message.tags + "</td><td>" + message.keys + "</td><td>" + message.storTime + "</td></tr>");
-                     item.append(operation);
+                        item.append(operation);
                         $(".ktable-content").append(item);
                    });
                 }
@@ -83,13 +91,44 @@ $(document).ready(function() {
             dataType: "json",
             success: function(message) {
                 document.getElementById("queryKEY").style.display = "none";
+                document.getElementById("flow").style.display = "none";
                 document.getElementById("queryID").style.display = "block";
                 document.getElementById("queryType").options[0].selected=true;
                 $(".itable-content").children().remove();
+                    var operationLink = $("<a class='flowItem' href='javascript:;'>flow</a>");
+                    operationLink.attr("rel", message.msgId);
+                    var operation = $("<td>message flow: </td>").append(operationLink);
                 var pro = message.properties;
                 var cons = getMapValue(pro);
                 var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td>Messagebody:[length]" + message.body.length + "   <a href='cockpit/api/message/download/" + message.msgId + "'>download</a></td></tr>");
                 $(".itable-content").append(item);
+                    $(".itable-content").append($("<tr></tr>").append(operation));
+            },
+            error: function() {
+                alert("Error");
+            }
+        });
+    });
+
+    $(".flowItem").live("click", function() {
+        var msgId = $(this).attr("rel");
+        $("input.msgId").val(msgId);
+        $.ajax({
+            async: false,
+            url: "cockpit/api/message" + "/flow/" + msgId,
+            type: "GET",
+            contentType: "application/json; charset=UTF-8",
+            dataType: "json",
+            success: function(backdata) {
+                document.getElementById("flow").style.display = "block";
+                $(".ftable-content").children().remove();
+                if (null != backdata){
+                    backdata.forEach(function(cockpitMessageFlow) {
+                        var item = $("<tr><td>source:" + cockpitMessageFlow.source + "</td><td>status:" + cockpitMessageFlow.status + "</td><td>from:" + cockpitMessageFlow.ipFrom + "</td><td>to:" + cockpitMessageFlow.ipTo + "</td><td>time:" + new Date(cockpitMessageFlow.timeStamp) + "</td></tr>");
+
+                        $(".ftable-content").append(item);
+                   });
+                }
             },
             error: function() {
                 alert("Error");

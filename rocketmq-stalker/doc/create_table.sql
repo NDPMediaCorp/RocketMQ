@@ -4,17 +4,21 @@ USE stalker;
 
 CREATE TABLE IF NOT EXISTS message_flow (
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-topic VARCHAR(255) NOT NULL,
-tags   VARCHAR(255) NOT NULL,
+topic VARCHAR(255) ,
+tags   VARCHAR(255) ,
 msg_id  VARCHAR(255),
-tracer_id VARCHAR(255) NOT NULL,
-born_host VARCHAR(255) NOT NULL,
+tracer_id VARCHAR(255) ,
+born_host VARCHAR(255) ,
 status  VARCHAR(255),
 source  VARCHAR(255),
 producer_group VARCHAR(255),
+consumer_group VARCHAR(255),
 broker  VARCHAR(255),
-message_queue INT,
+client  VARCHAR(255),
+message_queue VARCHAR(255),
 offset VARCHAR(255),
+ip_from VARCHAR(255),
+ip_to VARCHAR(255),
 create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 time_stamp BIGINT NOT NULL DEFAULT 0
 ) ENGINE = INNODB;
