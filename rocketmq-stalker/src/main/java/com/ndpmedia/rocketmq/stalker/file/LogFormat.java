@@ -1,8 +1,8 @@
 package com.ndpmedia.rocketmq.stalker.file;
 
-import com.ndpmedia.rocketmq.stalker.config.DataConfig;
 import com.ndpmedia.rocketmq.stalker.dao.StalkerDao;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -34,8 +34,8 @@ public class LogFormat implements FileFormat {
                 int i = StalkerDao.update(sql);
             }
         } catch (Exception e) {
-            System.out.println(" try to save file analysis result failed.");
-            e.printStackTrace();
+            System.out.println(new Date().toString() + " try to save file analysis result failed.");
+
             return false;
         }
 

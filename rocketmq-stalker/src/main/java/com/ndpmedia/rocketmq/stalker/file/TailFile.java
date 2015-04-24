@@ -1,6 +1,7 @@
 package com.ndpmedia.rocketmq.stalker.file;
 
 import java.io.*;
+import java.util.Date;
 
 /**
  * Created by robert.xu on 2015/4/9.
@@ -36,12 +37,12 @@ public class TailFile {
 
         }
         catch (FileNotFoundException e) {
-            System.out.println(" the path is wrong, please check it" + path);
-            e.printStackTrace();
+            System.out.println(new Date().toString() + " the path is wrong, please check it" + path);
+
         }
         catch (IOException e) {
             System.out.println(" the path is not ok, please check it" + path);
-            e.printStackTrace();
+
         }finally {
             try {
                 randomAccessFile.close();

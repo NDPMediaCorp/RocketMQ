@@ -29,7 +29,7 @@ public class TranslateHelper implements Constant{
                 line = line + "}";
             map = (Map<String, Object>) JSON.parse(line);
         } catch (Exception e) {
-            System.out.println(" this log is not format ." + line);
+            System.out.println(new Date().toString() + " this log is not format ." + line);
         }
         return map;
     }
