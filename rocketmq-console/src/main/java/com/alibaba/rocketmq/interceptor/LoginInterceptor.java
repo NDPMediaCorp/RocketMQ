@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 public class LoginInterceptor extends HandlerInterceptorAdapter {
@@ -56,7 +55,6 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 
         //Check if the request is a callback from SSO.
         String token = request.getParameter(Helper.TOKEN_KEY);
-        String redirect = request.getParameter(Helper.REDIRECT_KEY);
         if (null == token || token.isEmpty()) {
             response.sendRedirect(getSSOLoginURL(request));
             return false;
@@ -84,10 +82,6 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 
                     //TODO validate more.
                     request.getSession().setAttribute(Helper.LOGIN_KEY, login);
-
-                    //forward requests.
-                    String redirectURL = URLDecoder.decode(redirect, "UTF-8");
-                    response.sendRedirect(redirectURL);
                     return true;
                 } else {
                     LOGGER.error("Invoking Cockpit SSO, response status NOT OK. Status {}",
