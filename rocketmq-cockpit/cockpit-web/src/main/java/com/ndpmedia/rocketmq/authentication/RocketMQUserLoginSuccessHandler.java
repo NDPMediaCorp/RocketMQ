@@ -51,7 +51,6 @@ public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthentica
                     ", Member: " + cockpitUser.getUsername() + "} logs in");
             httpSession.removeAttribute(LoginConstant.LOGIN_SESSION_ERROR_KEY);
 
-
             Object redirectURL = httpSession.getAttribute(LoginConstant.REDIRECT_URL_IN_SESSION);
             if (null != redirectURL && redirectURL.toString().trim().length() > 0) {
                 String redirect = URLDecoder.decode(redirectURL.toString(), "UTF-8");
@@ -61,9 +60,7 @@ public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthentica
                 } else {
                     stringBuilder.append("&");
                 }
-                stringBuilder.append("token=").append(login.getToken())
-                        .append("&").append(LoginConstant.REDIRECT_KEY).append("=").append(redirectURL);
-
+                stringBuilder.append("token=").append(login.getToken());
                 //remove redirect url in session.
                 httpSession.removeAttribute(LoginConstant.REDIRECT_URL_IN_SESSION);
 
