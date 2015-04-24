@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.net.URLDecoder;
 
 /**
  * personal filter.just for check retry times.
@@ -35,6 +36,23 @@ public class RocketMQLoginFilter implements Filter, LoginConstant {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         HttpSession session = request.getSession();
+
+        //Check SSO.
+        String redirectURL = request.getParameter(LoginConstant.REDIRECT_KEY);
+        Object tokenObj = session.getAttribute(LoginConstant.TOKEN_IN_SESSION);
+        if (null != tokenObj && null != redirectURL) {
+            String decodedRedirectURL = URLDecoder.decode(redirectURL, "UTF-8");
+            StringBuilder stringBuilder = new StringBuilder(decodedRedirectURL);
+            if (decodedRedirectURL.contains("?")) {
+                stringBuilder.append("&");
+            } else {
+                stringBuilder.append("?");
+            }
+            stringBuilder.append("token=" + tokenObj);
+            logger.info("Redirect for SSO.");
+            response.sendRedirect(stringBuilder.toString());
+            return;
+        }
 
         session.removeAttribute(LOGIN_SESSION_ERROR_KEY);
 

@@ -45,6 +45,7 @@ public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthentica
             login.setCockpitUser(cockpitUser);
             login.setLoginTime(new Date());
             login.setToken(UUID.randomUUID().toString().replace("-", ""));
+            httpSession.setAttribute(LoginConstant.TOKEN_IN_SESSION, login.getToken());
             loginMapper.insert(login);
             logger.info("Account {Team: " + cockpitUser.getTeam().getName() +
                     ", Member: " + cockpitUser.getUsername() + "} logs in");
