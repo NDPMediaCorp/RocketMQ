@@ -15,12 +15,18 @@
         ]]>
     </delete>
 
-    <resultMap id="loginMap" type="Login">
+    <resultMap id="loginMap" type="com.ndpmedia.rocketmq.cockpit.model.Login">
         <id column="id" property="id" />
         <result column="login_time" property="loginTime" javaType="date"/>
-        <result column="user_id" property="userId" />
         <result column="token" property="token" />
+        <association property="cockpitUser" column="user_id"  select="getUserById" />
     </resultMap>
+
+    <select id="getUserById" resultType="com.ndpmedia.rocketmq.cockpit.model.CockpitUser" parameterType="long">
+        SELECT id, username, email
+        FROM cockpit_user
+        WHERE id = #{id}
+    </select>
 
     <select id="getByToken" parameterType="string" resultMap="loginMap">
         SELECT id, login_time, user_id, token

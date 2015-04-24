@@ -4,7 +4,6 @@ import com.ndpmedia.rocketmq.cockpit.model.CockpitUser;
 import com.ndpmedia.rocketmq.cockpit.model.Login;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.LoginMapper;
 import com.ndpmedia.rocketmq.cockpit.util.LoginConstant;
-import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.Date;
 import java.util.UUID;
 
@@ -51,12 +51,10 @@ public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthentica
             httpSession.removeAttribute(LoginConstant.LOGIN_SESSION_ERROR_KEY);
 
 
-            String redirectURL = request.getParameter(LoginConstant.REDIRECT_KEY);
-            if (null != redirectURL && redirectURL.trim().length() > 0) {
-                byte[] redirectBytes = Base64.decodeBase64(redirectURL);
-                StringBuilder stringBuilder = new StringBuilder(redirectBytes.length * 2);
-                String redirect = new String(redirectBytes, "UTF-8");
-                stringBuilder.append(redirect);
+            Object redirectURL = httpSession.getAttribute(LoginConstant.REDIRECT_URL_IN_SESSION);
+            if (null != redirectURL && redirectURL.toString().trim().length() > 0) {
+                String redirect = URLDecoder.decode(redirectURL.toString(), "UTF-8");
+                StringBuilder stringBuilder = new StringBuilder(redirect);
                 if (!redirect.contains("?")) {
                     stringBuilder.append("?");
                 } else {
@@ -64,6 +62,10 @@ public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthentica
                 }
                 stringBuilder.append("token=").append(login.getToken())
                         .append("&").append(LoginConstant.REDIRECT_KEY).append("=").append(redirectURL);
+
+                //remove redirect url in session.
+                httpSession.removeAttribute(LoginConstant.REDIRECT_URL_IN_SESSION);
+
                 response.sendRedirect(stringBuilder.toString());
                 return;
             }

@@ -12,6 +12,7 @@
     <security:http pattern="/css/**" security="none" />
     <security:http pattern="/img/**" security="none" />
     <security:http pattern="/rocketmq/**" security="none" />
+    <security:http pattern="/console/**" security="none" />
     <security:http pattern="/**/captcha-image" security="none" />
     <security:http pattern="/cockpit/register" security="none" />
     <security:http pattern="/cockpit/login" security="none" />

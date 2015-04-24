@@ -24,8 +24,8 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
     private String getSSOLoginURL(HttpServletRequest request) throws IOException {
         return  request.getScheme() + "://" + request.getServerName()
                 + ":" + request.getServerPort()
-                + "/cockpit/login.action?redirect="
-                + URLEncoder.encode(request.getRequestURL().toString(), null);
+                + "/cockpit/login?redirect="
+                + URLEncoder.encode(request.getRequestURL().toString(), "UTF-8");
     }
 
 
@@ -46,66 +46,63 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
 
+        //Check if already logged in or not.
+        HttpSession session = request.getSession();
+
+        if (null != session.getAttribute(Helper.LOGIN_KEY)) {
+            return true;
+        }
+
+
         //Check if the request is a callback from SSO.
-        if (Helper.CALLBACK_URL.equals(request.getRequestURI())) {
-            String token = request.getParameter(Helper.TOKEN_KEY);
-            String redirect = request.getParameter(Helper.REDIRECT_KEY);
-            if (null == token || token.isEmpty()) {
-                response.sendRedirect(getSSOLoginURL(request));
-                return false;
-            } else {
-                URL url = new URL(getAuthURL(request) + token);
-                HttpURLConnection urlConnection = null;
-                try {
-                    urlConnection = (HttpURLConnection)url.openConnection();
-                    urlConnection.setRequestMethod("GET");
-                    urlConnection.setReadTimeout(3000);
-                    urlConnection.setConnectTimeout(3000);
-                    urlConnection.connect();
+        String token = request.getParameter(Helper.TOKEN_KEY);
+        String redirect = request.getParameter(Helper.REDIRECT_KEY);
+        if (null == token || token.isEmpty()) {
+            response.sendRedirect(getSSOLoginURL(request));
+            return false;
+        } else {
+            URL url = new URL(getAuthURL(request) + token);
+            HttpURLConnection urlConnection = null;
+            try {
+                urlConnection = (HttpURLConnection)url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setReadTimeout(3000);
+                urlConnection.setConnectTimeout(3000);
+                urlConnection.connect();
 
-                    if (HttpURLConnection.HTTP_OK == urlConnection.getResponseCode()) {
-                        InputStream inputStream = urlConnection.getInputStream();
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                        byte[] buffer = new byte[1024];
-                        int len = 0;
-                        while ((len = inputStream.read(buffer)) > 0) {
-                            byteArrayOutputStream.write(buffer, 0, len);
-                        }
-
-                        Login login = JSON.parseObject(new String(byteArrayOutputStream.toByteArray(), "UTF-8"),
-                                Login.class);
-
-                        //TODO validate more.
-                        request.getSession().setAttribute(Helper.LOGIN_KEY, login);
-
-                        //forward requests.
-                        String redirectURL = URLDecoder.decode(redirect, null);
-                        response.sendRedirect(redirectURL);
-                        return true;
-                    } else {
-                        LOGGER.error("Invoking Cockpit SSO, response status NOT OK. Status {}",
-                                urlConnection.getResponseCode());
-                        return false;
+                if (HttpURLConnection.HTTP_OK == urlConnection.getResponseCode()) {
+                    InputStream inputStream = urlConnection.getInputStream();
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    byte[] buffer = new byte[1024];
+                    int len = 0;
+                    while ((len = inputStream.read(buffer)) > 0) {
+                        byteArrayOutputStream.write(buffer, 0, len);
                     }
 
-                } catch (IOException e) {
-                    LOGGER.error("Invoking Cockpit SSO failed.", e);
-                } finally {
-                    if (null != urlConnection) {
-                        urlConnection.disconnect();
-                    }
+                    Login login = JSON.parseObject(new String(byteArrayOutputStream.toByteArray(), "UTF-8"),
+                            Login.class);
+
+                    //TODO validate more.
+                    request.getSession().setAttribute(Helper.LOGIN_KEY, login);
+
+                    //forward requests.
+                    String redirectURL = URLDecoder.decode(redirect, "UTF-8");
+                    response.sendRedirect(redirectURL);
+                    return true;
+                } else {
+                    LOGGER.error("Invoking Cockpit SSO, response status NOT OK. Status {}",
+                            urlConnection.getResponseCode());
+                }
+            } catch (IOException e) {
+                LOGGER.error("Invoking Cockpit SSO failed.", e);
+            } finally {
+                if (null != urlConnection) {
+                    urlConnection.disconnect();
                 }
             }
         }
 
-
-        //Check if already logged in.
-        HttpSession session = request.getSession();
-        if (null == session.getAttribute(Helper.LOGIN_KEY)) {
-            response.sendRedirect(getSSOLoginURL(request));
-            return false;
-        }
-
-        return true;
+        response.sendRedirect(getSSOLoginURL(request));
+        return false;
     }
 }

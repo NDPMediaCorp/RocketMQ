@@ -38,4 +38,5 @@ public interface LoginConstant extends Constant {
     String COCKPIT_USER_KEY = "cockpit_user_in_session";
 
     String REDIRECT_KEY = "redirect";
+    String REDIRECT_URL_IN_SESSION = "redirect_url_in_session";
 }
