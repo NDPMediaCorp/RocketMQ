@@ -1,4 +1,4 @@
-
+var selectDefault = "----请选择-----";
 $(document).ready(function() {
 
     var select = document.getElementById("queryType");
@@ -9,10 +9,13 @@ $(document).ready(function() {
         if ("0" === queryType){
             document.getElementById("queryKEY").style.display = "none";
             document.getElementById("queryID").style.display = "block";
-        }else{
+        }
+
+        if ("1" === queryType){
             document.getElementById("queryID").style.display = "none";
             document.getElementById("queryKEY").style.display = "block";
         }
+
         document.getElementById("flow").style.display = "none";
     } ;
 
@@ -34,17 +37,34 @@ $(document).ready(function() {
                 if (null != message){
                     var operationLink = $("<a class='flowItem' href='javascript:;'>flow</a>");
                     operationLink.attr("rel", message.msgId);
-                    var operation = $("<td>message flow: </td>").append(operationLink);
+                    var operation = $("<td colspan='2'>message flow: </td>").append(operationLink);
                     var pro = message.properties;
                     var cons = getMapValue(pro);
-                    var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td>Messagebody:[length]" + message.body.length + "   <a href='cockpit/api/message/download/" + message.msgId + "'>download</a></td></tr>");
+                    var item = $("<tr><td  colspan='2'>Message ID:" + message.msgId + "</td></tr>" + "<tr><td colspan='2'>Topic:" + message.topic + "</td></tr>" + "<tr><td colspan='2'>Tag:" + message.tags + "</td></tr>" + "<tr><td colspan='2'>Key:" + message.keys + "</td></tr>" + "<tr><td colspan='2'>Userproperties:" + cons + "</td></tr>" + "<tr><td colspan='2'>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td colspan='2'>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td colspan='2'>Storetime:" + message.storTime + "</td></tr>" + "<tr><td colspan='2'>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td colspan='2'>Messagebody:[length]" + message.body.length + "   <a href='cockpit/api/message/download/" + message.msgId + "'>download</a></td></tr>");
 
                     $(".itable-content").append(item);
                     $(".itable-content").append($("<tr></tr>").append(operation));
                 }
+
+                    $.ajax({
+                        async: false,
+                        url: "cockpit/api/message" + "/" + msgId,
+                        type: "POST",
+                        contentType: "application/json; charset=UTF-8",
+                        dataType: "json",
+                        success: function(backdata) {
+                            if (null != backdata){
+                                var title = $("<tr><td>Consumer</td><td>投递状态</td></tr>");
+                                $(".itable-content").append(title);
+                                backdata.forEach(function(consumer) {
+                                    var item = $("<tr><td>" + consumer.Consumer + "</td><td>" + consumer.type + "</td></tr>");
+                                    $(".itable-content").append(item);
+                               });
+                            }
+                        }
+                    });
             }
         });
-
     });
 
     $(".queryByKEY").click(function() {
@@ -97,12 +117,32 @@ $(document).ready(function() {
                 $(".itable-content").children().remove();
                     var operationLink = $("<a class='flowItem' href='javascript:;'>flow</a>");
                     operationLink.attr("rel", message.msgId);
-                    var operation = $("<td>message flow: </td>").append(operationLink);
+                    var operation = $("<td colspan='2'>message flow: </td>").append(operationLink);
                 var pro = message.properties;
                 var cons = getMapValue(pro);
-                var item = $("<tr><td>Message ID:" + message.msgId + "</td></tr>" + "<tr><td>Topic:" + message.topic + "</td></tr>" + "<tr><td>Tag:" + message.tags + "</td></tr>" + "<tr><td>Key:" + message.keys + "</td></tr>" + "<tr><td>Userproperties:" + cons + "</td></tr>" + "<tr><td>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td>Storetime:" + message.storTime + "</td></tr>" + "<tr><td>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td>Messagebody:[length]" + message.body.length + "   <a href='cockpit/api/message/download/" + message.msgId + "'>download</a></td></tr>");
+                var item = $("<tr><td colspan='2'>Message ID:" + message.msgId + "</td></tr>" + "<tr><td colspan='2'>Topic:" + message.topic + "</td></tr>" + "<tr><td colspan='2'>Tag:" + message.tags + "</td></tr>" + "<tr><td colspan='2'>Key:" + message.keys + "</td></tr>" + "<tr><td colspan='2'>Userproperties:" + cons + "</td></tr>" + "<tr><td colspan='2'>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td colspan='2'>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td colspan='2'>Storetime:" + message.storTime + "</td></tr>" + "<tr><td colspan='2'>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td colspan='2'>Messagebody:[length]" + message.body.length + "   <a href='cockpit/api/message/download/" + message.msgId + "'>download</a></td></tr>");
                 $(".itable-content").append(item);
                     $(".itable-content").append($("<tr></tr>").append(operation));
+
+
+                    $.ajax({
+                        async: false,
+                        url: "cockpit/api/message" + "/" + msgId,
+                        type: "POST",
+                        contentType: "application/json; charset=UTF-8",
+                        dataType: "json",
+                        success: function(backdata) {
+                            if (null != backdata){
+                                var title = $("<tr><td>Consumer</td><td>投递状态</td></tr>");
+                                $(".itable-content").append(title);
+                                backdata.forEach(function(consumer) {
+                                    var item = $("<tr><td>" + consumer.Consumer + "</td><td>" + consumer.type + "</td></tr>");
+                                    $(".itable-content").append(item);
+                               });
+                            }
+                        }
+                    });
+
             },
             error: function() {
                 alert("Error");

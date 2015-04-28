@@ -3,7 +3,10 @@ package com.ndpmedia.rocketmq.cockpit.controller.api;
 import com.alibaba.rocketmq.client.QueryResult;
 import com.alibaba.rocketmq.client.exception.MQBrokerException;
 import com.alibaba.rocketmq.client.exception.MQClientException;
+import com.alibaba.rocketmq.common.MixAll;
+import com.alibaba.rocketmq.common.admin.ConsumeStats;
 import com.alibaba.rocketmq.common.message.MessageExt;
+import com.alibaba.rocketmq.common.message.MessageQueue;
 import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.ndpmedia.rocketmq.cockpit.model.CockpitMessage;
@@ -19,8 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by robert.xu on 2015/4/7.
@@ -52,6 +54,57 @@ public class CockpitMessageServiceController {
             defaultMQAdminExt.shutdown();
         }
         return null;
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
+    @ResponseBody
+    public List<Map<String, String>> getConsumerTypeByID(@PathVariable("id") String id) {
+        List<Map<String, String>> result = new ArrayList<Map<String, String>>();
+        DefaultMQAdminExt defaultMQAdminExt = new DefaultMQAdminExt();
+        MessageExt messageExt = null;
+        try {
+            defaultMQAdminExt.start();
+            messageExt = defaultMQAdminExt.viewMessage(id);
+
+        } catch (Exception e) {
+            System.out.println("[QUERY MESSAGE] can not get message by id" + id);
+        }
+
+
+        Set<String> topics = null;
+        try {
+            topics = defaultMQAdminExt.fetchAllTopicList().getTopicList();
+        } catch (Exception e) {
+            System.out.println("[QUERY MESSAGE] can not get topics");
+        }
+
+        for (String topic : topics){
+            Map<String, String> consumer = new HashMap<String, String>();
+            if (topic.startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)){
+                ConsumeStats consumeStats = null;
+                try {
+                    consumeStats = defaultMQAdminExt.examineConsumeStats(topic.replace(MixAll.RETRY_GROUP_TOPIC_PREFIX, ""));
+
+                    for (MessageQueue messageQueue : consumeStats.getOffsetTable().keySet()){
+                        if (!messageExt.getTopic().equals(messageQueue.getTopic()))
+                            continue;
+                        consumer.put("Consumer", topic.replace(MixAll.RETRY_GROUP_TOPIC_PREFIX, ""));
+                        if (consumeStats.getOffsetTable().get(messageQueue).getConsumerOffset() > messageExt.getQueueOffset())
+                            consumer.put("type", "已投递");
+                        else
+                            consumer.put("type", "未投递");
+                    }
+
+                    if (!consumer.isEmpty())
+                        result.add(consumer);
+                } catch (Exception e) {
+                    System.out.println("[QUERY MESSAGE] can not get consumer offset" + topic);
+                }
+            }
+        }
+
+        defaultMQAdminExt.shutdown();
+        return result;
     }
 
     @RequestMapping(value = "/{topic}/{key}", method = RequestMethod.GET)

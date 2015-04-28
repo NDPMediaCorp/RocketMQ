@@ -10,14 +10,6 @@
   <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
   <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
   <script src="js/message.js" type="application/javascript"></script>
-  <script src="js/raphael-min.js" type="application/javascript"></script>
-        <style type="text/css" media="screen">
-            #holder {
-                -moz-border-radius: 10px;
-                -webkit-border-radius: 10px;
-                border: solid 1px #333;
-            }
-        </style>
 </head>
 <body>
 <div class="container-fluid">
