@@ -2,6 +2,7 @@ package com.ndpmedia.rocketmq.cockpit.scheduler;
 
 import com.alibaba.rocketmq.common.MixAll;
 import com.ndpmedia.rocketmq.cockpit.model.ConsumeProgress;
+import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.CockpitMessageMapper;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.ConsumeProgressMapper;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.LoginMapper;
 import com.ndpmedia.rocketmq.cockpit.service.CockpitConsumeProgressService;
@@ -24,6 +25,9 @@ public class TaskScheduler {
 
     @Autowired
     private ConsumeProgressMapper consumeProgressMapper;
+
+    @Autowired
+    private CockpitMessageMapper cockpitMessageMapper;
 
     @Autowired
     private CockpitConsumeProgressService cockpitConsumeProgressService;
@@ -72,6 +76,9 @@ public class TaskScheduler {
         calendar.add(Calendar.MONTH, -1);
         int numberOfRecordsDeleted = consumeProgressMapper.bulkDelete(calendar.getTime());
         logger.info("Deleted " + numberOfRecordsDeleted + " consume progress records.");
+
+        numberOfRecordsDeleted = cockpitMessageMapper.bulkDelete(calendar.getTime());
+        logger.info("Deleted " + numberOfRecordsDeleted + " message flow records.");
     }
 
 

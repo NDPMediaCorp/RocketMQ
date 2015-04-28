@@ -16,7 +16,7 @@
     <delete id="bulkDelete" parameterType="date">
         DELETE
         FROM consume_progress
-        WHERE create_time > #{date}
+        WHERE #{date} > create_time
     </delete>
 
     <resultMap id="consumerGroupMap" type="ConsumerGroup">

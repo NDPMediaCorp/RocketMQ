@@ -49,4 +49,10 @@
 
     </select>
 
+    <delete id="bulkDelete" parameterType="date">
+        DELETE
+        FROM message_flow
+        WHERE #{date} > create_time
+    </delete>
+
 </mapper>
