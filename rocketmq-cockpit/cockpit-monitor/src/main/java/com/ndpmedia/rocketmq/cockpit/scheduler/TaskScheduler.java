@@ -69,7 +69,7 @@ public class TaskScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void deleteDeprecatedData() {
         logger.info("Start to clean deprecated data");
         Calendar calendar = Calendar.getInstance();
