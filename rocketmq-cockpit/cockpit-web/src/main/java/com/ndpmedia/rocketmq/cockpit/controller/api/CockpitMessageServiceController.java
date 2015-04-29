@@ -7,6 +7,7 @@ import com.alibaba.rocketmq.common.MixAll;
 import com.alibaba.rocketmq.common.admin.ConsumeStats;
 import com.alibaba.rocketmq.common.message.MessageExt;
 import com.alibaba.rocketmq.common.message.MessageQueue;
+import com.alibaba.rocketmq.common.protocol.body.GroupList;
 import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.ndpmedia.rocketmq.cockpit.model.CockpitMessage;
@@ -70,14 +71,12 @@ public class CockpitMessageServiceController {
             System.out.println("[QUERY MESSAGE] can not get message by id" + id);
         }
 
-
         Set<String> topics = null;
         try {
             topics = defaultMQAdminExt.fetchAllTopicList().getTopicList();
         } catch (Exception e) {
             System.out.println("[QUERY MESSAGE] can not get topics");
         }
-
         for (String topic : topics){
             Map<String, String> consumer = new HashMap<String, String>();
             if (topic.startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)){
@@ -156,5 +155,46 @@ public class CockpitMessageServiceController {
     public List<CockpitMessageFlow> getFlowByID(@PathVariable("id") String id){
         String tracerId = cockpitMessageMapper.tracerId(id);
         return cockpitMessageMapper.list(id, tracerId);
+    }
+
+    @RequestMapping(value = "/query/{topic}", method = RequestMethod.GET)
+    @ResponseBody
+    public Set<String> getLinkedConsumerByTopic(@PathVariable("topic") String topic){
+        DefaultMQAdminExt defaultMQAdminExt = new DefaultMQAdminExt();
+        try {
+            defaultMQAdminExt.start();
+            return defaultMQAdminExt.queryTopicConsumeByWho(topic).getGroupList();
+
+        } catch (MQClientException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (RemotingException e) {
+            e.printStackTrace();
+        } catch (MQBrokerException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @RequestMapping(value = "/resend/{consumerGroup}/{client}/{msgId}", method = RequestMethod.GET)
+    @ResponseBody
+    public String resendMsg(@PathVariable("consumerGroup") String consumerGroup, @PathVariable("client") String client,
+                          @PathVariable("msgId") String msgId){
+        DefaultMQAdminExt defaultMQAdminExt = new DefaultMQAdminExt();
+        try {
+            defaultMQAdminExt.start();
+            return defaultMQAdminExt.consumeMessageDirectly(consumerGroup, client, msgId).toString();
+        } catch (MQClientException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (RemotingException e) {
+            e.printStackTrace();
+        } catch (MQBrokerException e) {
+            e.printStackTrace();
+        }
+
+        return " error ";
     }
 }

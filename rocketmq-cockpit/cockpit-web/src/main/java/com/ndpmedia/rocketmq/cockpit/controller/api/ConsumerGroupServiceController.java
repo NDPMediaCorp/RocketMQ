@@ -1,5 +1,7 @@
 package com.ndpmedia.rocketmq.cockpit.controller.api;
 
+import com.alibaba.rocketmq.common.protocol.body.Connection;
+import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.ndpmedia.rocketmq.cockpit.model.CockpitRole;
 import com.ndpmedia.rocketmq.cockpit.model.CockpitUser;
 import com.ndpmedia.rocketmq.cockpit.model.ConsumerGroup;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping(value = "/api/consumer-group")
@@ -81,6 +84,21 @@ public class ConsumerGroupServiceController {
     @ResponseBody
     public void delete(@PathVariable("id") long id) {
         cockpitConsumerGroupService.delete(id);
+    }
+
+    @RequestMapping(value = "/client/{consumerGroup}", method = RequestMethod.GET)
+    @ResponseBody
+    public Set<Connection> getConsumerGroupClient(@PathVariable("consumerGroup") String consumerGroup){
+        DefaultMQAdminExt defaultMQAdminExt = new DefaultMQAdminExt();
+        try {
+            defaultMQAdminExt.start();
+            return defaultMQAdminExt.examineConsumerConnectionInfo(consumerGroup).getConnectionSet();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            defaultMQAdminExt.shutdown();
+        }
+        return null;
     }
 
     private long getTeamId(HttpServletRequest request) {

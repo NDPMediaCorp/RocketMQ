@@ -38,12 +38,20 @@ $(document).ready(function() {
                     var operationLink = $("<a class='flowItem' href='javascript:;'>flow</a>");
                     operationLink.attr("rel", message.msgId);
                     var operation = $("<td colspan='2'>message flow: </td>").append(operationLink);
+
+                    var consumerLink = $("<a class='consumerItem' href='javascript:;'>find</a>")
+                    consumerLink.attr("rel", message.topic);
+                    var consumer = $("<td colspan='2'>Connect Consumer: </td>").append(consumerLink);
+                    var co = $("<td colspan='2'><div id='connectConsumer'></div></td>")
+
                     var pro = message.properties;
                     var cons = getMapValue(pro);
                     var item = $("<tr><td  colspan='2'>Message ID:" + message.msgId + "</td></tr>" + "<tr><td colspan='2'>Topic:" + message.topic + "</td></tr>" + "<tr><td colspan='2'>Tag:" + message.tags + "</td></tr>" + "<tr><td colspan='2'>Key:" + message.keys + "</td></tr>" + "<tr><td colspan='2'>Userproperties:" + cons + "</td></tr>" + "<tr><td colspan='2'>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td colspan='2'>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td colspan='2'>Storetime:" + message.storTime + "</td></tr>" + "<tr><td colspan='2'>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td colspan='2'>Messagebody:[length]" + message.body.length + "   <a href='cockpit/api/message/download/" + message.msgId + "'>download</a></td></tr>");
 
                     $(".itable-content").append(item);
                     $(".itable-content").append($("<tr></tr>").append(operation));
+                    $(".itable-content").append($("<tr></tr>").append(consumer));
+                    $(".itable-content").append($("<tr></tr>").append(co));
                 }
 
                     $.ajax({
@@ -118,11 +126,18 @@ $(document).ready(function() {
                     var operationLink = $("<a class='flowItem' href='javascript:;'>flow</a>");
                     operationLink.attr("rel", message.msgId);
                     var operation = $("<td colspan='2'>message flow: </td>").append(operationLink);
+
+                    var consumerLink = $("<a class='consumerItem' href='javascript:;'>find</a>")
+                    consumerLink.attr("rel", message.topic);
+                    var consumer = $("<td colspan='2'>Connect Consumer: </td>").append(consumerLink);
+                    var co = $("<td colspan='2'><div id='connectConsumer'></div></td>")
                 var pro = message.properties;
                 var cons = getMapValue(pro);
                 var item = $("<tr><td colspan='2'>Message ID:" + message.msgId + "</td></tr>" + "<tr><td colspan='2'>Topic:" + message.topic + "</td></tr>" + "<tr><td colspan='2'>Tag:" + message.tags + "</td></tr>" + "<tr><td colspan='2'>Key:" + message.keys + "</td></tr>" + "<tr><td colspan='2'>Userproperties:" + cons + "</td></tr>" + "<tr><td colspan='2'>Borntime:" + message.bornTime + "</td></tr>" + "<tr><td colspan='2'>BornHost:" + message.bornHost + "</td></tr>" + "<tr><td colspan='2'>Storetime:" + message.storTime + "</td></tr>" + "<tr><td colspan='2'>StoreHost:" + message.storeHost + "</td></tr>" + "<tr><td colspan='2'>Messagebody:[length]" + message.body.length + "   <a href='cockpit/api/message/download/" + message.msgId + "'>download</a></td></tr>");
                 $(".itable-content").append(item);
                     $(".itable-content").append($("<tr></tr>").append(operation));
+                    $(".itable-content").append($("<tr></tr>").append(consumer));
+                    $(".itable-content").append($("<tr></tr>").append(co));
 
 
                     $.ajax({
@@ -176,6 +191,103 @@ $(document).ready(function() {
         });
     });
 
+    $(".consumerItem").live("click", function() {
+        var topic = $(this).attr("rel");
+        $.ajax({
+            async: false,
+            url: "cockpit/api/message" + "/query/" + topic,
+            type: "GET",
+            contentType: "application/json; charset=UTF-8",
+            dataType: "json",
+            success: function(backdata) {
+                if (null != backdata){
+                    var text = document.createTextNode("Consumer Group：");
+                    var selectC = document.createElement("select");
+                    selectC.id = "selectC";
+                    selectC.appendChild(createOption(null));
+                    backdata.forEach(function(consumerGroup) {
+                        selectC.appendChild(createOption(consumerGroup));
+                    });
+                    var selDiv = document.getElementById("connectConsumer");
+                    selDiv.appendChild(text);
+                    selDiv.appendChild(selectC);
+
+                    selectC.onchange = function (){
+                        var consumerGroup = "undefined" === typeof($("#selectC").children('option:selected').val()) ? "-1" : $("#selectC").children('option:selected').val();
+
+                        if (-1 != consumerGroup){
+                           $.ajax({
+                               async: false,
+                               url: "cockpit/api/consumer-group" + "/client/" + consumerGroup,
+                               type: "GET",
+                               contentType: "application/json; charset=UTF-8",
+                               dataType: "json",
+                               success: function(backdata) {
+                                   if ( null != backdata){
+
+                                       var selDiv = document.getElementById("connectConsumer");
+                                       if (null != document.getElementById("selectT")){
+                                            document.getElementById("selectT").innerHTML = "";
+                                            var select = document.getElementById("selectT");
+                                       }else{
+                                            var textT = document.createTextNode(" Client: ");
+                                            selDiv.appendChild(textT);
+                                            var select = document.createElement("select");
+                                            select.id = "selectT";
+                                       }
+                                       var selOption1 = document.createElement("option");
+                                       selOption1.value = -1;
+                                       selOption1.innerHTML = selectDefault;
+                                       select.appendChild(selOption1);
+                                       backdata.forEach(function(connection){
+                                            var selOption2 = document.createElement("option");
+                                            selOption2.value = connection.clientId;
+                                            selOption2.innerHTML = connection.clientId;
+                                            select.appendChild(selOption2);
+                                       });
+                                       if (null == document.getElementById("selectT")){
+                                           selDiv.appendChild(select);
+                                           var addB = document.createElement("input");
+                                           addB.type = "button";
+                                           addB.value = "resend";
+                                           addB.onclick = function(){
+                                                var consumerGroup = "undefined" === typeof($("#selectC").children('option:selected').val()) ? "-1" : $("#selectC").children('option:selected').val();
+                                                var clientId = "undefined" === typeof($("#selectT").children('option:selected').val()) ? "-1" : $("#selectT").children('option:selected').val();
+                                                var msgId = $("input.msgId").val();
+                                                if ("-1" === consumerGroup || "-1" === clientId){
+                                                    alert(" we need consumer group and client id ");
+                                                    return;
+                                                }
+
+                                                $.ajax({
+                                                    async: false,
+                                                    url: "cockpit/api/message" + "/resend/" + consumerGroup + "/" + clientId + "/" + msgId,
+                                                    type: "GET",
+                                                    contentType: "application/json; charset=UTF-8",
+                                                    dataType: "json",
+                                                    success: function(backdata) {
+                                                        alert(backdata);
+                                                    }
+                                                });
+
+                                           };
+                                           selDiv.appendChild(addB);
+
+                                       }
+                                   }
+                               }
+                           });
+
+                        }else{
+                        }
+                    } ;
+                }
+            },
+            error: function() {
+                alert("Error");
+            }
+        });
+    });
 });
 
 function getMapValue(sourceMap){
@@ -189,4 +301,11 @@ function getMapValue(sourceMap){
     }
     cons = cons + "}";
     return cons;
+}
+
+function createOption(text){
+    var selOption = document.createElement("option");
+    selOption.value = null === text ? -1 : text;
+    selOption.innerHTML = null === text ? selectDefault : text;
+    return selOption;
 }
