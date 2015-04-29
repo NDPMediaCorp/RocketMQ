@@ -73,7 +73,7 @@ public class TaskScheduler {
     public void deleteDeprecatedData() {
         logger.info("Start to clean deprecated data");
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MONTH, -1);
+        calendar.add(Calendar.DAY_OF_MONTH, -1);
         int numberOfRecordsDeleted = consumeProgressMapper.bulkDelete(calendar.getTime());
         logger.info("Deleted " + numberOfRecordsDeleted + " consume progress records.");
 
