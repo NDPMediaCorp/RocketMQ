@@ -64,10 +64,12 @@ $(document).ready(function() {
                             if (null != backdata){
                                 var title = $("<tr><td>Consumer</td><td>投递状态</td></tr>");
                                 $(".itable-content").append(title);
-                                backdata.forEach(function(consumer) {
-                                    var item = $("<tr><td>" + consumer.Consumer + "</td><td>" + consumer.type + "</td></tr>");
+                                backdata.forEach(function(messageTrack) {
+                                    var item = $("<tr><td>" + messageTrack.consumerGroup + "</td><td>" + messageTrack.trackType + "</td></tr>");
                                     $(".itable-content").append(item);
                                });
+                               var backlog = $("<tr><td colspan='2'>订阅了，而且消费了SUBSCRIBED_AND_CONSUMED,<br /> 订阅了，但是被过滤掉了 SUBSCRIBED_BUT_FILTERD, <br /> 订阅了，但是是PULL，结果未知 SUBSCRIBED_BUT_PULL, <br /> 订阅了，但是没有消费 SUBSCRIBED_AND_NOT_CONSUME_YET, <br /> 未知异常 UNKNOW_EXCEPTION,</td></tr>");
+                               $(".itable-content").append(backlog);
                             }
                         }
                     });
@@ -150,10 +152,12 @@ $(document).ready(function() {
                             if (null != backdata){
                                 var title = $("<tr><td>Consumer</td><td>投递状态</td></tr>");
                                 $(".itable-content").append(title);
-                                backdata.forEach(function(consumer) {
-                                    var item = $("<tr><td>" + consumer.Consumer + "</td><td>" + consumer.type + "</td></tr>");
+                                backdata.forEach(function(messageTrack) {
+                                    var item = $("<tr><td>" + messageTrack.consumerGroup + "</td><td>" + messageTrack.trackType + "</td></tr>");
                                     $(".itable-content").append(item);
                                });
+                               var backlog = $("<tr><td colspan='2'>订阅了，而且消费了SUBSCRIBED_AND_CONSUMED,<br /> 订阅了，但是被过滤掉了 SUBSCRIBED_BUT_FILTERD, <br /> 订阅了，但是是PULL，结果未知 SUBSCRIBED_BUT_PULL, <br /> 订阅了，但是没有消费 SUBSCRIBED_AND_NOT_CONSUME_YET, <br /> 未知异常 UNKNOW_EXCEPTION,</td></tr>");
+                               $(".itable-content").append(backlog);
                             }
                         }
                     });
