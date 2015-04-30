@@ -17,14 +17,17 @@ public class TailFile {
 
     public TailFile(String path){
         this.path = path;
+        File file = new File(path);
+        try {
+            randomAccessFile = new RandomAccessFile(file, "r");
+        } catch (FileNotFoundException e) {
+            System.out.println(new Date().toString() + " the path is wrong, please check it" + path);
+        }
     }
 
     public String makeFile(long index) {
-        File file = new File(path);
 
         try {
-            randomAccessFile = new RandomAccessFile(file, "r");
-
             if (index > randomAccessFile.length()){
                 lastIndex = randomAccessFile.length();
                 return "";
@@ -36,20 +39,9 @@ public class TailFile {
             return temp;
 
         }
-        catch (FileNotFoundException e) {
-            System.out.println(new Date().toString() + " the path is wrong, please check it" + path);
-
-        }
         catch (IOException e) {
             System.out.println(" the path is not ok, please check it" + path);
 
-        }finally {
-            try {
-                randomAccessFile.close();
-            }
-            catch (IOException e) {
-                randomAccessFile = null;
-            }
         }
 
         return null;
