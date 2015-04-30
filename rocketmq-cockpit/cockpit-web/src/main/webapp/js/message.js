@@ -110,7 +110,7 @@ $(document).ready(function() {
 
     });
 
-    $(".operationItem").live("click", function() {
+    $(document).on("click", ".operationItem", function() {
         var msgId = $(this).attr("rel");
         $("input.msgId").val(msgId);
         $.ajax({
@@ -169,7 +169,7 @@ $(document).ready(function() {
         });
     });
 
-    $(".flowItem").live("click", function() {
+    $(document).on("click", ".flowItem", function() {
         var msgId = $(this).attr("rel");
         $("input.msgId").val(msgId);
         $.ajax({
@@ -195,7 +195,7 @@ $(document).ready(function() {
         });
     });
 
-    $(".consumerItem").live("click", function() {
+    $(document).on("click", ".consumerItem", function() {
         var topic = $(this).attr("rel");
         $.ajax({
             async: false,
