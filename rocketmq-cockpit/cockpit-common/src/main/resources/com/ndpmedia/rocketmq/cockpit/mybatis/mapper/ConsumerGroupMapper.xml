@@ -3,8 +3,8 @@
 <mapper namespace="com.ndpmedia.rocketmq.cockpit.mybatis.mapper.ConsumerGroupMapper">
 
     <insert id="insert" parameterType="ConsumerGroup" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO consumer_group (id, cluster_name, group_name, consume_enable, consume_broadcast_enable)
-        VALUES (NULL, #{clusterName}, #{groupName}, #{consumeEnable}, #{consumeBroadcastEnable})
+        INSERT INTO consumer_group (id, cluster_name, group_name, consume_enable, consume_broadcast_enable, update_time)
+        VALUES (NULL, #{clusterName}, #{groupName}, #{consumeEnable}, #{consumeBroadcastEnable}, #{updateTime})
     </insert>
 
     <insert id="associateTeam">

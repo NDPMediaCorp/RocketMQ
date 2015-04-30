@@ -36,7 +36,7 @@ public class ConsumerGroup {
 
     private Date createTime;
 
-    private Date updateTime;
+    private Date updateTime = new Date();
 
     public long getId() {
         return id;
