@@ -54,27 +54,25 @@ $(document).ready(function() {
         }
     });
 
-    $(".removeItem").live("click", function() {
+    $(document).on("click", ".removeItem", function() {
         var row = $(this).parent().parent();
         var id = row.children().eq(0).html();
         if ($.trim(id) === "" ) {
                     return false;
         }
-                $.ajax({
-                    async: false,
-                            url: "cockpit/api/consumer-group/" + id,
-                            type: "DELETE",
-                            dataType: "json",
-                            contentType: "application/json",
-                            success: function() {
-                                row.remove();
-                            }
-                        });
-
-
+        $.ajax({
+            async: false,
+                    url: "cockpit/api/consumer-group/" + id,
+                    type: "DELETE",
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function() {
+                        row.remove();
+                    }
+        });
     });
 
-    $(".approveItem").live("click", function() {
+    $(document).on("click", ".approveItem", function() {
             var row = $(this).parent().parent();
             var id = row.children().eq(0).html();
             var clusterName = row.children().eq(1).html();
@@ -92,9 +90,11 @@ $(document).ready(function() {
                                      "groupName":groupName, "consumeEnable":consumeEnable, "consumeBroadcastEnable":consumeBroadcastEnable,
                                      "brokerAddress":brokerAddress, "brokerId":brokerId, "retryMaxTimes":retryMaxTimes,
                                      "retryQueueNum":retryQueueNum, "consumeFromMinEnable":consumeFromMinEnable,"order":order});
+
             if ($.trim(id) === "" ) {
-                        return false;
+                return false;
             }
+
             $.ajax({
                 async: false,
                 data: ob,
@@ -115,5 +115,5 @@ $(document).ready(function() {
                     });
                 }
             });
-        });
+    });
 });
