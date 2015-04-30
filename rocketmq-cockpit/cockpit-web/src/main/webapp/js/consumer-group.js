@@ -58,17 +58,20 @@ $(document).ready(function() {
         var row = $(this).parent().parent();
         var id = row.children().eq(0).html();
         if ($.trim(id) === "" ) {
-                    return false;
+            return false;
         }
         $.ajax({
             async: false,
-                    url: "cockpit/api/consumer-group/" + id,
-                    type: "DELETE",
-                    dataType: "json",
-                    contentType: "application/json",
-                    success: function() {
-                        row.remove();
-                    }
+            url: "cockpit/api/consumer-group/" + id,
+            type: "DELETE",
+            dataType: "json",
+            contentType: "application/json",
+            success: function() {
+                row.remove();
+            },
+            error: function() {
+                location.reload(true);
+            }
         });
     });
 
