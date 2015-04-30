@@ -8,9 +8,11 @@
                            http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
 
-    <security:http pattern="/js/highcharts" security="none" />
+    <security:http pattern="/js/**" security="none" />
     <security:http pattern="/css/**" security="none" />
     <security:http pattern="/img/**" security="none" />
+    <security:http pattern="/fonts/**" security="none" />
+
     <security:http pattern="/rocketmq/**" security="none" />
     <security:http pattern="/console/**" security="none" />
     <security:http pattern="/**/captcha-image" security="none" />
@@ -25,6 +27,10 @@
         <security:intercept-url pattern="/j_spring_security_check" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 
         <security:intercept-url pattern="/cockpit/manage/**" access="ROLE_ADMIN"/>
+        <security:intercept-url pattern="/cockpit/admin/**" access="ROLE_ADMIN"/>
+        <security:intercept-url pattern="/cockpit/ip/**" access="ROLE_ADMIN"/>
+        <security:intercept-url pattern="/cockpit/name-server/**" access="ROLE_ADMIN"/>
+
         <security:intercept-url pattern="/**" access="ROLE_USER, ROLE_ADMIN"/>
 
         <security:form-login authentication-failure-handler-ref="rocketMQUserLoginFailedHandler"

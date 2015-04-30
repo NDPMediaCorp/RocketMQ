@@ -46,7 +46,7 @@ $(document).ready(function() {
         });
     });
 
-    $(".operation").live("click", function() {
+    $(document).on("click", ".operation", function() {
         var $a = $(this);
         var userId = $a.attr("rel");
         if ($a.hasClass("draft") || $a.hasClass("deleted")) {
