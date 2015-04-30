@@ -1,24 +1,16 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-  <title>Query Message</title>
-  <%@include file="../include/base-path.jsp"%>
-  <base href="<%=basePath%>%">
-  <link rel="shortcut icon" href="favicon.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="http://libs.baidu.com/jquery/1.7.0/jquery.js"></script>
-  <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-  <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <jsp:include page="../include/html-title.jsp">
+        <jsp:param name="pageTitle" value="Query Message" />
+    </jsp:include>
   <script src="js/message.js" type="application/javascript"></script>
 </head>
 <body>
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-md-8 col-md-offset-2 text-center">
-      <h1>Query Message</h1>
-    </div>
-  </div>
 
+    <jsp:include page="../include/header.jsp"></jsp:include>
+
+<div class="container-fluid">
   <select id="queryType">
     <option value="0">Query Message By ID</option>
     <option value="1">Query Message By KEY</option>

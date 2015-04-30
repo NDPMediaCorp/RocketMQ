@@ -2,12 +2,10 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
-    <%@include file="../include/base-path.jsp"%>
-    <base href="<%=basePath%>">
-    <title>Manage User</title>
-    <script src="http://libs.baidu.com/jquery/1.7.0/jquery.js" type="text/javascript"></script>
+    <jsp:include page="../include/html-title.jsp">
+        <jsp:param name="pageTitle" value="Manage User" />
+    </jsp:include>
     <script src="js/admin-user.js" type="text/javascript"></script>
-
     <style type="text/css">
         table, td, th {
             border: solid lightgrey 1px;
@@ -32,7 +30,9 @@
     </style>
 </head>
 <body>
-    <h1>User List</h1>
+
+    <jsp:include page="../include/header.jsp"></jsp:include>
+
     <table>
         <thead>
             <tr>

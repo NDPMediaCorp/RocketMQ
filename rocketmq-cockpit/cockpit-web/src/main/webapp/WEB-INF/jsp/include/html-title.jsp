@@ -5,5 +5,5 @@
     <title>${param.pageTitle}</title>
     <%@include file="base-path.jsp"%>
     <base href="<%=basePath%>">
-
+    <link rel="shortcut icon" href="favicon.ico" />
     <jsp:include page="html-static-resources.jsp" />
