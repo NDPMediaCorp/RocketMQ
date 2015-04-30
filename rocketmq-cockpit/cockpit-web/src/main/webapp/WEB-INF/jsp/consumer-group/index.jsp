@@ -1,17 +1,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-  <title>Consumer Group Management</title>
-  <%@include file="../include/base-path.jsp"%>
-  <base href="<%=basePath%>%">
-  <link rel="shortcut icon" href="favicon.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="http://libs.baidu.com/jquery/1.7.0/jquery.js"></script>
-  <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-  <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
-  <script src="js/consumer-group.js" type="application/javascript"></script>
+    <jsp:include page="../include/html-title.jsp">
+        <jsp:param name="pageTitle" value="Consumer Group Management" />
+    </jsp:include>
+    <script src="js/consumer-group.js" type="application/javascript"></script>
 </head>
 <body>
+    <jsp:include page="../include/header.jsp"></jsp:include>
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-8 col-md-offset-2 text-center">
@@ -72,11 +68,13 @@
                 placeholder="retry_max_times"></td></tr>
         <tr style="display:none"><td>retry_queue_num:</td><td>  <input type="text" class="form-control retry_queue_num" placeholder="retry_queue_num"></td></tr>
         <tr style="display:none"><td>consume_from_min_enable:</td><td>  <input type="text" class="form-control consume_from_min_enable" placeholder="consume_from_min_enable"></td></tr>
-        <tr><td colspan="2">
-    <div class="col-xs-2">
-      <button type="submit" class="btn btn-primary addConsumerGroup">Add</button>
-    </div>
-        </td></tr>
+        <tr>
+            <td colspan="2">
+                <div class="col-xs-2">
+                  <button type="submit" class="btn btn-primary addConsumerGroup">Add</button>
+                </div>
+            </td>
+        </tr>
     </table>
 </div>
 
