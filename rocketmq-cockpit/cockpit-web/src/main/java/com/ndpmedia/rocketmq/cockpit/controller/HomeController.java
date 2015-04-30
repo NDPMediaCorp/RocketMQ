@@ -13,4 +13,11 @@ public class HomeController {
         return "forward:/cockpit/home";
     }
 
+
+    @RequestMapping(value = "ui", method = RequestMethod.GET)
+    public String ui() {
+        return "ui-demo";
+    }
+
+
 }

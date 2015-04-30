@@ -1,11 +1,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
 <html>
 <head>
-    <title>Cockpit Home</title>
-    <%@include file="include/base-path.jsp"%>
-    <base href="<%=basePath%>">
+    <jsp:include page="include/html-title.jsp">
+        <jsp:param name="pageTitle" value="Cockpit Home" />
+    </jsp:include>
 </head>
 <body>
+    <jsp:include page="include/header.jsp"></jsp:include>
 <%
 String msg = "";
 Object errSMSG =  session.getAttribute("ACCESS_DENIED_MSG");
@@ -13,8 +15,6 @@ if (null != errSMSG){
     msg = errSMSG.toString();
     }
 %>
-    <h1>Cockpit Home</h1>
-
     <ul>
         <li><a href="cockpit/name-server/">Manage Name Server List</a></li>
         <li><a href="cockpit/name-server/kv">Manage Name Server KV List</a> </li>
