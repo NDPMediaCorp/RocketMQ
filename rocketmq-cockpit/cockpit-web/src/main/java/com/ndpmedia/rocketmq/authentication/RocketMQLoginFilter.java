@@ -23,7 +23,6 @@ import java.net.URLDecoder;
 public class RocketMQLoginFilter implements Filter, LoginConstant {
     private final Logger logger = LoggerFactory.getLogger(RocketMQLoginFilter.class);
 
-
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
 

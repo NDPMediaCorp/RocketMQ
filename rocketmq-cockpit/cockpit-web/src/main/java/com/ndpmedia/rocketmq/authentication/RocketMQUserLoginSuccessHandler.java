@@ -1,5 +1,6 @@
 package com.ndpmedia.rocketmq.authentication;
 
+import com.ndpmedia.rocketmq.cockpit.model.CockpitRole;
 import com.ndpmedia.rocketmq.cockpit.model.CockpitUser;
 import com.ndpmedia.rocketmq.cockpit.model.Login;
 import com.ndpmedia.rocketmq.cockpit.mybatis.mapper.LoginMapper;
@@ -46,6 +47,11 @@ public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthentica
             login.setLoginTime(new Date());
             login.setToken(UUID.randomUUID().toString().replace("-", ""));
             httpSession.setAttribute(LoginConstant.TOKEN_IN_SESSION, login.getToken());
+
+            if (null != cockpitUser.getCockpitRoles() && cockpitUser.getCockpitRoles().contains(CockpitRole.ROLE_ADMIN)) {
+                httpSession.setAttribute(LoginConstant.IS_ADMIN_IN_SESSION, true);
+            }
+
             loginMapper.insert(login);
             logger.info("Account {Team: " + cockpitUser.getTeam().getName() +
                     ", Member: " + cockpitUser.getUsername() + "} logs in");

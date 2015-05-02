@@ -52,7 +52,6 @@
         <security:remember-me remember-me-parameter="remember-me" token-validity-seconds="604800" />
 
         <security:logout logout-url="/logout" logout-success-url="/cockpit/login.jsp" delete-cookies="JSESSIONID" />
-
     </security:http>
 
     <security:authentication-manager alias="authenticationManager">

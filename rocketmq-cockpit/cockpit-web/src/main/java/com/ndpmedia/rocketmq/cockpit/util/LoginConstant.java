@@ -41,4 +41,5 @@ public interface LoginConstant extends Constant {
     String REDIRECT_URL_IN_SESSION = "redirect_url_in_session";
     String TOKEN_IN_SESSION = "token_in_session";
 
+    String IS_ADMIN_IN_SESSION = "is_admin_in_session";
 }
