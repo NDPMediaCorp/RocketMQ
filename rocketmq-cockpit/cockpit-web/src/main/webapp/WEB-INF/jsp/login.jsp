@@ -3,9 +3,9 @@
 <html>
 <head>
     <title>Login Page</title>
-    <script src="//libs.baidu.com/jquery/1.7.0/jquery.js" type="text/javascript"></script>
-    <script src="//libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js" type="text/javascript"></script>
-    <link href="//libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+    <script src="js/jquery.min.js" type="text/javascript"></script>
+    <script src="js/bootstrap.min.js" type="text/javascript"></script>
+    <link href="css/bootstrap.min.css" type="text/css" rel="stylesheet">
     <%@include file="include/base-path.jsp" %>
     <base href="<%=basePath%>">
     <script type="text/javascript">
