@@ -50,6 +50,9 @@ public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthentica
 
             if (null != cockpitUser.getCockpitRoles() && cockpitUser.getCockpitRoles().contains(CockpitRole.ROLE_ADMIN)) {
                 httpSession.setAttribute(LoginConstant.IS_ADMIN_IN_SESSION, true);
+                logger.info("Admin: " + cockpitUser.getUsername() + " logs in");
+            } else {
+                logger.info("User: " + cockpitUser.getUsername() + " logs in");
             }
 
             loginMapper.insert(login);
