@@ -48,16 +48,24 @@ public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthentica
             login.setToken(UUID.randomUUID().toString().replace("-", ""));
             httpSession.setAttribute(LoginConstant.TOKEN_IN_SESSION, login.getToken());
 
+            if (null != cockpitUser.getCockpitRoles()) {
+                logger.debug("All Roles Gathered: ");
+                for (CockpitRole role : cockpitUser.getCockpitRoles()) {
+                    logger.debug(role.getName());
+                }
+            }
+
             if (null != cockpitUser.getCockpitRoles() && cockpitUser.getCockpitRoles().contains(CockpitRole.ROLE_ADMIN)) {
                 httpSession.setAttribute(LoginConstant.IS_ADMIN_IN_SESSION, true);
-                logger.info("Admin: " + cockpitUser.getUsername() + " logs in");
+                logger.info("Admin [" + cockpitUser.getUsername() + "] logs in");
             } else {
-                logger.info("User: " + cockpitUser.getUsername() + " logs in");
+                logger.info("User: [" + cockpitUser.getUsername() + "] logs in");
             }
 
             loginMapper.insert(login);
             logger.info("Account {Team: " + cockpitUser.getTeam().getName() +
                     ", Member: " + cockpitUser.getUsername() + "} logs in");
+
             httpSession.removeAttribute(LoginConstant.LOGIN_SESSION_ERROR_KEY);
 
             Object redirectURL = httpSession.getAttribute(LoginConstant.REDIRECT_URL_IN_SESSION);
