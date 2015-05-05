@@ -20,18 +20,21 @@
     <security:http pattern="/cockpit/login" security="none" />
     <security:http pattern="/error" security="none" />
 
-    <security:http auto-config="true" use-expressions="false">
+    <security:http auto-config="true">
+
+        <security:intercept-url pattern="/*" requires-channel="https" />
+
         <security:custom-filter ref="rocketMQLoginFilter" before="FORM_LOGIN_FILTER" />
         <security:intercept-url pattern="/cockpit/login.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <security:intercept-url pattern="/cockpit/captcha-image.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-        <security:intercept-url pattern="/j_spring_security_check" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/j_spring_security_check"  access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 
-        <security:intercept-url pattern="/cockpit/manage/**" access="ROLE_ADMIN"/>
-        <security:intercept-url pattern="/cockpit/admin/**" access="ROLE_ADMIN"/>
-        <security:intercept-url pattern="/cockpit/ip/**" access="ROLE_ADMIN"/>
-        <security:intercept-url pattern="/cockpit/name-server/**" access="ROLE_ADMIN"/>
+        <security:intercept-url pattern="/cockpit/manage/**"  access="ROLE_ADMIN"/>
+        <security:intercept-url pattern="/cockpit/admin/**"  access="ROLE_ADMIN"/>
+        <security:intercept-url pattern="/cockpit/ip/**" requires-channel="http" access="ROLE_ADMIN"/>
+        <security:intercept-url pattern="/cockpit/name-server/**" requires-channel="http" access="ROLE_ADMIN"/>
 
-        <security:intercept-url pattern="/**" access="ROLE_USER, ROLE_ADMIN"/>
+        <security:intercept-url pattern="/**"  access="ROLE_USER, ROLE_ADMIN"/>
 
         <security:form-login authentication-failure-handler-ref="rocketMQUserLoginFailedHandler"
                              authentication-success-handler-ref="rocketMQUserLoginSuccessHandler"
