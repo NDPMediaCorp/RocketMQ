@@ -34,7 +34,7 @@
 
                 <li><a href="cockpit/message/">Query Message</a></li>
 
-                <c:if test="${sessionScope.is_admin_in_session}">
+                <c:if test="${not empty sessionScope.is_admin_in_session and sessionScope.is_admin_in_session}">
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin<span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
@@ -56,7 +56,7 @@
                         <strong>
                             <span style="color: #5cb85c;">Hi</span>
                             <c:choose>
-                                <c:when test="${sessionScope.is_admin_in_session}">
+                                <c:when test="${not empty sessionScope.is_admin_in_session and sessionScope.is_admin_in_session}">
                                     <span style="color: #f0ad4e;">${handle_in_session}</span>
                                 </c:when>
                                 <c:otherwise>
