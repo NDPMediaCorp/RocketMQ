@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -67,6 +68,11 @@ public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthentica
                     ", Member: " + cockpitUser.getUsername() + "} logs in");
 
             httpSession.removeAttribute(LoginConstant.LOGIN_SESSION_ERROR_KEY);
+
+            Cookie cookie = new Cookie("JSESSIONID", request.getSession().getId());
+            cookie.setPath("/");
+            cookie.setSecure(false);
+            response.addCookie(cookie);
 
             Object redirectURL = httpSession.getAttribute(LoginConstant.REDIRECT_URL_IN_SESSION);
             if (null != redirectURL && redirectURL.toString().trim().length() > 0) {
