@@ -21,7 +21,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginInterceptor.class);
 
     private String getSSOLoginURL(HttpServletRequest request) throws IOException {
-        return  request.getScheme() + "://" + request.getServerName()
+        return  "https://" + request.getServerName()
                 + ":" + request.getServerPort()
                 + "/cockpit/login?redirect="
                 + URLEncoder.encode(request.getRequestURL().toString(), "UTF-8");
