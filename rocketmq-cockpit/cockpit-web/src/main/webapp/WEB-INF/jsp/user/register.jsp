@@ -1,12 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
-
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <jsp:include page="../include/html-title.jsp">
         <jsp:param name="pageTitle" value="User Registration" />
     </jsp:include>
-
     <script type="text/javascript" src="js/register.js"></script>
 </head>
 <body>
