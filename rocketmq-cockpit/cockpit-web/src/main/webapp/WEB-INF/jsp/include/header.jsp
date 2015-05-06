@@ -51,7 +51,21 @@
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="javascript:;"><strong><span style="color: #f0ad4e;">Hi</span> <span style="color: #5bc0de;">${handle_in_session}</span></strong></a></li>
+                <li>
+                    <a href="javascript:;">
+                        <strong>
+                            <span style="color: #5cb85c;">Hi</span>
+                            <c:choose>
+                                <c:when test="${sessionScope.is_admin_in_session}">
+                                    <span style="color: #f0ad4e;">${handle_in_session}</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span style="color: #5bc0de;">${handle_in_session}</span>
+                                </c:otherwise>
+                            </c:choose>
+                        </strong>
+                    </a>
+                </li>
                 <li><a href="cockpit/logout">Logout</a></li>
             </ul>
         </div><!--/.nav-collapse -->
