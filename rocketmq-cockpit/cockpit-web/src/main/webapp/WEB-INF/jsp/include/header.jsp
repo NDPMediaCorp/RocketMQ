@@ -51,6 +51,7 @@
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
+                <li><a href="javascript:;"><strong><span style="color: #f0ad4e;">Hi</span> <span style="color: #5bc0de;">${handle_in_session}</span></strong></a></li>
                 <li><a href="cockpit/logout">Logout</a></li>
             </ul>
         </div><!--/.nav-collapse -->

@@ -48,13 +48,8 @@ public class RocketMQUserLoginSuccessHandler extends SavedRequestAwareAuthentica
             login.setLoginTime(new Date());
             login.setToken(UUID.randomUUID().toString().replace("-", ""));
             httpSession.setAttribute(LoginConstant.TOKEN_IN_SESSION, login.getToken());
+            httpSession.setAttribute(LoginConstant.HANDLE_IN_SESSION, cockpitUser.getUsername());
 
-            if (null != cockpitUser.getCockpitRoles()) {
-                logger.debug("All Roles Gathered: ");
-                for (CockpitRole role : cockpitUser.getCockpitRoles()) {
-                    logger.debug(role.getName());
-                }
-            }
 
             if (null != cockpitUser.getCockpitRoles() && cockpitUser.getCockpitRoles().contains(CockpitRole.ROLE_ADMIN)) {
                 httpSession.setAttribute(LoginConstant.IS_ADMIN_IN_SESSION, true);
