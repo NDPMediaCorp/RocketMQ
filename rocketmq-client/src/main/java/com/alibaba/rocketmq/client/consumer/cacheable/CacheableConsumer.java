@@ -71,7 +71,9 @@ public class CacheableConsumer {
 
     private FrontController frontController;
 
-    private static final int MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED = 20000;
+    private static final int DEFAULT_MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED = 20000;
+
+    private int maximumNumberOfMessageBuffered = DEFAULT_MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED;
 
     private LinkedBlockingQueue<MessageExt> messageQueue;
 
@@ -127,8 +129,6 @@ public class CacheableConsumer {
                     new ThreadFactoryImpl("ConsumerWorkerThread"),
                     new ThreadPoolExecutor.CallerRunsPolicy());
 
-            messageQueue = new LinkedBlockingQueue<MessageExt>(MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED);
-            inProgressMessageQueue = new LinkedBlockingQueue<MessageExt>(MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED);
             statistics = new SynchronizedDescriptiveStatistics(5000);
             localMessageStore = new DefaultLocalMessageStore(consumerGroupName);
             frontController = new FrontController(this);
@@ -214,6 +214,9 @@ public class CacheableConsumer {
             defaultMQPushConsumers.add(defaultMQPushConsumer);
         }
 
+        messageQueue = new LinkedBlockingQueue<MessageExt>(maximumNumberOfMessageBuffered);
+        inProgressMessageQueue = new LinkedBlockingQueue<MessageExt>(maximumNumberOfMessageBuffered);
+
         for (DefaultMQPushConsumer defaultMQPushConsumer : defaultMQPushConsumers) {
             defaultMQPushConsumer.registerMessageListener(frontController);
             defaultMQPushConsumer.start();
@@ -237,6 +240,14 @@ public class CacheableConsumer {
                 }
             }
         });
+    }
+
+    public int getMaximumNumberOfMessageBuffered() {
+        return maximumNumberOfMessageBuffered;
+    }
+
+    public void setMaximumNumberOfMessageBuffered(int maximumNumberOfMessageBuffered) {
+        this.maximumNumberOfMessageBuffered = maximumNumberOfMessageBuffered;
     }
 
     private void startPopThread() {
