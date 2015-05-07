@@ -39,13 +39,10 @@
         <security:form-login authentication-failure-handler-ref="rocketMQUserLoginFailedHandler"
                              authentication-success-handler-ref="rocketMQUserLoginSuccessHandler"
                              default-target-url="/home"
+                             always-use-default-target="true"
                              login-page="/cockpit/login.jsp"
+                             login-processing-url="/j_spring_security_check"
                              authentication-failure-url="/cockpit/login.jsp?error=true"/>
-
-        <!-- Use the comment out line in production -->
-        <!--
-        <security:intercept-url pattern="/**" access="ROLE_ADMIN" requires-channel="https" />
-        -->
         <security:session-management session-fixation-protection="none">
             <security:concurrency-control max-sessions="1" error-if-maximum-exceeded="false"  />
         </security:session-management>
