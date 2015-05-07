@@ -15,9 +15,11 @@
                <td>Team</td>
                <td>
                    <select id="team">
-                       <c:forEach items="${teamList}" var="team">
-                           <option value="${team.id}">${team.name}</option>
-                       </c:forEach>
+                       <c:if test="${not empty teamList}">
+                           <c:forEach items="${teamList}" var="team">
+                               <option value="${team.id}">${team.name}</option>
+                           </c:forEach>
+                       </c:if>
                    </select>
                </td>
             </tr>
