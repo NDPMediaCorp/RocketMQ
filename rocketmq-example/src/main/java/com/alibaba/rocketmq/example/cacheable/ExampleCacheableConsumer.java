@@ -25,6 +25,7 @@ public class ExampleCacheableConsumer {
          */
         @Override
         public int handle(MessageExt message) {
+            System.out.println(message);
             return 0;
         }
     }
@@ -48,6 +49,8 @@ public class ExampleCacheableConsumer {
 
         cacheableConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
         cacheableConsumer.setMessageModel(MessageModel.CLUSTERING);
+
+        cacheableConsumer.setMaximumNumberOfMessageBuffered(2000);
 
         cacheableConsumer.start();
 
