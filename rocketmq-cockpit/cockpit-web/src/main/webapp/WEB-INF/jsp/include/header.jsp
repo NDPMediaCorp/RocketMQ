@@ -57,10 +57,10 @@
                             <span style="color: #5cb85c;">Hi</span>
                             <c:choose>
                                 <c:when test="${not empty sessionScope.is_admin_in_session and sessionScope.is_admin_in_session}">
-                                    <span style="color: #f0ad4e;">${handle_in_session}</span>
+                                    <span style="color: #f0ad4e;"><c:out value="${handle_in_session}" /></span>
                                 </c:when>
                                 <c:otherwise>
-                                    <span style="color: #5bc0de;">${handle_in_session}</span>
+                                    <span style="color: #5bc0de;"><c:out value="${handle_in_session}" /></span>
                                 </c:otherwise>
                             </c:choose>
                         </strong>
