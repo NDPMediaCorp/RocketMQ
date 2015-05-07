@@ -22,12 +22,16 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 
     private String getSSOLoginURL(HttpServletRequest request) throws IOException {
         return  "https://" + request.getServerName()
+                + ":" + System.getProperty("httpsPort", "443")
                 + "/cockpit/login?redirect="
                 + URLEncoder.encode(request.getRequestURL().toString(), "UTF-8");
     }
 
 
     private String getAuthURL(HttpServletRequest request) {
+        if (request.getScheme().contains("https"))
+            return "http://" + request.getServerName()
+                    + ":" + System.getProperty("httpPort", "80") + "/rocketmq/sso/";
         return  request.getScheme() + "://" + request.getServerName()
                 + ":" + request.getServerPort() + "/rocketmq/sso/";
     }
