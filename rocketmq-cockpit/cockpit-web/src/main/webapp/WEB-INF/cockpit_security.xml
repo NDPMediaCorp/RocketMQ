@@ -38,7 +38,7 @@
 
         <security:form-login authentication-failure-handler-ref="rocketMQUserLoginFailedHandler"
                              authentication-success-handler-ref="rocketMQUserLoginSuccessHandler"
-                             default-target-url="/"
+                             default-target-url="/home"
                              login-page="/cockpit/login.jsp"
                              authentication-failure-url="/cockpit/login.jsp?error=true"/>
 
