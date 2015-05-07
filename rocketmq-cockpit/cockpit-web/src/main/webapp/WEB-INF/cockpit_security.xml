@@ -7,7 +7,6 @@
                            http://www.springframework.org/schema/security
                            http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
-
     <security:http pattern="/js/**" security="none" />
     <security:http pattern="/css/**" security="none" />
     <security:http pattern="/img/**" security="none" />
@@ -25,6 +24,7 @@
         <security:intercept-url pattern="/*" requires-channel="https" />
 
         <security:custom-filter ref="rocketMQLoginFilter" before="FORM_LOGIN_FILTER" />
+        <security:intercept-url pattern="/favicon.ico" access="IS_AUTHENTICATED_ANONYMOUSLY" />
         <security:intercept-url pattern="/cockpit/login.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <security:intercept-url pattern="/cockpit/captcha-image.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <security:intercept-url pattern="/j_spring_security_check"  access="IS_AUTHENTICATED_ANONYMOUSLY"/>
