@@ -453,7 +453,7 @@ public class SendMessageProcessor implements NettyRequestProcessor {
         msgInner.setStoreHost(this.getStoreHost());
         msgInner.setReconsumeTimes(requestHeader.getReconsumeTimes() == null ? 0 : requestHeader
                 .getReconsumeTimes());
-        System.out.println(msgInner);
+        log.error(msgInner.toString());
         // 检查事务消息
         if (this.brokerController.getBrokerConfig().isRejectTransactionMessage()) {
             String traFlag = msgInner.getProperty(MessageConst.PROPERTY_TRANSACTION_PREPARED);
