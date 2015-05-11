@@ -167,7 +167,11 @@ public class Message implements Serializable {
         return this.getProperty(MessageConst.PROPERTY_KEYS);
     }
 
+    public void setKey(String key) {
+        this.putProperty(MessageConst.PROPERTY_KEYS, key);
+    }
 
+    @Deprecated
     public void setKeys(String keys) {
         this.putProperty(MessageConst.PROPERTY_KEYS, keys);
     }

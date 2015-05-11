@@ -522,6 +522,7 @@ public class SendMessageProcessor implements NettyRequestProcessor {
                 response.setRemark(null);
 
                 responseHeader.setMsgId(putMessageResult.getAppendMessageResult().getMsgId());
+                responseHeader.setKey(msgInner.getKeys());
                 responseHeader.setQueueId(queueIdInt);
                 responseHeader.setQueueOffset(putMessageResult.getAppendMessageResult().getLogicOffset());
 
