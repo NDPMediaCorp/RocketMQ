@@ -28,10 +28,9 @@ import com.alibaba.rocketmq.common.message.MessageQueue;
 public class SendResult {
     private SendStatus sendStatus;
     private String msgId;
-    private String key;
+    private String keys;
     private MessageQueue messageQueue;
     private long queueOffset;
-
 
     public SendResult() {
     }
@@ -42,12 +41,12 @@ public class SendResult {
     }
 
     public SendResult(SendStatus sendStatus, String msgId, MessageQueue messageQueue, long queueOffset,
-            String projectGroupPrefix, String key) {
+            String projectGroupPrefix, String keys) {
         this.sendStatus = sendStatus;
         this.msgId = msgId;
         this.messageQueue = messageQueue;
         this.queueOffset = queueOffset;
-        this.key = key;
+        this.keys = keys;
         // 清除虚拟运行环境相关的projectGroupPrefix
         if (!UtilAll.isBlank(projectGroupPrefix)) {
             this.messageQueue.setTopic(VirtualEnvUtil.clearProjectGroup(this.messageQueue.getTopic(),
@@ -95,17 +94,17 @@ public class SendResult {
         this.queueOffset = queueOffset;
     }
 
-    public String getKey() {
-        return key;
+    public String getKeys() {
+        return keys;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setKeys(String keys) {
+        this.keys = keys;
     }
 
     @Override
     public String toString() {
         return "SendResult [sendStatus=" + sendStatus + ", msgId=" + msgId + ", messageQueue=" + messageQueue
-                + ", queueOffset=" + queueOffset + ", key=" + key + "]";
+                + ", queueOffset=" + queueOffset + ", keys=" + keys + "]";
     }
 }

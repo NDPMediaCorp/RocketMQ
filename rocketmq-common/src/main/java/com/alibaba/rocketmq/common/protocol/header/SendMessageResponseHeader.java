@@ -19,7 +19,7 @@ public class SendMessageResponseHeader implements CommandCustomHeader {
     @CFNotNull
     private Long queueOffset;
 
-    private String key;
+    private String keys;
 
     @Override
     public void checkFields() throws RemotingCommandException {
@@ -55,11 +55,11 @@ public class SendMessageResponseHeader implements CommandCustomHeader {
         this.queueOffset = queueOffset;
     }
 
-    public String getKey() {
-        return key;
+    public String getKeys() {
+        return keys;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setKeys(String keys) {
+        this.keys = keys;
     }
 }
