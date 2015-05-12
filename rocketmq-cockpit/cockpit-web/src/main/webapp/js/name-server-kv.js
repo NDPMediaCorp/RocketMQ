@@ -58,7 +58,7 @@ $(document).ready(function() {
         });
     });
 
-    $(".deleteKV").live("click", function() {
+    $(document).on("click", ".deleteKV", function() {
         addcloud();
         var id = $(this).attr("rel");
         var row = $(this).parent().parent();
@@ -89,7 +89,7 @@ $(document).ready(function() {
 
     });
 
-    $(".applyKV").live("click", function() {
+    $(document).on("click", ".applyKV", function() {
         addcloud();
         var id = $(this).attr("rel");
 

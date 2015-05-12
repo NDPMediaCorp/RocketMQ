@@ -40,7 +40,7 @@ $(document).ready(function() {
         }
     });
 
-    $(".removeItem").live("click", function() {
+    $(document).on("click", ".removeItem", function() {
         addcloud();
         var row = $(this).parent().parent();
         var id = $(this).attr("rel");
