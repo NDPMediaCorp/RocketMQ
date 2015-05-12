@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    addcloud();
+
     $("#registerButton").click(function() {
         addcloud();
         var password = $("#password").val();
