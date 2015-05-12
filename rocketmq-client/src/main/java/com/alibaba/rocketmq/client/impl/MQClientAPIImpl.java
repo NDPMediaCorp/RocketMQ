@@ -402,7 +402,7 @@ public class MQClientAPIImpl {
                     new MessageQueue(msg.getTopic(), brokerName, responseHeader.getQueueId());
 
             return new SendResult(sendStatus, responseHeader.getMsgId(), messageQueue,
-                responseHeader.getQueueOffset(), projectGroupPrefix, responseHeader.getKey());
+                responseHeader.getQueueOffset(), projectGroupPrefix, responseHeader.getKeys());
         }
         default:
             break;

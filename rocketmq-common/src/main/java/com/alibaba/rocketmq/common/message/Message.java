@@ -16,6 +16,7 @@
 package com.alibaba.rocketmq.common.message;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -168,10 +169,13 @@ public class Message implements Serializable {
     }
 
     public void setKey(String key) {
-        this.putProperty(MessageConst.PROPERTY_KEYS, key);
+        if (null == getKeys() || getKeys().isEmpty()) {
+            setKeys(key);
+        } else {
+            setKeys(Arrays.asList(getKeys(), key));
+        }
     }
 
-    @Deprecated
     public void setKeys(String keys) {
         this.putProperty(MessageConst.PROPERTY_KEYS, keys);
     }
