@@ -85,8 +85,8 @@ public class VerificationTool {
         });
 
         consumer.start();
-        System.out.println("Please wait 1 minute.");
-        Thread.sleep(60 * 1000);
+        System.out.println("Please wait patiently.");
+        Thread.sleep(600 * 1000);
         consumer.shutdown();
     }
 }
