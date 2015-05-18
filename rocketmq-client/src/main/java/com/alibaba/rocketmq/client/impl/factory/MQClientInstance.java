@@ -151,6 +151,13 @@ public class MQClientInstance {
                 this.clientId, //
                 this.clientConfig, //
                 MQVersion.getVersionDesc(MQVersion.CurrentVersion));
+
+        if (nettyClientConfig.isSsl()) {
+           log.info("Netty TCP Connection SSL Enabled.");
+        } else {
+            log.info("Netty TCP Connection SSL Disabled.");
+        }
+
     }
 
 
