@@ -122,11 +122,9 @@ public class MQClientInstance {
         this.clientConfig = clientConfig;
         this.instanceIndex = instanceIndex;
         this.nettyClientConfig = new NettyClientConfig();
-        this.nettyClientConfig.setClientCallbackExecutorThreads(clientConfig
-                .getClientCallbackExecutorThreads());
+        this.nettyClientConfig.setClientCallbackExecutorThreads(clientConfig.getClientCallbackExecutorThreads());
         this.clientRemotingProcessor = new ClientRemotingProcessor(this);
-        this.mQClientAPIImpl =
-                new MQClientAPIImpl(this.nettyClientConfig, this.clientRemotingProcessor, rpcHook);
+        this.mQClientAPIImpl = new MQClientAPIImpl(this.nettyClientConfig, this.clientRemotingProcessor, rpcHook);
 
         if (this.clientConfig.getNamesrvAddr() != null) {
             this.mQClientAPIImpl.updateNameServerAddressList(this.clientConfig.getNamesrvAddr());
@@ -153,7 +151,7 @@ public class MQClientInstance {
                 MQVersion.getVersionDesc(MQVersion.CurrentVersion));
 
         if (nettyClientConfig.isSsl()) {
-           log.info("Netty TCP Connection SSL Enabled.");
+            log.info("Netty TCP Connection SSL Enabled.");
         } else {
             log.info("Netty TCP Connection SSL Disabled.");
         }

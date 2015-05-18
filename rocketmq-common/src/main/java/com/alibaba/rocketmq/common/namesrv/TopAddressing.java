@@ -48,14 +48,16 @@ public class TopAddressing {
 
 
     public final String fetchNSAddr() {
+        log.info("Fetching name server address form endpoint: {}", wsAddr);
         try {
             HttpResult result = HttpTinyClient.httpGet(this.wsAddr, null, null, "UTF-8", 3000);
             if (200 == result.code) {
                 String responseStr = result.content;
                 if (responseStr != null) {
-                    return clearNewLine(responseStr);
-                }
-                else {
+                    String ret =  clearNewLine(responseStr);
+                    log.info("Fetching name server list completed. Found: {}", ret);
+                    return ret;
+                } else {
                     log.error("fetch nameserver address is null");
                 }
             }
