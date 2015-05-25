@@ -85,6 +85,7 @@
 		<java_source_version>1.6</java_source_version>
 		<java_target_version>1.6</java_target_version>
 		<file_encoding>UTF-8</file_encoding>
+		<netty.version>4.0.28.Final</netty.version>
 	</properties>
 
 	<build>
@@ -314,11 +315,6 @@
 			</dependency>
 			<dependency>
 				<groupId>${project.groupId}</groupId>
-				<artifactId>rocketmq-qatest</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>${project.groupId}</groupId>
 				<artifactId>rocketmq-filtersrv</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -358,11 +354,13 @@
 				<artifactId>commons-cli</artifactId>
 				<version>1.2</version>
 			</dependency>
+
 			<dependency>
 				<groupId>io.netty</groupId>
 				<artifactId>netty-all</artifactId>
-				<version>4.0.23.Final</version>
+				<version>${netty.version}</version>
 			</dependency>
+
 			<dependency>
 				<groupId>com.alibaba</groupId>
 				<artifactId>fastjson</artifactId>
