@@ -61,6 +61,8 @@ public class SelectMessageQueueByDataCenter implements MessageQueueSelector {
 
     private static final long OUTPUT_WARNING_PER_COUNT = 1000L;
 
+    private AtomicLong strategyWarnCounter = new AtomicLong(0L);
+
     public SelectMessageQueueByDataCenter(DefaultMQProducer defaultMQProducer) {
         this.defaultMQProducer = defaultMQProducer;
         startConfigUpdater();
@@ -225,7 +227,11 @@ public class SelectMessageQueueByDataCenter implements MessageQueueSelector {
                 }
                 return roundRobin(dataCenterQueues, mqs);
             } else {
-                LOGGER.warn("Consume averagely, please double check.");
+
+                if (strategyWarnCounter.incrementAndGet() % 10000 == 1) {
+                    LOGGER.warn("Consume averagely, please double check.");
+                }
+
                 return roundRobin(mqs, mqs);
             }
         } catch (Exception e) {
