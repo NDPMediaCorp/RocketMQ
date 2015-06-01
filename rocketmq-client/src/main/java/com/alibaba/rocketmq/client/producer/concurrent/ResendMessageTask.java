@@ -28,7 +28,7 @@ public class ResendMessageTask implements Runnable {
     @Override
     public void run() {
         try {
-            LOGGER.info("Start to re-send");
+            LOGGER.debug("Start to re-send");
             if (localMessageStore.getNumberOfMessageStashed() == 0) {
                 LOGGER.debug("No stashed messages to re-send");
                 return;

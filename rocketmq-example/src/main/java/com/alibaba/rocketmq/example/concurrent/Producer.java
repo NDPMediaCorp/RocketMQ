@@ -64,7 +64,7 @@ public class Producer {
                                 Message[] messages = buildMessages(RANDOM.nextInt(400));
                                 producer.send(messages);
                                 adder.incrementAndGet();
-                                if (adder.longValue() % 10 == 0) {
+                                if (adder.longValue() % 1000 == 0) {
                                     LOGGER.info(messages.length + " messages from client are required to send.");
                                 }
                             } catch (Exception e) {

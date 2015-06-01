@@ -146,7 +146,7 @@ public class MultiThreadMQProducer {
                     @Override
                     public void run() {
                         try {
-                            LOGGER.info("Monitoring TPS and adjusting semaphore capacity service starts.");
+                            LOGGER.debug("Monitoring TPS and adjusting semaphore capacity service starts.");
                             float tps = (successSendingCounter.longValue() - lastSuccessfulSendingCount) * 1000.0F
                                     / (System.currentTimeMillis() - lastStatsTimeStamp);
 

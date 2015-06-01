@@ -14,7 +14,7 @@ public interface LocalMessageStore {
      * This method returns numbers of messages stashed.
      * @return number of messages stashed.
      */
-    public int getNumberOfMessageStashed();
+    int getNumberOfMessageStashed();
 
     /**
      * This method would pop out at most <code>n</code> messages from local store.
