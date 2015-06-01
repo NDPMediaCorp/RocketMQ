@@ -30,7 +30,7 @@ public class ResendMessageTask implements Runnable {
         try {
             LOGGER.info("Start to re-send");
             if (localMessageStore.getNumberOfMessageStashed() == 0) {
-                LOGGER.info("No stashed messages to re-send");
+                LOGGER.debug("No stashed messages to re-send");
                 return;
             }
 
@@ -38,23 +38,20 @@ public class ResendMessageTask implements Runnable {
                     BATCH_FETCH_MESSAGE_FROM_STORE_SIZE);
 
             if (popSize <= 0) {
-                LOGGER.info("No permits available in semaphore. Yield and wait for next round.");
+                LOGGER.debug("No permits available in semaphore. Yield and wait for next round.");
                 return;
             }
 
             Message[] messages = localMessageStore.pop(popSize);
             if (null == messages || messages.length == 0) {
-                LOGGER.info("No stashed messages to re-send");
+                LOGGER.debug("No stashed messages to re-send");
                 return;
             }
 
             int totalNumberOfMessagesSubmitted = 0;
 
             while (null != messages && messages.length > 0) {
-                //Acquire tokens from semaphore.
-                multiThreadMQProducer.getSemaphore().acquireUninterruptibly(messages.length);
-                //Send messages with tokens.
-                multiThreadMQProducer.send(messages, true);
+                multiThreadMQProducer.send(messages);
                 totalNumberOfMessagesSubmitted += messages.length;
                 //Prepare for next loop step.
                 popSize = Math.min(multiThreadMQProducer.getSemaphore().availablePermits(),
@@ -64,7 +61,8 @@ public class ResendMessageTask implements Runnable {
                 }
                 messages = localMessageStore.pop(popSize);
             }
-            LOGGER.info(totalNumberOfMessagesSubmitted + " stashed messages re-sending completes: scheduled job submitted.");
+
+            LOGGER.debug(totalNumberOfMessagesSubmitted + " stashed messages re-sending completes: scheduled job submitted.");
         } catch (Exception e) {
             LOGGER.error("ResendMessageTask got an exception!", e);
         }

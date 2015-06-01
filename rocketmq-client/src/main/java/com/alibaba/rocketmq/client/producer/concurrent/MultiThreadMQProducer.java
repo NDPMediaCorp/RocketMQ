@@ -129,13 +129,13 @@ public class MultiThreadMQProducer {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                LOGGER.info("Multi-thread MQ Producer shutdown hook invoked.");
+                LOGGER.warn("Multi-thread MQ Producer shutdown hook invoked.");
                 try {
                     shutdown();
                 } catch (InterruptedException e) {
                     LOGGER.error("ShutdownHook error.", e);
                 }
-                LOGGER.info("Multi-thread MQ Producer shutdown completes.");
+                LOGGER.warn("Multi-thread MQ Producer shutdown completes.");
             }
         });
     }
@@ -150,7 +150,7 @@ public class MultiThreadMQProducer {
                             float tps = (successSendingCounter.longValue() - lastSuccessfulSendingCount) * 1000.0F
                                     / (System.currentTimeMillis() - lastStatsTimeStamp);
 
-                            LOGGER.info("Current TPS: " + tps +
+                            LOGGER.debug("Current TPS: " + tps +
                                     "; Number of message pending to send is: " + messageQueue.size() +
                                     "; Number of message stashed to local message store is: " + localMessageStore.getNumberOfMessageStashed() +
                                     "; Number of message already sent is: " + successSendingCounter.longValue());
@@ -172,12 +172,12 @@ public class MultiThreadMQProducer {
                         } catch (Exception e) {
                             LOGGER.error("Monitor TPS error", e);
                         } finally {
-                            LOGGER.info("Monitoring TPS and adjusting semaphore capacity service completes.");
+                            LOGGER.debug("Monitoring TPS and adjusting semaphore capacity service completes.");
                         }
                     }
 
                     private void adjustThrottle(float tps) {
-                        LOGGER.info("Begin to adjust throttle. Current semaphore capacity is: " + semaphoreCapacity);
+                        LOGGER.debug("Begin to adjust throttle. Current semaphore capacity is: " + semaphoreCapacity);
                         int updatedSemaphoreCapacity = 0;
                         if (tps > officialTps) {
                             if (accumulativeTPSDelta > TPS_TOL) { //Update due to accumulative TPS delta surpass TPS_TOL
@@ -217,7 +217,7 @@ public class MultiThreadMQProducer {
                         //reset count.
                         count = 0;
 
-                        LOGGER.info("Semaphore capacity adjusted to:" + semaphoreCapacity);
+                        LOGGER.debug("Semaphore capacity adjusted to:" + semaphoreCapacity);
                     }
 
                 }, 3000, 1000, TimeUnit.MILLISECONDS);
@@ -323,7 +323,7 @@ public class MultiThreadMQProducer {
      * @throws InterruptedException if unable to shutdown within 1 minute.
      */
     public void shutdown() throws InterruptedException {
-        LOGGER.info("MultiThreadMQProducer starts to shutdown.");
+        LOGGER.warn("MultiThreadMQProducer starts to shutdown.");
         //No more messages from client or local message store.
         semaphore.drainPermits();
 
@@ -352,7 +352,7 @@ public class MultiThreadMQProducer {
             localMessageStore = null;
         }
 
-        LOGGER.info("MultiThreadMQProducer shuts down completely.");
+        LOGGER.warn("MultiThreadMQProducer shuts down completely.");
     }
 
     public CustomizableSemaphore getSemaphore() {
