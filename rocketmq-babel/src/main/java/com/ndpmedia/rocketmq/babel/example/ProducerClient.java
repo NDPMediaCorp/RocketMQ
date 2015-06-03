@@ -25,7 +25,7 @@ public class ProducerClient {
             while (true) {
                 message.setData(("Test" + i).getBytes());
                 System.out.println("producerClient send msg:"+"Test"+i);
-                client.send(message);
+                System.out.println(client.send(message));
                 i++;
                 Thread.sleep(1000);
             }

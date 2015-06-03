@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 public final class Helper {
@@ -41,5 +42,19 @@ public final class Helper {
 
     public static Properties getConfig() {
         return properties;
+    }
+
+
+    public static com.alibaba.rocketmq.common.message.Message wrap(Message message) {
+        com.alibaba.rocketmq.common.message.Message msg = new com.alibaba.rocketmq.common.message.Message();
+        msg.setTopic(message.getTopic());
+        msg.setBody(message.getData());
+        msg.setFlag(message.getFlag());
+        if (null != message.getProperties()) {
+            for (Map.Entry<String, String> entry : message.getProperties().entrySet()) {
+                msg.putUserProperty(entry.getKey(), entry.getValue());
+            }
+        }
+        return msg;
     }
 }

@@ -1,59 +1,54 @@
 package com.ndpmedia.rocketmq.babel;
 
-import com.alibaba.rocketmq.client.producer.concurrent.MultiThreadMQProducer;
+import com.alibaba.rocketmq.client.exception.MQClientException;
+import com.alibaba.rocketmq.client.log.ClientLogger;
+import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
+import com.alibaba.rocketmq.client.producer.SendResult;
 import org.apache.thrift.TException;
+import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ProducerService implements Producer.Iface {
 
-    private MultiThreadMQProducer producer;
+    private static final Logger LOG = ClientLogger.getLog();
+
+    private DefaultMQProducer producer;
 
     public ProducerService() {
-        producer = MultiThreadMQProducer.configure()
-                .configureProducerGroup(Helper.getConfig().getProperty("producer_group")).build();
-
-    }
-
-    private com.alibaba.rocketmq.common.message.Message wrap(Message message) {
-        com.alibaba.rocketmq.common.message.Message msg = new com.alibaba.rocketmq.common.message.Message();
-        msg.setTopic(message.getTopic());
-        msg.setBody(message.getData());
-        msg.setFlag(message.getFlag());
-
-        if (null != message.getProperties()) {
-            for (Map.Entry<String, String> entry : message.getProperties().entrySet()) {
-                msg.putUserProperty(entry.getKey(), entry.getValue());
-            }
+        producer = new DefaultMQProducer(Helper.getConfig().getProperty("producer_group"));
+        try {
+            producer.start();
+        } catch (MQClientException e) {
+            LOG.error("Failed to start DefaultMQProducer", e);
         }
+    }
 
-        return msg;
+
+
+    @Override
+    public String send(Message message) throws TException {
+        try {
+            SendResult sendResult = producer.send(Helper.wrap(message));
+            return sendResult.getMsgId();
+        } catch (Exception e) {
+            LOG.error("Send message error", e);
+            throw new TException("Send message failed", e);
+        }
     }
 
     @Override
-    public void send(Message message) throws TException {
-        producer.send(wrap(message));
-    }
-
-    @Override
-    public void batchSend(List<Message> messageList) throws TException {
-        com.alibaba.rocketmq.common.message.Message[] messages =
-                new com.alibaba.rocketmq.common.message.Message[messageList.size()];
-        int count = 0;
+    public List<String> batchSend(List<Message> messageList) throws TException {
+        List<String> result = new ArrayList<String>(messageList.size());
         for (Message msg : messageList) {
-            messages[count++] = wrap(msg);
+            result.add(send(msg));
         }
-
-        producer.send(messages);
+        return result;
     }
 
     @Override
     public void stop() throws TException {
-        try {
-            producer.shutdown();
-        } catch (InterruptedException e) {
-            throw new TException("Failed to stop", e);
-        }
+        producer.shutdown();
     }
 }
