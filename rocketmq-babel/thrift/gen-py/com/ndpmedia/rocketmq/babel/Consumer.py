@@ -164,7 +164,7 @@ class pull_result:
   """
 
   thrift_spec = (
-    (0, TType.LIST, 'success', (TType.STRUCT,(com.ndpmedia.rocketmq.babel.ttypes.MessageExt, com.ndpmedia.rocketmq.babel.ttypes.MessageExt.thrift_spec)), None, ), # 0
+    (0, TType.LIST, 'success', (TType.STRUCT,(MessageExt, MessageExt.thrift_spec)), None, ), # 0
   )
 
   def __init__(self, success=None,):

@@ -19,10 +19,12 @@ use Thrift\Exception\TApplicationException;
 interface ProducerIf {
   /**
    * @param \com\ndpmedia\rocketmq\babel\Message $message
+   * @return string
    */
   public function send(\com\ndpmedia\rocketmq\babel\Message $message);
   /**
    * @param \com\ndpmedia\rocketmq\babel\Message[] $messageList
+   * @return string[]
    */
   public function batchSend(array $messageList);
   /**
@@ -44,7 +46,7 @@ class ProducerClient implements \com\ndpmedia\rocketmq\babel\ProducerIf {
   public function send(\com\ndpmedia\rocketmq\babel\Message $message)
   {
     $this->send_send($message);
-    $this->recv_send();
+    return $this->recv_send();
   }
 
   public function send_send(\com\ndpmedia\rocketmq\babel\Message $message)
@@ -86,13 +88,16 @@ class ProducerClient implements \com\ndpmedia\rocketmq\babel\ProducerIf {
       $result->read($this->input_);
       $this->input_->readMessageEnd();
     }
-    return;
+    if ($result->success !== null) {
+      return $result->success;
+    }
+    throw new \Exception("send failed: unknown result");
   }
 
   public function batchSend(array $messageList)
   {
     $this->send_batchSend($messageList);
-    $this->recv_batchSend();
+    return $this->recv_batchSend();
   }
 
   public function send_batchSend(array $messageList)
@@ -134,7 +139,10 @@ class ProducerClient implements \com\ndpmedia\rocketmq\babel\ProducerIf {
       $result->read($this->input_);
       $this->input_->readMessageEnd();
     }
-    return;
+    if ($result->success !== null) {
+      return $result->success;
+    }
+    throw new \Exception("batchSend failed: unknown result");
   }
 
   public function stop()
@@ -245,11 +253,24 @@ class Producer_send_args {
 class Producer_send_result {
   static $_TSPEC;
 
+  /**
+   * @var string
+   */
+  public $success = null;
 
-  public function __construct() {
+  public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
       self::$_TSPEC = array(
+        0 => array(
+          'var' => 'success',
+          'type' => TType::STRING,
+          ),
         );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['success'])) {
+        $this->success = $vals['success'];
+      }
     }
   }
 
@@ -272,6 +293,13 @@ class Producer_send_result {
       }
       switch ($fid)
       {
+        case 0:
+          if ($ftype == TType::STRING) {
+            $xfer += $input->readString($this->success);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
         default:
           $xfer += $input->skip($ftype);
           break;
@@ -285,6 +313,11 @@ class Producer_send_result {
   public function write($output) {
     $xfer = 0;
     $xfer += $output->writeStructBegin('Producer_send_result');
+    if ($this->success !== null) {
+      $xfer += $output->writeFieldBegin('success', TType::STRING, 0);
+      $xfer += $output->writeString($this->success);
+      $xfer += $output->writeFieldEnd();
+    }
     $xfer += $output->writeFieldStop();
     $xfer += $output->writeStructEnd();
     return $xfer;
@@ -398,11 +431,28 @@ class Producer_batchSend_args {
 class Producer_batchSend_result {
   static $_TSPEC;
 
+  /**
+   * @var string[]
+   */
+  public $success = null;
 
-  public function __construct() {
+  public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
       self::$_TSPEC = array(
+        0 => array(
+          'var' => 'success',
+          'type' => TType::LST,
+          'etype' => TType::STRING,
+          'elem' => array(
+            'type' => TType::STRING,
+            ),
+          ),
         );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['success'])) {
+        $this->success = $vals['success'];
+      }
     }
   }
 
@@ -425,6 +475,23 @@ class Producer_batchSend_result {
       }
       switch ($fid)
       {
+        case 0:
+          if ($ftype == TType::LST) {
+            $this->success = array();
+            $_size7 = 0;
+            $_etype10 = 0;
+            $xfer += $input->readListBegin($_etype10, $_size7);
+            for ($_i11 = 0; $_i11 < $_size7; ++$_i11)
+            {
+              $elem12 = null;
+              $xfer += $input->readString($elem12);
+              $this->success []= $elem12;
+            }
+            $xfer += $input->readListEnd();
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
         default:
           $xfer += $input->skip($ftype);
           break;
@@ -438,6 +505,23 @@ class Producer_batchSend_result {
   public function write($output) {
     $xfer = 0;
     $xfer += $output->writeStructBegin('Producer_batchSend_result');
+    if ($this->success !== null) {
+      if (!is_array($this->success)) {
+        throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
+      }
+      $xfer += $output->writeFieldBegin('success', TType::LST, 0);
+      {
+        $output->writeListBegin(TType::STRING, count($this->success));
+        {
+          foreach ($this->success as $iter13)
+          {
+            $xfer += $output->writeString($iter13);
+          }
+        }
+        $output->writeListEnd();
+      }
+      $xfer += $output->writeFieldEnd();
+    }
     $xfer += $output->writeFieldStop();
     $xfer += $output->writeStructEnd();
     return $xfer;

@@ -49,7 +49,7 @@ class Client(Iface):
      - message
     """
     self.send_send(message)
-    self.recv_send()
+    return self.recv_send()
 
   def send_send(self, message):
     self._oprot.writeMessageBegin('send', TMessageType.CALL, self._seqid)
@@ -70,7 +70,9 @@ class Client(Iface):
     result = send_result()
     result.read(iprot)
     iprot.readMessageEnd()
-    return
+    if result.success is not None:
+      return result.success
+    raise TApplicationException(TApplicationException.MISSING_RESULT, "send failed: unknown result");
 
   def batchSend(self, messageList):
     """
@@ -78,7 +80,7 @@ class Client(Iface):
      - messageList
     """
     self.send_batchSend(messageList)
-    self.recv_batchSend()
+    return self.recv_batchSend()
 
   def send_batchSend(self, messageList):
     self._oprot.writeMessageBegin('batchSend', TMessageType.CALL, self._seqid)
@@ -99,7 +101,9 @@ class Client(Iface):
     result = batchSend_result()
     result.read(iprot)
     iprot.readMessageEnd()
-    return
+    if result.success is not None:
+      return result.success
+    raise TApplicationException(TApplicationException.MISSING_RESULT, "batchSend failed: unknown result");
 
   def stop(self):
     self.send_stop()
@@ -139,7 +143,7 @@ class Processor(Iface, TProcessor):
     args.read(iprot)
     iprot.readMessageEnd()
     result = send_result()
-    self._handler.send(args.message)
+    result.success = self._handler.send(args.message)
     oprot.writeMessageBegin("send", TMessageType.REPLY, seqid)
     result.write(oprot)
     oprot.writeMessageEnd()
@@ -150,7 +154,7 @@ class Processor(Iface, TProcessor):
     args.read(iprot)
     iprot.readMessageEnd()
     result = batchSend_result()
-    self._handler.batchSend(args.messageList)
+    result.success = self._handler.batchSend(args.messageList)
     oprot.writeMessageBegin("batchSend", TMessageType.REPLY, seqid)
     result.write(oprot)
     oprot.writeMessageEnd()
@@ -174,7 +178,7 @@ class send_args:
 
   thrift_spec = (
     None, # 0
-    (1, TType.STRUCT, 'message', (com.ndpmedia.rocketmq.babel.ttypes.Message, com.ndpmedia.rocketmq.babel.ttypes.Message.thrift_spec), None, ), # 1
+    (1, TType.STRUCT, 'message', (Message, Message.thrift_spec), None, ), # 1
   )
 
   def __init__(self, message=None,):
@@ -233,9 +237,17 @@ class send_args:
     return not (self == other)
 
 class send_result:
+  """
+  Attributes:
+   - success
+  """
 
   thrift_spec = (
+    (0, TType.STRING, 'success', None, None, ), # 0
   )
+
+  def __init__(self, success=None,):
+    self.success = success
 
   def read(self, iprot):
     if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
@@ -246,6 +258,11 @@ class send_result:
       (fname, ftype, fid) = iprot.readFieldBegin()
       if ftype == TType.STOP:
         break
+      if fid == 0:
+        if ftype == TType.STRING:
+          self.success = iprot.readString();
+        else:
+          iprot.skip(ftype)
       else:
         iprot.skip(ftype)
       iprot.readFieldEnd()
@@ -256,6 +273,10 @@ class send_result:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
     oprot.writeStructBegin('send_result')
+    if self.success is not None:
+      oprot.writeFieldBegin('success', TType.STRING, 0)
+      oprot.writeString(self.success)
+      oprot.writeFieldEnd()
     oprot.writeFieldStop()
     oprot.writeStructEnd()
 
@@ -265,6 +286,7 @@ class send_result:
 
   def __hash__(self):
     value = 17
+    value = (value * 31) ^ hash(self.success)
     return value
 
   def __repr__(self):
@@ -286,7 +308,7 @@ class batchSend_args:
 
   thrift_spec = (
     None, # 0
-    (1, TType.LIST, 'messageList', (TType.STRUCT,(com.ndpmedia.rocketmq.babel.ttypes.Message, com.ndpmedia.rocketmq.babel.ttypes.Message.thrift_spec)), None, ), # 1
+    (1, TType.LIST, 'messageList', (TType.STRUCT,(Message, Message.thrift_spec)), None, ), # 1
   )
 
   def __init__(self, messageList=None,):
@@ -353,9 +375,17 @@ class batchSend_args:
     return not (self == other)
 
 class batchSend_result:
+  """
+  Attributes:
+   - success
+  """
 
   thrift_spec = (
+    (0, TType.LIST, 'success', (TType.STRING,None), None, ), # 0
   )
+
+  def __init__(self, success=None,):
+    self.success = success
 
   def read(self, iprot):
     if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
@@ -366,6 +396,16 @@ class batchSend_result:
       (fname, ftype, fid) = iprot.readFieldBegin()
       if ftype == TType.STOP:
         break
+      if fid == 0:
+        if ftype == TType.LIST:
+          self.success = []
+          (_etype10, _size7) = iprot.readListBegin()
+          for _i11 in xrange(_size7):
+            _elem12 = iprot.readString();
+            self.success.append(_elem12)
+          iprot.readListEnd()
+        else:
+          iprot.skip(ftype)
       else:
         iprot.skip(ftype)
       iprot.readFieldEnd()
@@ -376,6 +416,13 @@ class batchSend_result:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
     oprot.writeStructBegin('batchSend_result')
+    if self.success is not None:
+      oprot.writeFieldBegin('success', TType.LIST, 0)
+      oprot.writeListBegin(TType.STRING, len(self.success))
+      for iter13 in self.success:
+        oprot.writeString(iter13)
+      oprot.writeListEnd()
+      oprot.writeFieldEnd()
     oprot.writeFieldStop()
     oprot.writeStructEnd()
 
@@ -385,6 +432,7 @@ class batchSend_result:
 
   def __hash__(self):
     value = 17
+    value = (value * 31) ^ hash(self.success)
     return value
 
   def __repr__(self):

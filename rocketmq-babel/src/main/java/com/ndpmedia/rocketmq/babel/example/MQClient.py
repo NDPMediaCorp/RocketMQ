@@ -1,16 +1,24 @@
 from thrift import Thrift
 from thrift.transport import TSocket, TTransport
 from thrift.protocol import TBinaryProtocol
-from mq import Producer, Consumer #mq＝rocketmq lib package
-import time
-import aparser
+# from core.parser.mq import Producer, Consumer
+from mq import Producer, Consumer
 import logging
 from threading import Thread
 from datetime import *
+import time
+mq_produce_client = []
+mq_consumer_client = []
+
+MQ_PRODUCER_IP = 'localhost'
+MQ_PRODUCER_PORT = 10921
+MQ_CONSUMER_IP = 'localhost'
+MQ_CONSUMER_PORT = 10922
+
 
 __author__ = 'penuel'
 
-logger = logging.getLogger('mq')
+logger = logging.getLogger('aparser')
 
 
 class ProducerClient:
@@ -28,41 +36,62 @@ class ProducerClient:
             logger.error(e, "ProducerClient.init")
             self.__transport.close()
 
-
-    def send(self, message):
+    @staticmethod
+    def instance():
+        if mq_produce_client and len(mq_produce_client) > 0:
+            return mq_produce_client[0]
         try:
-            if self.__client:
-                self.__client.send(message)
-                logger.debug("producerClient send msg %s", message)
+            # pc = ProducerClient('localhost', 10921)
+            pc = ProducerClient(MQ_PRODUCER_IP, MQ_PRODUCER_PORT)
+            if pc:
+                mq_produce_client.append(pc)
+                return mq_produce_client[0]
+        except Exception, e:
+            logger.error(e)
+
+    @staticmethod
+    def send(message):
+        try:
+            instance = ProducerClient.instance()
+            if not instance:
+                time.sleep(1)
+                instance = ProducerClient.instance()
+                if not instance:
+                    time.sleep(1)
+                    instance = ProducerClient.instance()
+            result = instance.__client.send(message)
+            logger.debug("producerClient send msg %s,result=", message, result)
+            return result
+        except Exception, e:
+            logger.error(e)
+            return ''
+
+
+    @staticmethod
+    def close():
+        try:
+            instance = ProducerClient.instance()
+            if instance:
+                instance.__transport.close()
+            logger.info("producerClient close %s", instance)
         except Thrift.TException, e:
             logger.error(e)
 
 
-    def close(self):
+    @staticmethod
+    def test_send():
         try:
-            self.__transport.close()
-            logger.info("producerClient close %s", self)
-        except Thrift.TException, e:
-            logger.error(e)
-            self.__transport.close()
-
-
-    def test_send(self):
-        try:
-            start = time.time()
-            if self.__client:
-                i = 0
-                while i < 1000000:
-                    msg = Producer.Message('T_parser', 0, None, 'python_test %s' % i)
-                    print 'test_send:python_test %s' % i
-                    self.__client.send(msg)
-                    i += 1
-                    if i % 10000 == 0:
-                        time.sleep(10)
-            logger.info('ProducerClient testSend costs %d s', time.time() - start)
+            i = 0
+            while i < 1000000:
+                msg = Producer.Message('T_parser_trace', 0, None, 'python_test %s' % i)
+                result = ProducerClient.send(msg)
+                print 'test_send:python_test %s,result=%s' % (i, result)
+                i += 1
+                if i % 10000 == 0:
+                    time.sleep(10)
+            logger.info('ProducerClient testSend over')
         except Thrift.TException, e:
             print 'test send : %s' % e
-            # self.__client.stop()
 
 
 class ConsumerClient(Thread):
@@ -90,7 +119,7 @@ class ConsumerClient(Thread):
                     logger.info('ConsumerClient Success Pull Result:%s', len(result))
                     for message in result:
                         if message and message.data:
-                            aparser.wsgi.msg_process.parse(message.data)
+                            # TODO something
                 return result
         except Thrift.TException, e:
             logger.error(e)
@@ -119,6 +148,5 @@ if __name__ == '__main__':
     print 'MQ start', datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     # test aparser.wsgi.msg_process.parse()
     # ConsumerClient('localhost', 10922).start()
-    producer_client = ProducerClient('localhost', 10921)
-    producer_client.test_send()
+    ProducerClient.test_send()
     print 'MQ end', datetime.now().strftime('%Y-%m-%d %H:%M:%S')

@@ -6,9 +6,10 @@ namespace java com.ndpmedia.rocketmq.babel
 include "Model.thrift"
 
 service Producer {
-   void send(1: Model.Message message),
 
-   void batchSend(1: list<Model.Message> messageList)
+   string send(1: Model.Message message),
+
+   list<string> batchSend(1: list<Model.Message> messageList)
 
    oneway void stop()
 }
