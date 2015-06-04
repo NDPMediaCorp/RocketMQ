@@ -987,8 +987,15 @@ public class DefaultMessageStore implements MessageStore {
 
 
     private void deleteFile(final String fileName) {
+
         File file = new File(fileName);
-        boolean result = file.delete();
+        boolean result;
+        if (file.isDirectory()) {
+            result = file.list().length == 0 && file.delete();
+        } else {
+            result = file.delete();
+        }
+
         log.info(fileName + (result ? " delete OK" : " delete Failed"));
     }
 
