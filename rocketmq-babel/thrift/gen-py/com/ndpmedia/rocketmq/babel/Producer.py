@@ -178,7 +178,7 @@ class send_args:
 
   thrift_spec = (
     None, # 0
-    (1, TType.STRUCT, 'message', (com.ndpmedia.rocketmq.babel.ttypes.Message, com.ndpmedia.rocketmq.babel.ttypes.Message.thrift_spec), None, ), # 1
+    (1, TType.STRUCT, 'message', (Message, Message.thrift_spec), None, ), # 1
   )
 
   def __init__(self, message=None,):
@@ -308,7 +308,7 @@ class batchSend_args:
 
   thrift_spec = (
     None, # 0
-    (1, TType.LIST, 'messageList', (TType.STRUCT,(com.ndpmedia.rocketmq.babel.ttypes.Message, com.ndpmedia.rocketmq.babel.ttypes.Message.thrift_spec)), None, ), # 1
+    (1, TType.LIST, 'messageList', (TType.STRUCT,(Message, Message.thrift_spec)), None, ), # 1
   )
 
   def __init__(self, messageList=None,):
