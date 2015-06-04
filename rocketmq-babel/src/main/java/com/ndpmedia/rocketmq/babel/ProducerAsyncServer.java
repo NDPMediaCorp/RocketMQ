@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 public class ProducerAsyncServer {
 
     private static final Logger LOG = ClientLogger.getLog();
-    private static final int PORT = Integer.parseInt(System.getProperty("RocketMQProducerPort", "10923"));
+    private static final int PORT = Integer.parseInt(System.getProperty("RocketMQAsyncProducerPort", "10923"));
 
     public static void main(String[] args) throws TTransportException {
         TNonblockingServerSocket serverSocket = new TNonblockingServerSocket(PORT);
