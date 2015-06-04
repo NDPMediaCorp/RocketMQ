@@ -159,15 +159,21 @@ public class IndexService extends ServiceThread {
 
     public void destroy() {
         try {
-            this.readWriteLock.readLock().lock();
+            this.readWriteLock.writeLock().lock();
             for (IndexFile f : this.indexFileList) {
                 f.destroy(1000 * 3);
             }
             this.indexFileList.clear();
+
+            File indexDirectory = new File(storePath);
+            if (indexDirectory.exists() && indexDirectory.isDirectory()) {
+                indexDirectory.delete();
+            }
+
         } catch (Exception e) {
             log.error("destroy exception", e);
         } finally {
-            this.readWriteLock.readLock().unlock();
+            this.readWriteLock.writeLock().unlock();
         }
     }
 

@@ -361,8 +361,8 @@ public class DefaultMessageStore implements MessageStore {
         this.commitLog.destroy();
         this.indexService.destroy();
         this.deleteFile(StorePathConfigHelper.getAbortFile(this.messageStoreConfig.getStorePathRootDir()));
-        this.deleteFile(StorePathConfigHelper.getStoreCheckpoint(this.messageStoreConfig
-                .getStorePathRootDir()));
+        this.deleteFile(StorePathConfigHelper.getStoreCheckpoint(this.messageStoreConfig.getStorePathRootDir()));
+        this.deleteFile(messageStoreConfig.getStorePathRootDir());
     }
 
 
