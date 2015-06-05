@@ -57,6 +57,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -116,6 +117,16 @@ public class MQClientInstance {
     private DatagramSocket datagramSocket;
 
     private final ConsumerStatsManager consumerStatsManager;
+
+    /**
+     * Exception raised times.
+     */
+    private AtomicLong stalkerLogExceptionCounter = new AtomicLong(0L);
+
+    /**
+     * Print exception trace frequency.
+     */
+    private static final int STALKER_LOG_EXCEPTION_TRACE_INTERVAL = 10000;
 
 
     public MQClientInstance(ClientConfig clientConfig, int instanceIndex, String clientId, RPCHook rpcHook) {
@@ -285,7 +296,9 @@ public class MQClientInstance {
                             }
                         }
                     } catch (Exception e) {
-                        log.error("ScheduledTask, adjust trace settings exception", e);
+                        if (stalkerLogExceptionCounter.incrementAndGet() % STALKER_LOG_EXCEPTION_TRACE_INTERVAL == 1) {
+                            log.error("StalkerScheduledTask, adjust trace settings exception", e);
+                        }
                     }
                 }
             }, 0, 30, TimeUnit.SECONDS);
