@@ -221,6 +221,15 @@ public class RemotingUtil {
 
 
     public static String getLocalAddress() {
+
+        //Check if the current host is an AWS EC2 instance.
+        String ec2PublicIPv4 = CloudUtil.awsEC2QueryPublicIPv4();
+        if (null != ec2PublicIPv4) {
+            return ec2PublicIPv4;
+        }
+
+        //TODO check Rackspace
+
         return getLocalAddress(true);
     }
 
