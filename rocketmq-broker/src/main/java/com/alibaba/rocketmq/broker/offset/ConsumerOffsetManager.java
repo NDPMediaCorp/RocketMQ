@@ -76,29 +76,6 @@ public class ConsumerOffsetManager extends ConfigManager {
         }
     }
 
-    /**
-     * Best to remove offsets of the consumer group. For now, we just reset them to 0.
-     */
-    private void resetDeprecatedConsumerOffset() {
-        for (Entry<String, ConcurrentHashMap<Integer, Long>> entry : offsetTable.entrySet()) {
-            String[] topicConsumerGroups = entry.getKey().split(TOPIC_GROUP_SEPARATOR);
-            ConcurrentHashMap<Integer, Long> queueIdOffsetMap = entry.getValue();
-            for (Entry<Integer, Long> row : queueIdOffsetMap.entrySet()) {
-                if (brokerController.getMessageStore().getMaxOffsetInQueue(topicConsumerGroups[0], row.getKey())
-                        < row.getValue()) {
-                    log.warn("ResetDeprecatedConsumerOffset: Topic: {}, Queue ID: {}, Consumer Group: {}, Offset: {} --> 0",
-                            topicConsumerGroups[0], //topic
-                            row.getKey(), //Queue ID
-                            topicConsumerGroups[1], //consumer group
-                            row.getValue() //Previous Offset
-                    );
-                    row.setValue(0L);
-                }
-            }
-        }
-    }
-
-
     private boolean offsetBehindMuchThanData(final String topic, ConcurrentHashMap<Integer, Long> table) {
         Iterator<Entry<Integer, Long>> it = table.entrySet().iterator();
         boolean result = !table.isEmpty();
@@ -274,16 +251,5 @@ public class ConsumerOffsetManager extends ConfigManager {
         if (offsets != null) {
             this.offsetTable.put(topic + TOPIC_GROUP_SEPARATOR + dstGroup, offsets);
         }
-    }
-
-    @Override
-    public synchronized void persist() {
-        try {
-            resetDeprecatedConsumerOffset();
-        } catch (Throwable throwable) {
-            log.error("Error while reset deprecated consumer offset", throwable);
-        }
-
-        super.persist();
     }
 }
