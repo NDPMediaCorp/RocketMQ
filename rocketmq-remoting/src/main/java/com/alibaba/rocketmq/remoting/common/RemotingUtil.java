@@ -18,14 +18,6 @@ package com.alibaba.rocketmq.remoting.common;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,20 +45,13 @@ import java.util.Enumeration;
  */
 public class RemotingUtil {
 
-    private static final String CLASS_NAME = RemotingUtil.class.getName();
-
     private static final Logger log = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
 
     public static final String OS_NAME = System.getProperty("os.name");
 
-    public static final String WS_DOMAIN_NAME = System.getProperty("rocketmq.namesrv.domain", "config.graphene.spellso.com");
-    public static final String WS_IP_MAPPING_ADDR = "http://" + WS_DOMAIN_NAME + ":80/rocketmq/ip?innerIP=";
-
     private static boolean isLinuxPlatform = false;
+
     private static boolean isWindowsPlatform = false;
-
-    private static final int MINIMAL_IPV4_LENGTH = 7;
-
 
     /**
      * Refer to http://en.wikipedia.org/wiki/Reserved_IP_addresses
@@ -149,6 +134,20 @@ public class RemotingUtil {
         return result;
     }
 
+    public static String getLocalAddress(boolean needPublicIP) {
+        if (needPublicIP) {
+            //Check if the current host is an AWS EC2 instance.
+            String ec2PublicIPv4 = CloudUtil.awsEC2QueryPublicIPv4();
+            if (null != ec2PublicIPv4) {
+                return ec2PublicIPv4;
+            }
+
+            return getLocalAddress();
+        }
+
+        return getLocalAddress();
+    }
+
     public static boolean isPrivateIPv4Address(String ip) {
         if (null == ip || ip.isEmpty()) {
             log.error("Cannot determine IP is private or not when it's null or empty");
@@ -167,74 +166,8 @@ public class RemotingUtil {
         return false;
     }
 
-    public static String queryPublicIP(String innerIP) {
-        final String signature = CLASS_NAME + "#queryPublicIP(innerIP: {})";
-        log.debug("Enter " + signature, innerIP);
-
-        if (!isPrivateIPv4Address(innerIP)) {
-            return innerIP;
-        } else {
-            CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpGet getMethod = new HttpGet(WS_IP_MAPPING_ADDR + innerIP);
-            CloseableHttpResponse response = null;
-
-            try {
-                response = httpClient.execute(getMethod);
-                StatusLine statusLine = response.getStatusLine();
-                if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-                    HttpEntity entity = response.getEntity();
-                    String publicIP = EntityUtils.toString(entity);
-                    if (null != publicIP && publicIP.length() >= MINIMAL_IPV4_LENGTH) { //Minimal length of IP is 7: 8.8.8.8
-                        return publicIP;
-                    } else {
-                        return null;
-                    }
-
-                } else {
-                    log.error("Error while get public IP address for " + innerIP + ". Caused by status code error: "
-                            + statusLine.getStatusCode());
-                    return null;
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (null != response) {
-                    try {
-                        response.close();
-                    } catch (IOException e) {
-                        //ignore
-                    }
-
-                    try {
-                        httpClient.close();
-                    } catch (IOException e) {
-                        //ignore
-                    }
-
-                }
-            }
-        }
-
-        return null;
-    }
-
 
     public static String getLocalAddress() {
-
-        //Check if the current host is an AWS EC2 instance.
-        String ec2PublicIPv4 = CloudUtil.awsEC2QueryPublicIPv4();
-        if (null != ec2PublicIPv4) {
-            return ec2PublicIPv4;
-        }
-
-        //TODO check Rackspace
-
-        return getLocalAddress(true);
-    }
-
-
-    public static String getLocalAddress(boolean needQueryPublicIP) {
         try {
             // 遍历网卡，查找一个非回路ip地址并返回
             Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces();
@@ -256,37 +189,10 @@ public class RemotingUtil {
                 }
             }
 
-            //If deployed in cloud environment and elastic IP is used, we need a public IP Address here to handle
-            // scenarios which deployment of this app spans several data centers and VPC cannot communicate.
-            if ("true".equals(System.getProperty("use_elastic_ip")) || "true".equals(System.getenv("ROCKETMQ_USE_ELASTIC_IP"))) {
-                String elasticIP = System.getProperty("elastic_ip");
-                if (null != elasticIP && elasticIP.trim().length() >= MINIMAL_IPV4_LENGTH) {
-                    return elasticIP;
-                }
-
-                if (!ipv4Result.isEmpty()) {
-                    for (String ip : ipv4Result) {
-                        if (ip.startsWith("127.0")) {
-                            continue;
-                        }
-
-                        if (isPrivateIPv4Address(ip) && needQueryPublicIP) {
-                            String publicIp = queryPublicIP(ip);
-
-                            if (null != publicIp) {
-                                return publicIp;
-                            }
-                        }
-
-                    }
-                }
-            }
-
-
             // 优先使用ipv4
             if (!ipv4Result.isEmpty()) {
                 for (String ip : ipv4Result) {
-                    if (ip.startsWith("127.0") || ip.startsWith("192.168")) {
+                    if (isPrivateIPv4Address(ip)) {
                         continue;
                     }
 
@@ -313,7 +219,6 @@ public class RemotingUtil {
 
         return null;
     }
-
 
     public static String normalizeHostAddress(final InetAddress localHost) {
         if (localHost instanceof Inet6Address) {

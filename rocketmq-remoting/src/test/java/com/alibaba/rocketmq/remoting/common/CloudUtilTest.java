@@ -14,8 +14,16 @@ public class CloudUtilTest {
     }
 
     @Test
+    public void testExecuteCommand_LongCommandOutput() throws Exception {
+        Assert.assertNotNull(CloudUtil.executeCommand("ping localhost"));
+    }
+
+
+    @Test
     public void testExecuteCommand_CommandNotFound() throws Exception {
         Assert.assertNull(CloudUtil.executeCommand("abcdefg"));
     }
+
+
 
 }

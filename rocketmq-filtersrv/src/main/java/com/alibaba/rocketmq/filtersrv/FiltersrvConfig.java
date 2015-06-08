@@ -18,7 +18,7 @@ public class FiltersrvConfig {
     private String connectWhichBroker = "127.0.0.1:10911";
 
     // Filter Server对外服务的IP
-    private String filterServerIP = RemotingUtil.getLocalAddress();
+    private String filterServerIP = RemotingUtil.getLocalAddress(true);
 
     // 消息超过指定大小，开始压缩
     private int compressMsgBodyOverThreshold = 1024 * 8;
