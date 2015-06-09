@@ -3,10 +3,21 @@ git pull
 
 rm -rf target
 rm -f devenv
+
 if [ -z "$JAVA_HOME" ]; then
-  JAVA_HOME=/opt/taobao/java
+    JAVA_HOME=/opt/taobao/java
+else
+    echo $JAVA_HOME
 fi
-export PATH=/opt/taobao/mvn/bin:$JAVA_HOME/bin:$PATH
+
+if [ -z "$M2_HOME" ]; then
+    M2_HOME=/opt/taobao/mvn
+else
+    echo $M2_HOME;
+fi
+
+export PATH=${M2_HOME}/bin:$JAVA_HOME/bin:$PATH
+
 set MAVEN_OPTS=-Xms512M -Xmx512M -XX:MaxPermSize=256M -XX:PermSize=256M
 mvn -Dmaven.test.skip=true clean package install assembly:assembly -U
 
