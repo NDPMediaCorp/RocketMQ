@@ -47,16 +47,28 @@ public final class CloudUtil {
                     inputStream = process.getInputStream();
                     bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                     String line = "";
+                    boolean first = true;
                     while (null != (line = bufferedReader.readLine())) {
-                        stringBuilder.append(line).append(LINE_SEPARATOR);
+                        if (first) {
+                            first = false;
+                            stringBuilder.append(line);
+                        } else {
+                            stringBuilder.append(LINE_SEPARATOR).append(line);
+                        }
                     }
                     return stringBuilder.toString();
                 } else {
                     inputStream = process.getErrorStream();
                     bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                     String line = "";
+                    boolean first = true;
                     while (null != (line = bufferedReader.readLine())) {
-                        stringBuilder.append(line).append(LINE_SEPARATOR);
+                        if (first) {
+                            first = false;
+                            stringBuilder.append(line);
+                        } else {
+                            stringBuilder.append(LINE_SEPARATOR).append(line);
+                        }
                     }
                     LOG.error("Execute command [" + command + "] failed due to non-zero return value. Error message: "
                             + stringBuilder.toString());
