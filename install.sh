@@ -6,15 +6,13 @@ rm -f devenv
 
 if [ -z "$JAVA_HOME" ]; then
     JAVA_HOME=/opt/taobao/java
-else
-    echo $JAVA_HOME
 fi
+echo "JAVA_HOME=${JAVA_HOME}"
 
 if [ -z "$M2_HOME" ]; then
     M2_HOME=/opt/taobao/mvn
-else
-    echo $M2_HOME;
 fi
+echo "M2_HOME=${M2_HOME}"
 
 export PATH=${M2_HOME}/bin:$JAVA_HOME/bin:$PATH
 
