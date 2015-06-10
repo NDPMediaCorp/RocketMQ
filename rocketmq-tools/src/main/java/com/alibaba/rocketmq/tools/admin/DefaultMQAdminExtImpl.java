@@ -765,7 +765,7 @@ public class DefaultMQAdminExtImpl implements MQAdminExt, MQAdminExtInner {
             // 查询连接
             MessageTrack mt = new MessageTrack();
             mt.setConsumerGroup(group);
-            mt.setTrackType(TrackType.UNKNOW_EXCEPTION);
+            mt.setTrackType(TrackType.UNKNOWN_EXCEPTION);
             try {
                 ConsumerConnection cc = this.examineConsumerConnectionInfo(group);
                 switch (cc.getConsumeType()) {

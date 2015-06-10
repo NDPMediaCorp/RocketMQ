@@ -10,5 +10,5 @@ public enum TrackType {
     // 订阅了，但是没有消费（Offset小）
     SUBSCRIBED_AND_NOT_CONSUME_YET,
     // 未知异常
-    UNKNOW_EXCEPTION,
+    UNKNOWN_EXCEPTION,
 }
