@@ -62,6 +62,7 @@ public class LocalMessageStoreVerificationTool {
 
             if (magicCode != MAGIC_CODE) {
                 System.err.println("Illegal magic code found! Position: " + (randomAccessFile.getFilePointer() - 4));
+                System.err.println("Illegal Code: [" + magicCode + "], Assumed Code: [" + MAGIC_CODE + "]");
                 hasError = true;
                 break;
             }
