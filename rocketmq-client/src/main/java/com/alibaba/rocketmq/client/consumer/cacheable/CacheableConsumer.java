@@ -175,8 +175,8 @@ public class CacheableConsumer {
                 }
             }, 30, 30, TimeUnit.SECONDS);
         } catch (IOException e) {
-            LOGGER.error("Fatal error", e);
-            throw new RuntimeException("Fatal error while instantiating CacheableConsumer");
+            LOGGER.error("Fatal error. Possibly caused by File Permission Issue.", e);
+            throw new RuntimeException("Fatal error while instantiating CacheableConsumer. Possibly caused by File Permission Issue.");
         }
     }
 
