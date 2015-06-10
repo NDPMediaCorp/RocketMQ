@@ -67,7 +67,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -778,18 +777,14 @@ public class DefaultMQAdminExtImpl implements MQAdminExt, MQAdminExtInner {
                         mt.setTrackType(TrackType.SUBSCRIBED_AND_CONSUMED);
 
                         // 查看订阅关系是否匹配
-                        Iterator<Entry<String, SubscriptionData>> it =
-                                cc.getSubscriptionTable().entrySet().iterator();
-                        while (it.hasNext()) {
-                            Entry<String, SubscriptionData> next = it.next();
+                        for (Entry<String, SubscriptionData> next : cc.getSubscriptionTable().entrySet()) {
                             if (next.getKey().equals(msg.getTopic())) {
                                 if (next.getValue().getTagsSet().contains(msg.getTags()) //
                                         || next.getValue().getTagsSet().contains("*")//
                                         || next.getValue().getTagsSet().isEmpty()//
-                                ) {
-
-                                }
-                                else {
+                                        ) {
+                                    //Already consumed.
+                                } else {
                                     mt.setTrackType(TrackType.SUBSCRIBED_BUT_FILTERD);
                                 }
                             }
