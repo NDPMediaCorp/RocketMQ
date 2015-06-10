@@ -40,6 +40,8 @@ public class CacheableConsumer {
 
     private static final int NUMBER_OF_CONSUMER = 4;
 
+    private int numberOfEmbeddedConsumers = NUMBER_OF_CONSUMER;
+
     private List<DefaultMQPushConsumer> defaultMQPushConsumers = new ArrayList<DefaultMQPushConsumer>();
 
     private ClientStatus status = ClientStatus.CREATED;
@@ -109,7 +111,7 @@ public class CacheableConsumer {
             this.consumerGroupName = consumerGroupName;
             this.topicHandlerMap = new ConcurrentHashMap<String, MessageHandler>();
 
-            for (int i = 0; i < NUMBER_OF_CONSUMER; i++) {
+            for (int i = 0; i < numberOfEmbeddedConsumers; i++) {
                 DefaultMQPushConsumer defaultMQPushConsumer = new DefaultMQPushConsumer(consumerGroupName);
                 defaultMQPushConsumer.setAllocateMessageQueueStrategy(new AllocateMessageQueueByDataCenter(defaultMQPushConsumer));
                 defaultMQPushConsumer.setInstanceName(getInstanceName());
@@ -364,6 +366,14 @@ public class CacheableConsumer {
 
     public AtomicLong getFailureCounter() {
         return failureCounter;
+    }
+
+    public int getNumberOfEmbeddedConsumers() {
+        return numberOfEmbeddedConsumers;
+    }
+
+    public void setNumberOfEmbeddedConsumers(int numberOfEmbeddedConsumers) {
+        this.numberOfEmbeddedConsumers = numberOfEmbeddedConsumers;
     }
 
     /**
