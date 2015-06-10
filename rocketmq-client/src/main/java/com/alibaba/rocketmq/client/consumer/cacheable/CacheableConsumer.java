@@ -40,8 +40,6 @@ public class CacheableConsumer {
 
     private static final int NUMBER_OF_CONSUMER = 4;
 
-    private int numberOfEmbeddedConsumers = NUMBER_OF_CONSUMER;
-
     private List<DefaultMQPushConsumer> defaultMQPushConsumers = new ArrayList<DefaultMQPushConsumer>();
 
     private ClientStatus status = ClientStatus.CREATED;
@@ -99,10 +97,19 @@ public class CacheableConsumer {
     }
 
     /**
-     * Constructor with consumer group name.
-     * @param consumerGroupName consumer group name.
+     * Constructor with group name and default number of embedded consumer clients.
+     * @param consumerGroupName Consumer group name.
      */
     public CacheableConsumer(String consumerGroupName) {
+        this(consumerGroupName, NUMBER_OF_CONSUMER);
+    }
+
+    /**
+     * Constructor with consumer group name and specified number of embedded {@link DefaultMQPushConsumer} clients.
+     * @param consumerGroupName consumer group name.
+     * @param numberOfEmbeddedConsumers number of embedded consumer clients.
+     */
+    public CacheableConsumer(String consumerGroupName, int numberOfEmbeddedConsumers) {
         try {
             if (null == consumerGroupName || consumerGroupName.trim().isEmpty()) {
                 throw new RuntimeException("ConsumerGroupName cannot be null or empty.");
@@ -366,14 +373,6 @@ public class CacheableConsumer {
 
     public AtomicLong getFailureCounter() {
         return failureCounter;
-    }
-
-    public int getNumberOfEmbeddedConsumers() {
-        return numberOfEmbeddedConsumers;
-    }
-
-    public void setNumberOfEmbeddedConsumers(int numberOfEmbeddedConsumers) {
-        this.numberOfEmbeddedConsumers = numberOfEmbeddedConsumers;
     }
 
     /**
