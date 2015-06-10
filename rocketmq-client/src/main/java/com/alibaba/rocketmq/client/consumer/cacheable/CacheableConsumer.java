@@ -115,8 +115,8 @@ public class CacheableConsumer {
                 defaultMQPushConsumer.setInstanceName(getInstanceName());
                 defaultMQPushConsumer.setMessageModel(messageModel);
                 defaultMQPushConsumer.setConsumeFromWhere(consumeFromWhere);
-                defaultMQPushConsumer.setPullBatchSize(DEFAULT_PULL_BATCH_SIZE);
-                defaultMQPushConsumer.setConsumeMessageBatchMaxSize(DEFAULT_CONSUME_MESSAGE_MAX_BATCH_SIZE);
+                defaultMQPushConsumer.setPullBatchSize(pullBatchSize);
+                defaultMQPushConsumer.setConsumeMessageBatchMaxSize(consumeMessageMaxBatchSize);
                 defaultMQPushConsumers.add(defaultMQPushConsumer);
             }
 
