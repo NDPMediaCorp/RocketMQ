@@ -64,7 +64,6 @@ import org.slf4j.Logger;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -405,14 +404,14 @@ public class DefaultMQAdminExtImpl implements MQAdminExt, MQAdminExtInner {
     @Override
     public void deleteTopicInNameServer(Set<String> nameServerAddresses,
                                         String topic,
-                                        Collection<String> brokerAddressSet)
+                                        String brokerAddresses)
             throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
         if (nameServerAddresses == null) {
             String ns = this.mqClientInstance.getMQClientAPIImpl().fetchNameServerAddr();
             nameServerAddresses = new HashSet(Arrays.asList(ns.split(";")));
         }
         for (String nameServerAddress : nameServerAddresses) {
-            this.mqClientInstance.getMQClientAPIImpl().deleteTopicInNameServer(nameServerAddress, topic, brokerAddressSet, 3000);
+            this.mqClientInstance.getMQClientAPIImpl().deleteTopicInNameServer(nameServerAddress, topic, brokerAddresses, 3000);
         }
     }
 

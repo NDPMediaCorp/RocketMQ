@@ -43,7 +43,6 @@ import com.alibaba.rocketmq.remoting.exception.RemotingTimeoutException;
 import com.alibaba.rocketmq.tools.admin.api.MessageTrack;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -307,13 +306,13 @@ public interface MQAdminExt extends MQAdmin {
      * 
      * @param addrs
      * @param topic
-     * @param brokerAddressSet Broker addresses.
+     * @param brokerAddresses Broker addresses, null or addresses in form of IP:port, separated by semicolon.
      * @throws RemotingException
      * @throws MQBrokerException
      * @throws InterruptedException
      * @throws MQClientException
      */
-    public void deleteTopicInNameServer(final Set<String> addrs, final String topic, Collection<String> brokerAddressSet)
+    public void deleteTopicInNameServer(final Set<String> addrs, final String topic, String brokerAddresses)
             throws RemotingException, MQBrokerException, InterruptedException, MQClientException;
 
 

@@ -133,7 +133,6 @@ import org.slf4j.Logger;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1603,7 +1602,7 @@ public class MQClientAPIImpl {
 
     public void deleteTopicInNameServer(final String nameServerAddress,
                                         final String topic,
-                                        Collection<String> brokerAddresses,
+                                        String brokerAddresses,
                                         final long timeoutMillis)
             throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
         // 添加虚拟运行环境相关的projectGroupPrefix
@@ -1615,18 +1614,8 @@ public class MQClientAPIImpl {
         DeleteTopicInNamesrvRequestHeader requestHeader = new DeleteTopicInNamesrvRequestHeader();
         requestHeader.setTopic(topicWithProjectGroup);
 
-        if (null != brokerAddresses && !brokerAddresses.isEmpty()) {
-            StringBuilder stringBuilder = new StringBuilder();
-            boolean first = true;
-            for (String brokerAddress : brokerAddresses) {
-                if (first) {
-                    stringBuilder.append(brokerAddress.trim());
-                    first = false;
-                } else {
-                    stringBuilder.append(";").append(brokerAddress.trim());
-                }
-            }
-            requestHeader.setBrokerAddresses(stringBuilder.toString());
+        if (null != brokerAddresses) {
+            requestHeader.setBrokerAddresses(brokerAddresses);
             log.info("Topic is deleted from name server: {} for brokers: {} ", nameServerAddress, brokerAddresses);
         } else {
             log.info("Topic is deleted cluster wide from name server: {}", nameServerAddress);

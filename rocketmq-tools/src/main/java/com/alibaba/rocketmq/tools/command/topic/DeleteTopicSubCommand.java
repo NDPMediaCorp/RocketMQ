@@ -72,7 +72,7 @@ public class DeleteTopicSubCommand implements SubCommand {
         opt.setRequired(false);
         options.addOption(opt);
 
-        opt = new Option("b", "brokerAddress", true, "delete topic from specified broker");
+        opt = new Option("b", "brokerAddress", true, "delete topic from specified broker[in form of 'IP:port'], multiple brokers may be separated by semicolon.");
         opt.setRequired(false);
         options.addOption(opt);
 
@@ -93,7 +93,11 @@ public class DeleteTopicSubCommand implements SubCommand {
             deleteByCluster = true;
         } else if (null != brokerAddress) {
             masterSet = new HashSet<String>();
-            masterSet.add(brokerAddress);
+            if (brokerAddress.contains(";")) {
+                masterSet.addAll(Arrays.asList(brokerAddress.trim().split(";")));
+            } else {
+                masterSet.add(brokerAddress);
+            }
         }
 
         // 删除 broker 上的 topic 信息
@@ -112,8 +116,8 @@ public class DeleteTopicSubCommand implements SubCommand {
         }
 
         // 删除 NameServer 上的 topic 信息
-        if (!deleteByCluster) {
-            adminExt.deleteTopicInNameServer(nameServerSet, topic, masterSet);
+        if (!deleteByCluster && null != brokerAddress) {
+            adminExt.deleteTopicInNameServer(nameServerSet, topic, brokerAddress.trim());
         } else {
             adminExt.deleteTopicInNameServer(nameServerSet, topic, null);
         }

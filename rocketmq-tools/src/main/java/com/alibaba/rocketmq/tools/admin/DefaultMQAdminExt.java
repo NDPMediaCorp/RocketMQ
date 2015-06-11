@@ -46,7 +46,6 @@ import com.alibaba.rocketmq.remoting.exception.RemotingTimeoutException;
 import com.alibaba.rocketmq.tools.admin.api.MessageTrack;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -280,7 +279,7 @@ public class DefaultMQAdminExt extends ClientConfig implements MQAdminExt {
 
 
     @Override
-    public void deleteTopicInNameServer(Set<String> addrs, String topic, Collection<String> brokerAddresses)
+    public void deleteTopicInNameServer(Set<String> addrs, String topic, String brokerAddresses)
             throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
         defaultMQAdminExtImpl.deleteTopicInNameServer(addrs, topic, brokerAddresses);
     }
