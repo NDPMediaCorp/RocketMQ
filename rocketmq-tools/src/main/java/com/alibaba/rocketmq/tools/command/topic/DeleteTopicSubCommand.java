@@ -134,16 +134,15 @@ public class DeleteTopicSubCommand implements SubCommand {
                 clusterName = commandLine.getOptionValue('c').trim();
             }
 
-            String brokerName = null;
+            String brokerAddress = null;
             if (commandLine.hasOption('b')) {
-                brokerName = commandLine.getOptionValue('b').trim();
+                brokerAddress = commandLine.getOptionValue('b').trim();
             }
 
-            if (null != clusterName || null != brokerName) {
+            if (null != clusterName || null != brokerAddress) {
                 adminExt.start();
-                deleteTopic(adminExt, clusterName, brokerName, topic);
+                deleteTopic(adminExt, clusterName, brokerAddress, topic);
                 return;
-
             }
 
             ServerUtil.printCommandLineHelp("mqadmin " + this.commandName(), options);

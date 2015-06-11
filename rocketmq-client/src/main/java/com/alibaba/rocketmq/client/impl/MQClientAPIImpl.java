@@ -1622,6 +1622,9 @@ public class MQClientAPIImpl {
                 brokerAddressArray[i++] = brokerAddress;
             }
             requestHeader.setBrokerAddresses(brokerAddressArray);
+            log.info("Topic is deleted from name server: {} for brokers: {} ", nameServerAddress, brokerAddresses);
+        } else {
+            log.info("Topic is deleted cluster wide from name server: {}", nameServerAddress);
         }
 
         RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.DELETE_TOPIC_IN_NAMESRV, requestHeader);
