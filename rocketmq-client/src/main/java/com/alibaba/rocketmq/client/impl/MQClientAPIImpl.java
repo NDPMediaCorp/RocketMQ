@@ -1616,7 +1616,12 @@ public class MQClientAPIImpl {
         requestHeader.setTopic(topicWithProjectGroup);
 
         if (null != brokerAddresses && !brokerAddresses.isEmpty()) {
-            requestHeader.setBrokerAddresses((String[])brokerAddresses.toArray());
+            String[] brokerAddressArray = new String[brokerAddresses.size()];
+            int i = 0;
+            for (String brokerAddress : brokerAddresses) {
+                brokerAddressArray[i++] = brokerAddress;
+            }
+            requestHeader.setBrokerAddresses(brokerAddressArray);
         }
 
         RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.DELETE_TOPIC_IN_NAMESRV, requestHeader);
