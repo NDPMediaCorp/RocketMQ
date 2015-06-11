@@ -98,7 +98,11 @@ public class DeleteTopicSubCommand implements SubCommand {
 
         // 删除 broker 上的 topic 信息
         adminExt.deleteTopicInBroker(masterSet, topic);
-        System.out.printf("delete topic [%s] from cluster [%s] success.\n", topic, clusterName);
+        if (deleteByCluster) {
+            System.out.printf("delete topic [%s] from cluster [%s] success.\n", topic, clusterName);
+        } else {
+            System.out.printf("delete topic [%s] from broker [%s] success.\n", topic, brokerAddress);
+        }
 
         // 删除 NameServer 上的 topic 信息
         Set<String> nameServerSet = null;
