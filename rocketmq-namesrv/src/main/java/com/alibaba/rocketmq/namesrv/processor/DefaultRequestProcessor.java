@@ -209,7 +209,12 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
                 (DeleteTopicInNamesrvRequestHeader) request
                     .decodeCommandCustomHeader(DeleteTopicInNamesrvRequestHeader.class);
 
-        this.namesrvController.getRouteInfoManager().deleteTopic(requestHeader.getTopic(), requestHeader.getBrokerAddresses());
+        String brokerAddresses = requestHeader.getBrokerAddresses();
+        if (null == brokerAddresses) {
+            this.namesrvController.getRouteInfoManager().deleteTopic(requestHeader.getTopic(), null);
+        } else {
+            this.namesrvController.getRouteInfoManager().deleteTopic(requestHeader.getTopic(), brokerAddresses.split(";"));
+        }
 
         response.setCode(ResponseCode.SUCCESS);
         response.setRemark(null);

@@ -30,8 +30,11 @@ public class DeleteTopicInNamesrvRequestHeader implements CommandCustomHeader {
     @CFNotNull
     private String topic;
 
+    /**
+     * Broker addresses, aka, IP:port, separated by semicolon ";".
+     */
     @CFNullable
-    private String[] brokerAddresses;
+    private String brokerAddresses;
 
     @Override
     public void checkFields() throws RemotingCommandException {
@@ -47,11 +50,11 @@ public class DeleteTopicInNamesrvRequestHeader implements CommandCustomHeader {
         this.topic = topic;
     }
 
-    public String[] getBrokerAddresses() {
+    public String getBrokerAddresses() {
         return brokerAddresses;
     }
 
-    public void setBrokerAddresses(String[] brokerAddresses) {
+    public void setBrokerAddresses(String brokerAddresses) {
         this.brokerAddresses = brokerAddresses;
     }
 }

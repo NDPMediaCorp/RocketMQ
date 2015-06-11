@@ -1616,12 +1616,17 @@ public class MQClientAPIImpl {
         requestHeader.setTopic(topicWithProjectGroup);
 
         if (null != brokerAddresses && !brokerAddresses.isEmpty()) {
-            String[] brokerAddressArray = new String[brokerAddresses.size()];
-            int i = 0;
+            StringBuilder stringBuilder = new StringBuilder();
+            boolean first = true;
             for (String brokerAddress : brokerAddresses) {
-                brokerAddressArray[i++] = brokerAddress;
+                if (first) {
+                    stringBuilder.append(brokerAddress.trim());
+                    first = false;
+                } else {
+                    stringBuilder.append(";").append(brokerAddress.trim());
+                }
             }
-            requestHeader.setBrokerAddresses(brokerAddressArray);
+            requestHeader.setBrokerAddresses(stringBuilder.toString());
             log.info("Topic is deleted from name server: {} for brokers: {} ", nameServerAddress, brokerAddresses);
         } else {
             log.info("Topic is deleted cluster wide from name server: {}", nameServerAddress);
