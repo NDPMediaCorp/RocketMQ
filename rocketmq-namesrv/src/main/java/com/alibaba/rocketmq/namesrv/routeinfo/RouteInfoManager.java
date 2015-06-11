@@ -72,31 +72,7 @@ public class RouteInfoManager {
         return clusterInfoSerializeWrapper.encode();
     }
 
-    private static boolean contains(String[] array, String element) {
-        if (null == array|| array.length == 0) {
-            return false;
-        }
-
-        for (String e : array) {
-
-            if (null == e && null == element) {
-                return true;
-            }
-
-            if (null != e && e.equals(element)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public void deleteTopic(final String topic, final String[] brokerAddresses) {
-        if (null == brokerAddresses) {
-            log.info("Enter #deleteTopic: topic: {}, brokerAddresses: {}", topic, null);
-        } else {
-            log.info("Enter #deleteTopic: topic: {}, brokerAddresses: {}", topic, Arrays.asList(brokerAddresses));
-        }
 
         try {
             try {
@@ -109,19 +85,35 @@ public class RouteInfoManager {
                     log.info("Requested to delete topic: {} from brokers: {}", topic, Arrays.asList(brokerAddresses));
                     List<QueueData> queueDataList = topicQueueTable.get(topic);
                     if (null != queueDataList && !queueDataList.isEmpty()) {
+                        // Retrieve broker names for given broker addresses.
+                        HashSet<String> brokerNames = new HashSet<String>();
+                        for (Map.Entry<String, BrokerData> next : brokerAddrTable.entrySet()) {
+                            Map<Long, String> idAddressMap = next.getValue().getBrokerAddrs();
+                            if (null != idAddressMap && !idAddressMap.isEmpty()) {
+                                for (String brokerAddress : brokerAddresses) {
+                                    if (idAddressMap.containsValue(brokerAddress)) {
+                                        brokerNames.add(next.getKey());
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        //Remove topic queues for given brokers.
                         int count = 0;
                         Iterator<QueueData> iterator = queueDataList.iterator();
                         while (iterator.hasNext()) {
                             QueueData queueData = iterator.next();
-                            if (contains(brokerAddresses, queueData.getBrokerName())) {
+                            if (brokerNames.contains(queueData.getBrokerName())) {
                                 iterator.remove();
                                 count++;
                             }
                         }
+
                         if (count < queueDataList.size()) {
                             log.info("Topic {} has {} queues removed.", topic, count);
                         } else {
-                            //As there is no queue left.
+                            //Remove the topic itself as there is no queue left.
                             topicQueueTable.remove(topic);
                             log.info("Topic {} is deleted completely", topic);
                         }
