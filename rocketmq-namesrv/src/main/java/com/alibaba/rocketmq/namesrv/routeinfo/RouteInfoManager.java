@@ -72,12 +72,46 @@ public class RouteInfoManager {
         return clusterInfoSerializeWrapper.encode();
     }
 
+    private static boolean contains(String[] array, String element) {
+        if (null == array|| array.length == 0) {
+            return false;
+        }
 
-    public void deleteTopic(final String topic) {
+        for (String e : array) {
+
+            if (null == e && null == element) {
+                return true;
+            }
+
+            if (null != e && e.equals(element)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void deleteTopic(final String topic, final String[] brokerAddresses) {
         try {
             try {
                 this.lock.writeLock().lockInterruptibly();
-                this.topicQueueTable.remove(topic);
+                if (null == brokerAddresses || brokerAddresses.length == 0) {
+                    this.topicQueueTable.remove(topic);
+                } else {
+                    List<QueueData> queueDataList = topicQueueTable.get(topic);
+                    if (null != queueDataList && !queueDataList.isEmpty()) {
+                        Iterator<QueueData> iterator = queueDataList.iterator();
+                        while (iterator.hasNext()) {
+                            QueueData queueData = iterator.next();
+                            if (contains(brokerAddresses, queueData.getBrokerName())) {
+                                iterator.remove();
+                            }
+                        }
+                    } else {
+                        topicQueueTable.remove(topic);
+                    }
+
+                }
             }
             finally {
                 this.lock.writeLock().unlock();

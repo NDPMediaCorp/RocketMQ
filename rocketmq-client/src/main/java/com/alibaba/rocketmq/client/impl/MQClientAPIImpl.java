@@ -99,6 +99,7 @@ import com.alibaba.rocketmq.common.protocol.header.UpdateConsumerOffsetRequestHe
 import com.alibaba.rocketmq.common.protocol.header.ViewMessageRequestHeader;
 import com.alibaba.rocketmq.common.protocol.header.filtersrv.RegisterMessageFilterClassRequestHeader;
 import com.alibaba.rocketmq.common.protocol.header.namesrv.DeleteKVConfigRequestHeader;
+import com.alibaba.rocketmq.common.protocol.header.namesrv.DeleteTopicInNamesrvRequestHeader;
 import com.alibaba.rocketmq.common.protocol.header.namesrv.GetKVConfigRequestHeader;
 import com.alibaba.rocketmq.common.protocol.header.namesrv.GetKVConfigResponseHeader;
 import com.alibaba.rocketmq.common.protocol.header.namesrv.GetKVListByNamespaceRequestHeader;
@@ -132,6 +133,7 @@ import org.slf4j.Logger;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1599,7 +1601,10 @@ public class MQClientAPIImpl {
     }
 
 
-    public void deleteTopicInNameServer(final String addr, final String topic, final long timeoutMillis)
+    public void deleteTopicInNameServer(final String nameServerAddress,
+                                        final String topic,
+                                        Collection<String> brokerAddresses,
+                                        final long timeoutMillis)
             throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
         // 添加虚拟运行环境相关的projectGroupPrefix
         String topicWithProjectGroup = topic;
@@ -1607,12 +1612,16 @@ public class MQClientAPIImpl {
             topicWithProjectGroup = VirtualEnvUtil.buildWithProjectGroup(topic, projectGroupPrefix);
         }
 
-        DeleteTopicRequestHeader requestHeader = new DeleteTopicRequestHeader();
+        DeleteTopicInNamesrvRequestHeader requestHeader = new DeleteTopicInNamesrvRequestHeader();
         requestHeader.setTopic(topicWithProjectGroup);
-        RemotingCommand request =
-                RemotingCommand.createRequestCommand(RequestCode.DELETE_TOPIC_IN_NAMESRV, requestHeader);
 
-        RemotingCommand response = this.remotingClient.invokeSync(addr, request, timeoutMillis);
+        if (null != brokerAddresses && !brokerAddresses.isEmpty()) {
+            requestHeader.setBrokerAddresses((String[])brokerAddresses.toArray());
+        }
+
+        RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.DELETE_TOPIC_IN_NAMESRV, requestHeader);
+
+        RemotingCommand response = this.remotingClient.invokeSync(nameServerAddress, request, timeoutMillis);
         assert response != null;
         switch (response.getCode()) {
         case ResponseCode.SUCCESS: {

@@ -17,6 +17,7 @@ package com.alibaba.rocketmq.common.protocol.header.namesrv;
 
 import com.alibaba.rocketmq.remoting.CommandCustomHeader;
 import com.alibaba.rocketmq.remoting.annotation.CFNotNull;
+import com.alibaba.rocketmq.remoting.annotation.CFNullable;
 import com.alibaba.rocketmq.remoting.exception.RemotingCommandException;
 
 
@@ -25,9 +26,12 @@ import com.alibaba.rocketmq.remoting.exception.RemotingCommandException;
  * @since 2013-8-11
  */
 public class DeleteTopicInNamesrvRequestHeader implements CommandCustomHeader {
+
     @CFNotNull
     private String topic;
 
+    @CFNullable
+    private String[] brokerAddresses;
 
     @Override
     public void checkFields() throws RemotingCommandException {
@@ -41,5 +45,13 @@ public class DeleteTopicInNamesrvRequestHeader implements CommandCustomHeader {
 
     public void setTopic(String topic) {
         this.topic = topic;
+    }
+
+    public String[] getBrokerAddresses() {
+        return brokerAddresses;
+    }
+
+    public void setBrokerAddresses(String[] brokerAddresses) {
+        this.brokerAddresses = brokerAddresses;
     }
 }

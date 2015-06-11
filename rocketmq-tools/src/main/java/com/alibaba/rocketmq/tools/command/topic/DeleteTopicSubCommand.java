@@ -15,14 +15,6 @@
  */
 package com.alibaba.rocketmq.tools.command.topic;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-
 import com.alibaba.rocketmq.client.exception.MQBrokerException;
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.remoting.RPCHook;
@@ -31,6 +23,13 @@ import com.alibaba.rocketmq.srvutil.ServerUtil;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.alibaba.rocketmq.tools.command.CommandUtil;
 import com.alibaba.rocketmq.tools.command.SubCommand;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -52,6 +51,17 @@ public class DeleteTopicSubCommand implements SubCommand {
     }
 
 
+    /**
+     * <p>
+     *     This command requires presence of topic and (cluster or broker) name.
+     *     If topic and clusterName are provided, all topic information is erased from both name server and brokers.
+     *     If topic and brokerName are provided, topic information pertaining to given broker will be removed.
+     *     If topic, clusterName and brokerName are all provided, clusterName will ONLY be used to verify that given
+     *     broker has a master role.
+     * </p>
+     * @param options Command line options.
+     * @return built command line options.
+     */
     @Override
     public Options buildCommandlineOptions(Options options) {
         Option opt = new Option("t", "topic", true, "topic name");
@@ -59,7 +69,11 @@ public class DeleteTopicSubCommand implements SubCommand {
         options.addOption(opt);
 
         opt = new Option("c", "clusterName", true, "delete topic from which cluster");
-        opt.setRequired(true);
+        opt.setRequired(false);
+        options.addOption(opt);
+
+        opt = new Option("b", "brokerAddress", true, "delete topic from specified broker");
+        opt.setRequired(false);
         options.addOption(opt);
 
         return options;
@@ -68,10 +82,21 @@ public class DeleteTopicSubCommand implements SubCommand {
 
     public static void deleteTopic(final DefaultMQAdminExt adminExt,//
             final String clusterName,//
+            final String brokerAddress,
             final String topic//
     ) throws InterruptedException, MQBrokerException, RemotingException, MQClientException {
+
+        Set<String> masterSet = null;
+        boolean deleteByCluster = false;
+        if (null == brokerAddress && null != clusterName) {
+            masterSet = CommandUtil.fetchMasterAddrByClusterName(adminExt, clusterName);
+            deleteByCluster = true;
+        } else if (null != brokerAddress) {
+            masterSet = new HashSet<String>();
+            masterSet.add(brokerAddress);
+        }
+
         // 删除 broker 上的 topic 信息
-        Set<String> masterSet = CommandUtil.fetchMasterAddrByClusterName(adminExt, clusterName);
         adminExt.deleteTopicInBroker(masterSet, topic);
         System.out.printf("delete topic [%s] from cluster [%s] success.\n", topic, clusterName);
 
@@ -83,7 +108,11 @@ public class DeleteTopicSubCommand implements SubCommand {
         }
 
         // 删除 NameServer 上的 topic 信息
-        adminExt.deleteTopicInNameServer(nameServerSet, topic);
+        if (!deleteByCluster) {
+            adminExt.deleteTopicInNameServer(nameServerSet, topic, masterSet);
+        } else {
+            adminExt.deleteTopicInNameServer(nameServerSet, topic, null);
+        }
         System.out.printf("delete topic [%s] from NameServer success.\n", topic);
     }
 
@@ -95,12 +124,22 @@ public class DeleteTopicSubCommand implements SubCommand {
         try {
             String topic = commandLine.getOptionValue('t').trim();
 
-            if (commandLine.hasOption('c')) {
-                String clusterName = commandLine.getOptionValue('c').trim();
+            String clusterName = null;
 
+            if (commandLine.hasOption('c')) {
+                clusterName = commandLine.getOptionValue('c').trim();
+            }
+
+            String brokerName = null;
+            if (commandLine.hasOption('b')) {
+                brokerName = commandLine.getOptionValue('b').trim();
+            }
+
+            if (null != clusterName || null != brokerName) {
                 adminExt.start();
-                deleteTopic(adminExt, clusterName, topic);
+                deleteTopic(adminExt, clusterName, brokerName, topic);
                 return;
+
             }
 
             ServerUtil.printCommandLineHelp("mqadmin " + this.commandName(), options);

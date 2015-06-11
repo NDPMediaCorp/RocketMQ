@@ -15,13 +15,6 @@
  */
 package com.alibaba.rocketmq.namesrv.processor;
 
-import io.netty.channel.ChannelHandlerContext;
-
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.alibaba.rocketmq.common.MQVersion;
 import com.alibaba.rocketmq.common.MQVersion.Version;
 import com.alibaba.rocketmq.common.constant.LoggerName;
@@ -51,6 +44,11 @@ import com.alibaba.rocketmq.remoting.common.RemotingHelper;
 import com.alibaba.rocketmq.remoting.exception.RemotingCommandException;
 import com.alibaba.rocketmq.remoting.netty.NettyRequestProcessor;
 import com.alibaba.rocketmq.remoting.protocol.RemotingCommand;
+import io.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 
 /**
@@ -211,7 +209,7 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
                 (DeleteTopicInNamesrvRequestHeader) request
                     .decodeCommandCustomHeader(DeleteTopicInNamesrvRequestHeader.class);
 
-        this.namesrvController.getRouteInfoManager().deleteTopic(requestHeader.getTopic());
+        this.namesrvController.getRouteInfoManager().deleteTopic(requestHeader.getTopic(), requestHeader.getBrokerAddresses());
 
         response.setCode(ResponseCode.SUCCESS);
         response.setRemark(null);

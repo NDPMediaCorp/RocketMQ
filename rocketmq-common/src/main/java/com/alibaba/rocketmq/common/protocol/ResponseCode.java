@@ -43,7 +43,7 @@ public class ResponseCode extends RemotingSysResponseCode {
     // Producer 事务应该被回滚
     public static final int TRANSACTION_SHOULD_ROLLBACK = 201;
     // Producer 事务状态未知
-    public static final int TRANSACTION_STATE_UNKNOW = 202;
+    public static final int TRANSACTION_STATE_UNKNOWN = 202;
 	// Producer ProducerGroup错误
     public static final int TRANSACTION_STATE_GROUP_WRONG = 203;
 	// 单元化消息，需要设置 buyerId
