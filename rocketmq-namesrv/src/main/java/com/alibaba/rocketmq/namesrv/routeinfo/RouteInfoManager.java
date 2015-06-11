@@ -92,6 +92,12 @@ public class RouteInfoManager {
     }
 
     public void deleteTopic(final String topic, final String[] brokerAddresses) {
+        if (null == brokerAddresses) {
+            log.info("Enter #deleteTopic: topic: {}, brokerAddresses: {}", topic, null);
+        } else {
+            log.info("Enter #deleteTopic: topic: {}, brokerAddresses: {}", topic, Arrays.asList(brokerAddresses));
+        }
+
         try {
             try {
                 this.lock.writeLock().lockInterruptibly();
