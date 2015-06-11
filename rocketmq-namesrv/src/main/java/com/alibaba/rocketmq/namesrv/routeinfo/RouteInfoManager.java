@@ -96,8 +96,10 @@ public class RouteInfoManager {
             try {
                 this.lock.writeLock().lockInterruptibly();
                 if (null == brokerAddresses || brokerAddresses.length == 0) {
+                    log.info("Requested to delete topic: {}", topic);
                     this.topicQueueTable.remove(topic);
                 } else {
+                    log.info("Requested to delete topic: {} from brokers: {}", topic, Arrays.asList(brokerAddresses));
                     List<QueueData> queueDataList = topicQueueTable.get(topic);
                     if (null != queueDataList && !queueDataList.isEmpty()) {
                         Iterator<QueueData> iterator = queueDataList.iterator();
@@ -110,8 +112,8 @@ public class RouteInfoManager {
                     } else {
                         topicQueueTable.remove(topic);
                     }
-
                 }
+                log.info("Topic {} is deleted", topic);
             }
             finally {
                 this.lock.writeLock().unlock();
