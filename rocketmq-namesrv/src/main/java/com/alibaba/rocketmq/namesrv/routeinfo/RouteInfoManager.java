@@ -42,7 +42,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * 运行过程中的路由信息，数据只在内存，宕机后数据消失，但是Broker会定期推送最新数据
- * 
+ *
+ * TODO if two clusters have brokers of same broker-name, this RouteInfoManager will NOT be able to work correctly!
+ *
  * @author shijia.wxr<vintage.wang@gmail.com>
  * @since 2013-7-2
  */
