@@ -101,6 +101,8 @@ public class RouteInfoManager {
                             }
                         }
 
+                        log.info("Found matched broker name list: {}", brokerNames);
+
                         //Remove topic queues for given brokers.
                         int count = 0;
                         Iterator<QueueData> iterator = queueDataList.iterator();
