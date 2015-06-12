@@ -105,6 +105,7 @@ public class RouteInfoManager {
 
                         //Remove topic queues for given brokers.
                         int count = 0;
+                        int total = queueDataList.size();
                         Iterator<QueueData> iterator = queueDataList.iterator();
                         while (iterator.hasNext()) {
                             QueueData queueData = iterator.next();
@@ -114,7 +115,7 @@ public class RouteInfoManager {
                             }
                         }
 
-                        if (count < queueDataList.size()) {
+                        if (count < total) {
                             log.info("Topic {} has {} queues removed.", topic, count);
                         } else {
                             //Remove the topic itself as there is no queue left.
