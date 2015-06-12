@@ -116,7 +116,7 @@ public class RouteInfoManager {
                         }
 
                         if (count < total) {
-                            log.info("Topic {} has {} queues removed.", topic, count);
+                            log.info("Topic {} is removed from {} broker(s).", topic, count);
                         } else {
                             //Remove the topic itself as there is no queue left.
                             topicQueueTable.remove(topic);
