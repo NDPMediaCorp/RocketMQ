@@ -74,6 +74,19 @@ public class RouteInfoManager {
         return clusterInfoSerializeWrapper.encode();
     }
 
+    /**
+     * <p>
+     *     Remove topic.
+     * </p>
+     *
+     * <p>
+     *     Specifically, if brokerAddress is null or empty, all queue route information is removed; if broker addresses
+     *     are specified, only queues located in specified brokers will be removed.
+     * </p>
+     *
+     * @param topic Topic to remove.
+     * @param brokerAddresses broker addresses involved, null or empty means all brokers available.
+     */
     public void deleteTopic(final String topic, final String[] brokerAddresses) {
 
         try {
