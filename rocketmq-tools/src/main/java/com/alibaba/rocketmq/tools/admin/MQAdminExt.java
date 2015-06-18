@@ -422,6 +422,7 @@ public interface MQAdminExt extends MQAdmin {
      * 按照时间回溯消费进度(客户端不需要重启)
      * 
      * @param topic
+     * @param brokerAddress Optional broker address to reset offset.
      * @param group
      * @param timestamp
      * @param isForce
@@ -431,8 +432,9 @@ public interface MQAdminExt extends MQAdmin {
      * @throws MQClientException
      * @return
      */
-    public Map<MessageQueue, Long> resetOffsetByTimestamp(String topic, String group, long timestamp,
-            boolean isForce) throws RemotingException, MQBrokerException, InterruptedException,
+    public Map<MessageQueue, Long> resetOffsetByTimestamp(String topic, String brokerAddress, String group,
+                                                          long timestamp, boolean isForce)
+            throws RemotingException, MQBrokerException, InterruptedException,
             MQClientException;
 
 

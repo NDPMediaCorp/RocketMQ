@@ -1,13 +1,5 @@
 package com.alibaba.rocketmq.tools.command.offset;
 
-import java.util.Iterator;
-import java.util.Map;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
-
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.common.MixAll;
 import com.alibaba.rocketmq.common.UtilAll;
@@ -17,6 +9,13 @@ import com.alibaba.rocketmq.remoting.RPCHook;
 import com.alibaba.rocketmq.srvutil.ServerUtil;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.alibaba.rocketmq.tools.command.SubCommand;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
+
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**
@@ -48,9 +47,12 @@ public class ResetOffsetByTimeCommand implements SubCommand {
         opt.setRequired(true);
         options.addOption(opt);
 
-        opt =
-                new Option("s", "timestamp", true,
-                    "set the timestamp[currentTimeMillis|yyyy-MM-dd#HH:mm:ss:SSS]");
+        opt = new Option("b", "broker address", true, "Broker to reset offset");
+        opt.setRequired(false);
+        options.addOption(opt);
+
+        opt = new Option("s", "timestamp", true,
+                "set the timestamp[currentTimeMillis|yyyy-MM-dd#HH:mm:ss:SSS]");
         opt.setRequired(true);
         options.addOption(opt);
 
@@ -68,6 +70,7 @@ public class ResetOffsetByTimeCommand implements SubCommand {
         try {
             String group = commandLine.getOptionValue("g").trim();
             String topic = commandLine.getOptionValue("t").trim();
+            String brokerAddress = commandLine.getOptionValue("b").trim();
             String timeStampStr = commandLine.getOptionValue("s").trim();
             long timestamp = 0;
             try {
@@ -87,7 +90,7 @@ public class ResetOffsetByTimeCommand implements SubCommand {
             defaultMQAdminExt.start();
             Map<MessageQueue, Long> offsetTable;
             try {
-                offsetTable = defaultMQAdminExt.resetOffsetByTimestamp(topic, group, timestamp, force);
+                offsetTable = defaultMQAdminExt.resetOffsetByTimestamp(topic, brokerAddress, group, timestamp, force);
             }
             catch (MQClientException e) {
                 if (ResponseCode.CONSUMER_NOT_ONLINE == e.getResponseCode()) {
