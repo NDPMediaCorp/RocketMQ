@@ -93,9 +93,9 @@ public class ResetOffsetByTimeCommand implements SubCommand {
             }
 
             if (null == brokerAddress || brokerAddress.isEmpty()) {
-                System.out.println("About to reset offset for broker: " + brokerAddress);
-            } else {
                 System.out.println("About to reset offset for all online matched brokers.");
+            } else {
+                System.out.println("About to reset offset for broker: " + brokerAddress);
             }
 
             defaultMQAdminExt.start();
