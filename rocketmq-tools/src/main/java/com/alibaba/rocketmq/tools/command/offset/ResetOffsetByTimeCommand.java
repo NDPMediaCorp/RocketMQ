@@ -47,7 +47,7 @@ public class ResetOffsetByTimeCommand implements SubCommand {
         opt.setRequired(true);
         options.addOption(opt);
 
-        opt = new Option("b", "broker address", true, "Optional broker address to reset offset");
+        opt = new Option("b", "brokerAddress", true, "Optional broker address to reset offset");
         opt.setRequired(false);
         options.addOption(opt);
 
