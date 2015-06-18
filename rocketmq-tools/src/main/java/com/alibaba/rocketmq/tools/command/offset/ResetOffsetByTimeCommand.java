@@ -70,7 +70,12 @@ public class ResetOffsetByTimeCommand implements SubCommand {
         try {
             String group = commandLine.getOptionValue("g").trim();
             String topic = commandLine.getOptionValue("t").trim();
-            String brokerAddress = commandLine.getOptionValue("b").trim();
+            String brokerAddress = commandLine.getOptionValue("b");
+
+            if (null != brokerAddress) {
+                brokerAddress = brokerAddress.trim();
+            }
+
             String timeStampStr = commandLine.getOptionValue("s").trim();
             long timestamp = 0;
             try {
@@ -87,12 +92,17 @@ public class ResetOffsetByTimeCommand implements SubCommand {
                 force = Boolean.valueOf(commandLine.getOptionValue("f").trim());
             }
 
+            if (null == brokerAddress || brokerAddress.isEmpty()) {
+                System.out.println("About to reset offset for broker: " + brokerAddress);
+            } else {
+                System.out.println("About to reset offset for all online matched brokers.");
+            }
+
             defaultMQAdminExt.start();
             Map<MessageQueue, Long> offsetTable;
             try {
                 offsetTable = defaultMQAdminExt.resetOffsetByTimestamp(topic, brokerAddress, group, timestamp, force);
-            }
-            catch (MQClientException e) {
+            } catch (MQClientException e) {
                 if (ResponseCode.CONSUMER_NOT_ONLINE == e.getResponseCode()) {
                     ResetOffsetByTimeOldCommand.resetOffset(defaultMQAdminExt, group, topic, timestamp,
                         force, timeStampStr);
@@ -101,9 +111,7 @@ public class ResetOffsetByTimeCommand implements SubCommand {
                 throw e;
             }
 
-            System.out
-                .printf(
-                    "rollback consumer offset by specified group[%s], topic[%s], force[%s], timestamp(string)[%s], timestamp(long)[%s]\n",
+            System.out.printf("rollback consumer offset by specified group[%s], topic[%s], force[%s], timestamp(string)[%s], timestamp(long)[%s]\n",
                     group, topic, force, timeStampStr, timestamp);
 
             System.out.printf("%-40s  %-40s  %-40s\n",//
