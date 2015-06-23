@@ -633,6 +633,14 @@ public class BrokerController {
             topicConfigWrapper.setTopicConfigTable(topicConfigTable);
         }
 
+        //Log broker basic info.
+        log.info("BrokerInfo: [Cluster Name: {}, Broker Address: {}, Broker Name: {}, Broker ID: {}, HA Address: {}]",
+                brokerConfig.getBrokerClusterName(),
+                getBrokerAddr(),
+                brokerConfig.getBrokerName(),
+                brokerConfig.getBrokerId(),
+                getHAServerAddr());
+
         RegisterBrokerResult registerBrokerResult = this.brokerOuterAPI.registerBrokerAll(//
             this.brokerConfig.getBrokerClusterName(), //
             this.getBrokerAddr(), //
