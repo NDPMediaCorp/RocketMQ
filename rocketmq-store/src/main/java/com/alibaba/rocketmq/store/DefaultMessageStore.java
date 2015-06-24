@@ -220,12 +220,14 @@ public class DefaultMessageStore implements MessageStore {
         }, 1000 * 60, this.messageStoreConfig.getCleanResourceInterval(), TimeUnit.MILLISECONDS);
 
         // 定时清理完全不使用的队列
-        this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+        /*
+         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 DefaultMessageStore.this.cleanExpiredConsumerQueue();
             }
         }, 1, 1, TimeUnit.HOURS);
+        */
     }
 
 
