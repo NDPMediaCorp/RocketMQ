@@ -440,7 +440,7 @@ public class MappedFileQueue {
 
             if (mappedFile != null) {
                 int index = (int) ((offset / this.mappedFileSize) - (mappedFile.getFileFromOffset() / this.mappedFileSize));
-                if (index < 0 || index >= this.mappedFiles.size()) {
+                if (!returnFirstOnNotFound && (index < 0 || index >= this.mappedFiles.size())) {
                     logError.warn("findMappedFileByOffset offset not matched, request Offset: {}, index: {}, " +
                                     "mappedFileSize: {}, mappedFiles count: {}, StackTrace: {}",//
                             offset,//
