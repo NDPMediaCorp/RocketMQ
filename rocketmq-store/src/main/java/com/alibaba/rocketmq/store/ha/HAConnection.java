@@ -121,7 +121,7 @@ public class HAConnection {
         private final Selector selector;
         private final SocketChannel socketChannel;
         private final ByteBuffer byteBufferRead = ByteBuffer.allocate(ReadMaxBufferSize);
-        private int processPostion = 0;
+        private int processPosition = 0;
         private volatile long lastReadTimestamp = System.currentTimeMillis();
 
 
@@ -194,7 +194,7 @@ public class HAConnection {
 
             if (!this.byteBufferRead.hasRemaining()) {
                 this.byteBufferRead.flip();
-                this.processPostion = 0;
+                this.processPosition = 0;
             }
 
             while (this.byteBufferRead.hasRemaining()) {
@@ -205,10 +205,10 @@ public class HAConnection {
                         this.lastReadTimestamp =
                                 HAConnection.this.haService.getDefaultMessageStore().getSystemClock().now();
                         // 接收Slave上传的offset
-                        if ((this.byteBufferRead.position() - this.processPostion) >= 8) {
+                        if ((this.byteBufferRead.position() - this.processPosition) >= 8) {
                             int pos = this.byteBufferRead.position() - (this.byteBufferRead.position() % 8);
                             long readOffset = this.byteBufferRead.getLong(pos - 8);
-                            this.processPostion = pos;
+                            this.processPosition = pos;
 
                             // 处理Slave的请求
                             HAConnection.this.slaveAckOffset = readOffset;
