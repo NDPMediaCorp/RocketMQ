@@ -98,6 +98,16 @@ public class HAConnection {
         return socketChannel;
     }
 
+    /**
+     * Calculate CRC32 checksum of given buffer.
+     *
+     * <p>
+     *     <strong>Warn: <code>buffer</code> is assumed to has position = 0, limit = capacity = data-size.</strong>
+     * </p>
+     *
+     * @param buffer ByteBuffer instance.
+     * @return CRC32 checksum of <code>buffer</code>.
+     */
     private long getChecksum(ByteBuffer buffer) {
         checksum.reset();
         if (buffer.hasArray()) {
