@@ -79,14 +79,13 @@ public final class CloudUtil {
             return null;
         } catch (Throwable e) {
             LOG.error("Failed to execute command [" + command + "]", e);
-            e.printStackTrace();
             return null;
         } finally {
             if (null != bufferedReader) {
                 try {
                     bufferedReader.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    // Omit exception trace.
                 }
             }
         }
