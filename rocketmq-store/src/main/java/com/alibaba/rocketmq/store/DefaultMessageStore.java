@@ -109,6 +109,9 @@ public class DefaultMessageStore implements MessageStore {
             .newSingleThreadScheduledExecutor(new ThreadFactoryImpl("StoreScheduledThread"));
     private final BrokerStatsManager brokerStatsManager;
 
+    private final AtomicLong slaveBrokerLagBehindWarnCounter = new AtomicLong(0L);
+
+    private final AtomicLong slaveBrokerHasNoConsumeQueueCounter = new AtomicLong(0L);
 
     public DefaultMessageStore(final MessageStoreConfig messageStoreConfig,
                                final BrokerStatsManager brokerStatsManager) throws IOException {
@@ -438,7 +441,6 @@ public class DefaultMessageStore implements MessageStore {
         return systemClock;
     }
 
-
     public GetMessageResult getMessage(final String group, final String topic, final int queueId,
                                        final long offset, final int maxMsgNums, final SubscriptionData subscriptionData) {
         if (this.shutdown) {
@@ -477,7 +479,9 @@ public class DefaultMessageStore implements MessageStore {
                 } else { // For slave brokers, we do not modify client side consume offset.
                     status = GetMessageStatus.NO_MATCHED_MESSAGE;
                     nextBeginOffset = offset;
-                    log.warn("No message in consume queue {} of slave broker. Slave broker may lag behind seriously.", queueId);
+                    if (slaveBrokerLagBehindWarnCounter.incrementAndGet() % 1024 == 1) {
+                        log.warn("No message in consume queue {} of slave broker. Slave broker may lag behind seriously.", queueId);
+                    }
                 }
             } else if (offset < minOffset) {
                 status = GetMessageStatus.OFFSET_TOO_SMALL;
@@ -496,7 +500,9 @@ public class DefaultMessageStore implements MessageStore {
                 } else {
                     // For scenario of slave being lagged behind.
                     status = GetMessageStatus.NO_MATCHED_MESSAGE;
-                    log.warn("Pulling messages from slave broker but consume queues of slave brokers lag behind seriously.");
+                    if (slaveBrokerLagBehindWarnCounter.incrementAndGet() % 1024 == 1) {
+                        log.warn("Pulling messages from slave broker but consume queues of slave brokers lag behind seriously.");
+                    }
                 }
             } else {
                 SelectMappedBufferResult bufferConsumeQueue = consumeQueue.getIndexBuffer(offset);
@@ -591,7 +597,9 @@ public class DefaultMessageStore implements MessageStore {
             } else {
                 status = GetMessageStatus.NO_MATCHED_MESSAGE;
                 nextBeginOffset = offset;
-                log.warn("No such consume queue in slave broker, queue ID: {}", queueId);
+                if (slaveBrokerHasNoConsumeQueueCounter.incrementAndGet() % 1024 == 1) {
+                    log.warn("No such consume queue in slave broker, queue ID: {}", queueId);
+                }
             }
         }
 
