@@ -18,6 +18,7 @@ package com.alibaba.rocketmq.client.consumer.store;
 import com.alibaba.rocketmq.client.exception.MQBrokerException;
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.client.impl.FindBrokerResult;
+import com.alibaba.rocketmq.client.impl.FindConsumeOffsetResult;
 import com.alibaba.rocketmq.client.impl.factory.MQClientInstance;
 import com.alibaba.rocketmq.client.log.ClientLogger;
 import com.alibaba.rocketmq.common.MixAll;
@@ -94,10 +95,10 @@ public class RemoteBrokerOffsetStore implements OffsetStore {
             }
             case READ_FROM_STORE: {
                 try {
-                    long brokerOffset = this.fetchConsumeOffsetFromBroker(mq);
-                    AtomicLong offset = new AtomicLong(brokerOffset);
-                    this.updateOffset(mq, offset.get(), false);
-                    return brokerOffset;
+                    FindConsumeOffsetResult findConsumeOffsetResult = this.fetchConsumeOffsetFromBroker(mq);
+                    AtomicLong offset = new AtomicLong(findConsumeOffsetResult.getOffset());
+                    this.updateOffset(mq, offset.get(), !findConsumeOffsetResult.isFromMaster());
+                    return findConsumeOffsetResult.getOffset();
                 }
                 // 当前订阅组在服务器没有对应的Offset
                 catch (MQBrokerException e) {
@@ -191,6 +192,11 @@ public class RemoteBrokerOffsetStore implements OffsetStore {
         }
 
         if (findBrokerResult != null) {
+
+            if (findBrokerResult.isSlave()) {
+                log.warn("Updating consume offset to slave broker: {}", findBrokerResult.getBrokerAddr());
+            }
+
             UpdateConsumerOffsetRequestHeader requestHeader = new UpdateConsumerOffsetRequestHeader();
             requestHeader.setTopic(mq.getTopic());
             requestHeader.setConsumerGroup(this.groupName);
@@ -207,7 +213,7 @@ public class RemoteBrokerOffsetStore implements OffsetStore {
     }
 
 
-    private long fetchConsumeOffsetFromBroker(MessageQueue mq) throws RemotingException, MQBrokerException,
+    private FindConsumeOffsetResult fetchConsumeOffsetFromBroker(MessageQueue mq) throws RemotingException, MQBrokerException,
             InterruptedException, MQClientException {
         FindBrokerResult findBrokerResult = this.mQClientFactory.findBrokerAddressInAdmin(mq.getBrokerName());
         if (null == findBrokerResult) {
@@ -222,8 +228,10 @@ public class RemoteBrokerOffsetStore implements OffsetStore {
             requestHeader.setConsumerGroup(this.groupName);
             requestHeader.setQueueId(mq.getQueueId());
 
-            return this.mQClientFactory.getMQClientAPIImpl().queryConsumerOffset(
+            long consumeOffset = this.mQClientFactory.getMQClientAPIImpl().queryConsumerOffset(
                 findBrokerResult.getBrokerAddr(), requestHeader, 1000 * 5);
+
+            return new FindConsumeOffsetResult(consumeOffset, !findBrokerResult.isSlave());
         }
         else {
             throw new MQClientException("The broker[" + mq.getBrokerName() + "] not exist", null);
