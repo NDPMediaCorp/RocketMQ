@@ -481,10 +481,14 @@ public class DefaultMessageStore implements MessageStore {
                 nextBeginOffset = offset;
             } else if (offset > maxOffset) {
                 status = GetMessageStatus.OFFSET_OVERFLOW_BADLY;
-                if (0 == minOffset) {
-                    nextBeginOffset = minOffset;
+                if (messageStoreConfig.isMaster()) {
+                    if (0 == minOffset) {
+                        nextBeginOffset = minOffset;
+                    } else {
+                        nextBeginOffset = maxOffset;
+                    }
                 } else {
-                    nextBeginOffset = maxOffset;
+                    log.warn("Pulling messages from slave broker but consume queues of slave brokers lag behind seriously.");
                 }
             } else {
                 SelectMappedBufferResult bufferConsumeQueue = consumeQueue.getIndexBuffer(offset);
@@ -560,9 +564,7 @@ public class DefaultMessageStore implements MessageStore {
 
                         // TODO 是否会影响性能，需要测试
                         long diff = this.getMaxPhyOffset() - maxPhyOffsetPulling;
-                        long memory =
-                                (long) (StoreUtil.TotalPhysicalMemorySize * (this.messageStoreConfig
-                                        .getAccessMessageInMemoryMaxRatio() / 100.0));
+                        long memory = (long) (StoreUtil.TotalPhysicalMemorySize * (this.messageStoreConfig.getAccessMessageInMemoryMaxRatio() / 100.0));
                         getResult.setSuggestPullingFromSlave(diff > memory);
                     } finally {
                         // 必须释放资源
@@ -1862,9 +1864,8 @@ public class DefaultMessageStore implements MessageStore {
 
     private boolean checkInDiskByCommitOffset(long offsetPy) {
         long maxOffsetPy = this.commitLog.getMaxOffset();
-        long memory =
-                (long) (StoreUtil.TotalPhysicalMemorySize * (this.messageStoreConfig
-                        .getAccessMessageInMemoryMaxRatio() / 100.0));
+        long memory = (long) (StoreUtil.TotalPhysicalMemorySize * (this.messageStoreConfig
+                .getAccessMessageInMemoryMaxRatio() / 100.0));
         return maxOffsetPy - offsetPy > memory;
     }
 

@@ -468,6 +468,9 @@ public class MessageStoreConfig {
         return brokerRole;
     }
 
+    public boolean isMaster() {
+        return brokerRole == BrokerRole.ASYNC_MASTER || brokerRole == BrokerRole.SYNC_MASTER;
+    }
 
     public void setBrokerRole(BrokerRole brokerRole) {
         this.brokerRole = brokerRole;
