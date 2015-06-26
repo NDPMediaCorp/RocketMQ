@@ -472,7 +472,13 @@ public class DefaultMessageStore implements MessageStore {
 
             if (maxOffset == 0) {
                 status = GetMessageStatus.NO_MESSAGE_IN_QUEUE;
-                nextBeginOffset = 0;
+                if (messageStoreConfig.isMaster()) {
+                    nextBeginOffset = 0;
+                } else { // For slave brokers, we do not modify client side consume offset.
+                    status = GetMessageStatus.NO_MATCHED_MESSAGE;
+                    nextBeginOffset = offset;
+                    log.warn("No message in consume queue {} of slave broker. Slave broker may lag behind seriously.", queueId);
+                }
             } else if (offset < minOffset) {
                 status = GetMessageStatus.OFFSET_TOO_SMALL;
                 nextBeginOffset = minOffset;
@@ -488,6 +494,8 @@ public class DefaultMessageStore implements MessageStore {
                         nextBeginOffset = maxOffset;
                     }
                 } else {
+                    // For scenario of slave being lagged behind.
+                    status = GetMessageStatus.NO_MATCHED_MESSAGE;
                     log.warn("Pulling messages from slave broker but consume queues of slave brokers lag behind seriously.");
                 }
             } else {
@@ -554,8 +562,7 @@ public class DefaultMessageStore implements MessageStore {
                                 }
 
                                 if (log.isDebugEnabled()) {
-                                    log.debug("message type not matched, client: " + subscriptionData
-                                            + " server: " + tagsCode);
+                                    log.debug("message type not matched, client: " + subscriptionData + " server: " + tagsCode);
                                 }
                             }
                         }
@@ -577,11 +584,15 @@ public class DefaultMessageStore implements MessageStore {
                             + minOffset + " maxOffset: " + maxOffset + ", but access logic queue failed.");
                 }
             }
-        }
-        // 请求的队列Id没有
-        else {
+        } else { // 请求的队列Id没有
             status = GetMessageStatus.NO_MATCHED_LOGIC_QUEUE;
-            nextBeginOffset = 0;
+            if (messageStoreConfig.isMaster()) {
+                nextBeginOffset = 0;
+            } else {
+                status = GetMessageStatus.NO_MATCHED_MESSAGE;
+                nextBeginOffset = offset;
+                log.warn("No such consume queue in slave broker, queue ID: {}", queueId);
+            }
         }
 
         if (GetMessageStatus.FOUND == status) {
@@ -606,8 +617,7 @@ public class DefaultMessageStore implements MessageStore {
     public long getMaxOffsetInQueue(String topic, int queueId) {
         ConsumeQueue logic = this.findConsumeQueue(topic, queueId);
         if (logic != null) {
-            long offset = logic.getMaxOffsetInQueue();
-            return offset;
+            return logic.getMaxOffsetInQueue();
         }
 
         return 0;
@@ -1716,8 +1726,7 @@ public class DefaultMessageStore implements MessageStore {
                             }
                             // 走到文件末尾，切换至下一个文件
                             else if (size == 0) {
-                                this.reputFromOffset =
-                                        DefaultMessageStore.this.commitLog.rollNextFile(this.reputFromOffset);
+                                this.reputFromOffset = DefaultMessageStore.this.commitLog.rollNextFile(this.reputFromOffset);
                                 readSize = result.getSize();
                             }
                         }
@@ -1763,8 +1772,7 @@ public class DefaultMessageStore implements MessageStore {
             SelectMappedBufferResult bufferConsumeQueue = consumeQueue.getIndexBuffer(cqOffset);
             if (bufferConsumeQueue != null) {
                 try {
-                    long physicalOffset = bufferConsumeQueue.getByteBuffer().getLong();
-                    return physicalOffset;
+                    return bufferConsumeQueue.getByteBuffer().getLong();
                 } finally {
                     bufferConsumeQueue.release();
                 }
@@ -1816,8 +1824,11 @@ public class DefaultMessageStore implements MessageStore {
     }
 
 
-    public Map<String, Long> getMessageIds(final String topic, final int queueId, long minOffset,
-                                           long maxOffset, SocketAddress storeHost) {
+    public Map<String, Long> getMessageIds(final String topic, //
+                                           final int queueId, //
+                                           long minOffset, //
+                                           long maxOffset, //
+                                           SocketAddress storeHost) {
         Map<String, Long> messageIds = new HashMap<String, Long>();
         if (this.shutdown) {
             return messageIds;

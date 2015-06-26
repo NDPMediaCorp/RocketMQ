@@ -291,8 +291,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
 
             // 消费较慢，重定向到另外一台机器
             if (getMessageResult.isSuggestPullingFromSlave()) {
-                responseHeader.setSuggestWhichBrokerId(subscriptionGroupConfig
-                        .getWhichBrokerWhenConsumeSlowly());
+                responseHeader.setSuggestWhichBrokerId(subscriptionGroupConfig.getWhichBrokerWhenConsumeSlowly());
             }
             // 消费正常，按照订阅组配置重定向
             else {

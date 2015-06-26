@@ -37,8 +37,7 @@ public class PullRequestHoldService extends ServiceThread {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.BrokerLoggerName);
     private static final String TOPIC_QUEUE_ID_SEPARATOR = "@";
 
-    private ConcurrentHashMap<String/* topic@queueid */, ManyPullRequest> pullRequestTable =
-            new ConcurrentHashMap<String, ManyPullRequest>(1024);
+    private ConcurrentHashMap<String/* topic@queueid */, ManyPullRequest> pullRequestTable = new ConcurrentHashMap<String, ManyPullRequest>(1024);
 
     private final BrokerController brokerController;
 
@@ -78,9 +77,8 @@ public class PullRequestHoldService extends ServiceThread {
             if (2 == kArray.length) {
                 String topic = kArray[0];
                 int queueId = Integer.parseInt(kArray[1]);
-                final long offset =
-                        this.brokerController.getMessageStore().getMaxOffsetInQueue(topic, queueId);
-                this.notifyMessageArriving(topic, queueId, offset);
+                final long offset = this.brokerController.getMessageStore().getMaxOffsetInQueue(topic, queueId);
+                notifyMessageArriving(topic, queueId, offset);
             }
         }
     }
@@ -123,8 +121,7 @@ public class PullRequestHoldService extends ServiceThread {
                     }
 
                     // 查看是否超时
-                    if (System.currentTimeMillis() >= (request.getSuspendTimestamp() + request
-                        .getTimeoutMillis())) {
+                    if (System.currentTimeMillis() >= (request.getSuspendTimestamp() + request.getTimeoutMillis())) {
                         try {
                             this.brokerController.getPullMessageProcessor().executeRequestWhenWakeUp(
                                     request.getClientChannel(), request.getRequestCommand());
