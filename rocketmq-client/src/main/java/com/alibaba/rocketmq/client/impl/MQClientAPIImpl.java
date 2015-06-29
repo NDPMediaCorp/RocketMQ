@@ -544,8 +544,7 @@ public class MQClientAPIImpl {
                     catch (Exception e) {
                         pullCallback.onException(e);
                     }
-                }
-                else {
+                } else {
                     if (!responseFuture.isSendRequestOK()) {
                         pullCallback.onException(new MQClientException("send request failed", responseFuture
                             .getCause()));
@@ -555,7 +554,7 @@ public class MQClientAPIImpl {
                                 + responseFuture.getTimeoutMillis() + "ms", responseFuture.getCause()));
                     }
                     else {
-                        pullCallback.onException(new MQClientException("unknow reseaon", responseFuture
+                        pullCallback.onException(new MQClientException("unknown reason", responseFuture
                             .getCause()));
                     }
                 }
@@ -579,6 +578,10 @@ public class MQClientAPIImpl {
             break;
         case ResponseCode.PULL_OFFSET_MOVED:
             pullStatus = PullStatus.OFFSET_ILLEGAL;
+            break;
+
+        case ResponseCode.SLAVE_LAG_BEHIND:
+            pullStatus = PullStatus.SLAVE_LAG_BEHIND;
             break;
 
         default:

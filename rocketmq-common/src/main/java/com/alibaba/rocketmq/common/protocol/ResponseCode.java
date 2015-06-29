@@ -78,4 +78,7 @@ public class ResponseCode extends RemotingSysResponseCode {
 
     // Consumer消费消息超时
     public static final int CONSUME_MSG_TIMEOUT = 207;
+
+    // Slave broker lags behind master seriously.
+    public static final int SLAVE_LAG_BEHIND = 300;
 }

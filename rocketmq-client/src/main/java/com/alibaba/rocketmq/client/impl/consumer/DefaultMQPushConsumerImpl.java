@@ -487,6 +487,12 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
                             }
                         }, 10000);
                         break;
+
+                        case SLAVE_LAG_BEHIND:
+                            pullRequest.setNextOffset(pullRequest.getNextOffset());
+                            correctTagsOffset(pullRequest);
+                            executePullRequestLater(pullRequest, defaultMQPushConsumer.getPullIntervalWhenMasterDownAndSlaveLagBehind());
+                            break;
                     default:
                         break;
                     }

@@ -317,9 +317,15 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
                 case NO_NEW_MSG:
                     response.setCode(ResponseCode.PULL_NOT_FOUND);
                     break;
+
                 case OFFSET_ILLEGAL:
                     response.setCode(ResponseCode.PULL_OFFSET_MOVED);
                     break;
+
+                case SLAVE_LAG_BEHIND:
+                    response.setCode(ResponseCode.SLAVE_LAG_BEHIND);
+                    break;
+
                 default:
                     break;
                 }

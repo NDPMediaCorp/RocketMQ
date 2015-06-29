@@ -477,7 +477,7 @@ public class DefaultMessageStore implements MessageStore {
                 if (messageStoreConfig.isMaster()) {
                     nextBeginOffset = 0;
                 } else { // For slave brokers, we do not modify client side consume offset.
-                    status = GetMessageStatus.NO_MATCHED_MESSAGE;
+                    status = GetMessageStatus.SLAVE_LAG_BEHIND;
                     nextBeginOffset = offset;
                     if (slaveBrokerLagBehindWarnCounter.incrementAndGet() % 1024 == 1) {
                         log.warn("No message in consume queue {} of slave broker. Slave broker may lag behind seriously.", queueId);
@@ -499,7 +499,7 @@ public class DefaultMessageStore implements MessageStore {
                     }
                 } else {
                     // For scenario of slave being lagged behind.
-                    status = GetMessageStatus.NO_MATCHED_MESSAGE;
+                    status = GetMessageStatus.SLAVE_LAG_BEHIND;
                     if (slaveBrokerLagBehindWarnCounter.incrementAndGet() % 1024 == 1) {
                         log.warn("Pulling messages from slave broker but consume queues of slave brokers lag behind seriously.");
                     }
@@ -595,7 +595,7 @@ public class DefaultMessageStore implements MessageStore {
             if (messageStoreConfig.isMaster()) {
                 nextBeginOffset = 0;
             } else {
-                status = GetMessageStatus.NO_MATCHED_MESSAGE;
+                status = GetMessageStatus.SLAVE_LAG_BEHIND;
                 nextBeginOffset = offset;
                 if (slaveBrokerHasNoConsumeQueueCounter.incrementAndGet() % 1024 == 1) {
                     log.warn("No such consume queue in slave broker, queue ID: {}", queueId);

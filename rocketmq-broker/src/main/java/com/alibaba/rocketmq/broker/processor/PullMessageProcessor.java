@@ -372,6 +372,11 @@ public class PullMessageProcessor implements NettyRequestProcessor {
                             + " too small, broker min offset: " + getMessageResult.getMinOffset()
                             + ", consumer: " + channel.remoteAddress());
                     break;
+
+                case SLAVE_LAG_BEHIND:
+                    response.setCode(ResponseCode.SLAVE_LAG_BEHIND);
+                    break;
+
                 default:
                     assert false;
                     break;
