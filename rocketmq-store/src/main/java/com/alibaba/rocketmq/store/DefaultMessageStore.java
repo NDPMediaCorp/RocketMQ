@@ -979,7 +979,7 @@ public class DefaultMessageStore implements MessageStore {
             return false;
         }
 
-        if ((messageTotal + 1) >= maxMsgNums) {
+        if ((messageTotal + 1) > maxMsgNums) {
             return true;
         }
 
