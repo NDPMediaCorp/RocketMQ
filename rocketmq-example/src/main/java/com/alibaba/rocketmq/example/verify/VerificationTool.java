@@ -60,8 +60,10 @@ public class VerificationTool {
         byte[] messageData = new byte[1024];
         Arrays.fill(messageData, (byte) 'T');
         Message message = new Message(topic, messageData);
-        SendResult sendResult = producer.send(message);
-        System.out.println(sendResult);
+        for (int i = 0; i < 1024; i++) {
+            SendResult sendResult = producer.send(message);
+            System.out.println(sendResult);
+        }
         producer.shutdown();
     }
 
