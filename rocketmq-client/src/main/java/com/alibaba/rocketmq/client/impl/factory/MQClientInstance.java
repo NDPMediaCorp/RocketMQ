@@ -1039,7 +1039,7 @@ public class MQClientInstance {
     /**
      * 发布消息过程中，寻找Broker地址，一定是找Master
      * @param brokerName name of broker.
-     * @return Address of mater broker whose name matches.
+     * @return Address of master broker whose name matches.
      */
     public String findBrokerAddressInPublish(final String brokerName) {
         HashMap<Long/* brokerId */, String/* address */> map = this.brokerAddrTable.get(brokerName);
