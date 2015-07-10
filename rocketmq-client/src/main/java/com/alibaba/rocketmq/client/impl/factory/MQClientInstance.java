@@ -15,26 +15,6 @@
  */
 package com.alibaba.rocketmq.client.impl.factory;
 
-import java.io.UnsupportedEncodingException;
-import java.net.DatagramSocket;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.slf4j.Logger;
-
 import com.alibaba.rocketmq.client.ClientConfig;
 import com.alibaba.rocketmq.client.admin.MQAdminExtInner;
 import com.alibaba.rocketmq.client.exception.MQBrokerException;
@@ -78,6 +58,25 @@ import com.alibaba.rocketmq.remoting.RPCHook;
 import com.alibaba.rocketmq.remoting.common.RemotingHelper;
 import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.alibaba.rocketmq.remoting.netty.NettyClientConfig;
+import org.slf4j.Logger;
+
+import java.io.UnsupportedEncodingException;
+import java.net.DatagramSocket;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
@@ -555,11 +554,10 @@ public class MQClientInstance {
         try {
             if (this.lockNamesrv.tryLock(LockTimeoutMillis, TimeUnit.MILLISECONDS)) {
                 try {
-                    TopicRouteData topicRouteData;
+                    TopicRouteData topicRouteData = null;
                     if (isDefault && defaultMQProducer != null) {
-                        topicRouteData =
-                                this.mQClientAPIImpl.getDefaultTopicRouteInfoFromNameServer(
-                                        defaultMQProducer.getCreateTopicKey(), 1000 * 3);
+                        topicRouteData = this.mQClientAPIImpl.getDefaultTopicRouteInfoFromNameServer(
+                                defaultMQProducer.getCreateTopicKey(), 1000 * 3);
                         if (topicRouteData != null) {
                             for (QueueData data : topicRouteData.getQueueDatas()) {
                                 int queueNums =
@@ -569,18 +567,19 @@ public class MQClientInstance {
                                 data.setWriteQueueNums(queueNums);
                             }
                         }
+                    } else if (!MixAll.DEFAULT_TOPIC.equals(topic)) { // Default topic may not exist at all.
+                        topicRouteData = this.mQClientAPIImpl.getTopicRouteInfoFromNameServer(topic, 1000 * 3);
                     } else {
-                        topicRouteData =
-                                this.mQClientAPIImpl.getTopicRouteInfoFromNameServer(topic, 1000 * 3);
+                        return false;
                     }
+
                     if (topicRouteData != null) {
                         TopicRouteData old = this.topicRouteTable.get(topic);
                         boolean changed = topicRouteDataIsChange(old, topicRouteData);
                         if (!changed) {
                             changed = this.isNeedUpdateTopicRouteInfo(topic);
                         } else {
-                            log.info("the topic[{}] route info changed, odl[{}] ,new[{}]", topic, old,
-                                    topicRouteData);
+                            log.info("the topic[{}] route info changed, old [{}], new[{}]", topic, old, topicRouteData);
                         }
 
                         if (changed) {
