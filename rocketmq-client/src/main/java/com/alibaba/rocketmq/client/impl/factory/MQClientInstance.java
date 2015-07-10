@@ -634,7 +634,7 @@ public class MQClientInstance {
                         if (!changed) {
                             changed = this.isNeedUpdateTopicRouteInfo(topic);
                         } else {
-                            log.info("the topic[{}] route info changed, odl[{}] ,new[{}]", topic, old,
+                            log.info("the topic[{}] route info changed: \n old[{}]; \n new[{}]", topic, old,
                                     topicRouteData);
                         }
 
