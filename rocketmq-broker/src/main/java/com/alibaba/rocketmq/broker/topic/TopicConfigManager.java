@@ -169,8 +169,9 @@ public class TopicConfigManager extends ConfigManager {
             if (this.lockTopicConfigTable.tryLock(LockTimeoutMillis, TimeUnit.MILLISECONDS)) {
                 try {
                     topicConfig = this.topicConfigTable.get(topic);
-                    if (topicConfig != null)
+                    if (topicConfig != null) {
                         return topicConfig;
+                    }
 
                     TopicConfig defaultTopicConfig = this.topicConfigTable.get(defaultTopic);
                     if (defaultTopicConfig != null) {
@@ -191,14 +192,11 @@ public class TopicConfigManager extends ConfigManager {
                             topicConfig.setPerm(perm);
                             topicConfig.setTopicSysFlag(topicSysFlag);
                             topicConfig.setTopicFilterType(defaultTopicConfig.getTopicFilterType());
-                        }
-                        else {
+                        } else {
                             log.warn("create new topic failed, because the default topic[" + defaultTopic
-                                    + "] no perm, " + defaultTopicConfig.getPerm() + " producer: "
-                                    + remoteAddress);
+                                    + "] no perm, " + defaultTopicConfig.getPerm() + " producer: " + remoteAddress);
                         }
-                    }
-                    else {
+                    } else {
                         log.warn("create new topic failed, because the default topic[" + defaultTopic
                                 + "] not exist." + " producer: " + remoteAddress);
                     }
@@ -215,8 +213,7 @@ public class TopicConfigManager extends ConfigManager {
 
                         this.persist();
                     }
-                }
-                finally {
+                } finally {
                     this.lockTopicConfigTable.unlock();
                 }
             }

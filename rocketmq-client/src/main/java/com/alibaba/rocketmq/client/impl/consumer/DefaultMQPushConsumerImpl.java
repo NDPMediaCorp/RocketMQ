@@ -636,9 +636,8 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
         } catch (Exception e) {
             log.error("sendMessageBack Exception, " + this.defaultMQPushConsumer.getConsumerGroup(), e);
 
-            Message newMsg =
-                    new Message(MixAll.getRetryTopic(this.defaultMQPushConsumer.getConsumerGroup()),
-                        msg.getBody());
+            Message newMsg = new Message(MixAll.getRetryTopic(this.defaultMQPushConsumer.getConsumerGroup()),
+                    msg.getBody());
 
             // 保存源生消息的 msgId
             String originMsgId = MessageAccessor.getOriginMessageId(msg);

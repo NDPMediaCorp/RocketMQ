@@ -612,7 +612,7 @@ public class MQClientInstance {
         try {
             if (this.lockNamesrv.tryLock(LockTimeoutMillis, TimeUnit.MILLISECONDS)) {
                 try {
-                    TopicRouteData topicRouteData;
+                    TopicRouteData topicRouteData = null;
                     if (isDefault && defaultMQProducer != null) {
                         topicRouteData = this.mQClientAPIImpl.getDefaultTopicRouteInfoFromNameServer(
                                 defaultMQProducer.getCreateTopicKey(), 1000 * 3);
@@ -625,9 +625,13 @@ public class MQClientInstance {
                                 data.setWriteQueueNums(queueNums);
                             }
                         }
-                    } else {
+                    } else if (!MixAll.DEFAULT_TOPIC.equals(topic)) {
                         topicRouteData = this.mQClientAPIImpl.getTopicRouteInfoFromNameServer(topic, 1000 * 3);
+                    } else {
+                        log.info("Skip default topic: {}", topic);
+                        return false;
                     }
+
                     if (topicRouteData != null) {
                         TopicRouteData old = this.topicRouteTable.get(topic);
                         boolean changed = topicRouteDataIsChange(old, topicRouteData);
