@@ -374,7 +374,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
 
         // 查询订阅关系
         final SubscriptionData subscriptionData =
-                this.rebalanceImpl.getSubscriptionInner().get(pullRequest.getMessageQueue().getTopic());
+                rebalanceImpl.getSubscriptionInner().get(pullRequest.getMessageQueue().getTopic());
         if (null == subscriptionData) {
             // 由于并发关系，即使找不到订阅关系，也要重试下，防止丢失PullRequest
             this.executePullRequestLater(pullRequest, PullTimeDelayMillsWhenException);
@@ -388,9 +388,8 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
             @Override
             public void onSuccess(PullResult pullResult) {
                 if (pullResult != null) {
-                    pullResult =
-                            DefaultMQPushConsumerImpl.this.pullAPIWrapper.processPullResult(
-                                pullRequest.getMessageQueue(), pullResult, subscriptionData);
+                    pullResult = DefaultMQPushConsumerImpl.this.pullAPIWrapper.processPullResult(
+                            pullRequest.getMessageQueue(), pullResult, subscriptionData);
 
                     switch (pullResult.getPullStatus()) {
                     case FOUND:
@@ -487,6 +486,18 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
                             }
                         }, 10000);
                         break;
+
+                        case SLAVE_LAG_BEHIND:
+                            pullRequest.setNextOffset(pullRequest.getNextOffset());
+                            correctTagsOffset(pullRequest);
+                            executePullRequestLater(pullRequest, defaultMQPushConsumer.getPullIntervalWhenMasterDownAndSlaveLagBehind());
+                            break;
+
+                        case SUBSCRIPTION_NOT_LATEST:
+                            log.warn("Found client subscription later than that of broker. Now post subscription for every pull.");
+                            mQClientFactory.sendHeartbeatToAllBrokerWithLock();
+                            executePullRequestImmediately(pullRequest);
+                            break;
                     default:
                         break;
                     }
@@ -517,7 +528,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
 
         String subExpression = null;
         boolean classFilter = false;
-        SubscriptionData sd = this.rebalanceImpl.getSubscriptionInner().get(pullRequest.getMessageQueue().getTopic());
+        SubscriptionData sd = rebalanceImpl.getSubscriptionInner().get(pullRequest.getMessageQueue().getTopic());
         if (sd != null) {
             if (this.defaultMQPushConsumer.isPostSubscriptionWhenPull() && !sd.isClassFilterMode()) {
                 subExpression = sd.getSubString();
@@ -630,9 +641,8 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
         } catch (Exception e) {
             log.error("sendMessageBack Exception, " + this.defaultMQPushConsumer.getConsumerGroup(), e);
 
-            Message newMsg =
-                    new Message(MixAll.getRetryTopic(this.defaultMQPushConsumer.getConsumerGroup()),
-                        msg.getBody());
+            Message newMsg = new Message(MixAll.getRetryTopic(this.defaultMQPushConsumer.getConsumerGroup()),
+                    msg.getBody());
 
             // 保存源生消息的 msgId
             String originMsgId = MessageAccessor.getOriginMessageId(msg);
@@ -970,16 +980,16 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
 
     public void subscribe(String topic, String subExpression) throws MQClientException {
         try {
-            SubscriptionData subscriptionData =
-                    FilterAPI.buildSubscriptionData(this.defaultMQPushConsumer.getConsumerGroup(),//
-                        topic, subExpression);
+            SubscriptionData subscriptionData = FilterAPI.buildSubscriptionData(
+                    this.defaultMQPushConsumer.getConsumerGroup(), //
+                    topic, //
+                    subExpression);
             this.rebalanceImpl.getSubscriptionInner().put(topic, subscriptionData);
             // 发送心跳，将变更的订阅关系注册上去
             if (this.mQClientFactory != null) {
                 this.mQClientFactory.sendHeartbeatToAllBrokerWithLock();
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new MQClientException("subscription exception", e);
         }
     }

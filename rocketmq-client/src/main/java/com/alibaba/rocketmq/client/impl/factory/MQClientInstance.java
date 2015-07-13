@@ -67,6 +67,7 @@ import org.slf4j.Logger;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramSocket;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -74,6 +75,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -427,7 +429,7 @@ public class MQClientInstance {
         int classCRC = 0;
         try {
             String fileContent = MixAll.file2String(classFile);
-            classBody = fileContent.getBytes(MixAll.DEFAULT_CHARSET);
+            classBody = (null == fileContent) ? null : fileContent.getBytes(MixAll.DEFAULT_CHARSET);
             classCRC = UtilAll.crc32(classBody);
         } catch (Exception e1) {
             log.warn("uploadFilterClassToAllFilterServer Exception, ClassFile: {} ClassName: {} {}", //
@@ -610,7 +612,7 @@ public class MQClientInstance {
         try {
             if (this.lockNamesrv.tryLock(LockTimeoutMillis, TimeUnit.MILLISECONDS)) {
                 try {
-                    TopicRouteData topicRouteData;
+                    TopicRouteData topicRouteData = null;
                     if (isDefault && defaultMQProducer != null) {
                         topicRouteData = this.mQClientAPIImpl.getDefaultTopicRouteInfoFromNameServer(
                                 defaultMQProducer.getCreateTopicKey(), 1000 * 3);
@@ -623,16 +625,20 @@ public class MQClientInstance {
                                 data.setWriteQueueNums(queueNums);
                             }
                         }
-                    } else {
+                    } else if (!MixAll.DEFAULT_TOPIC.equals(topic)) {
                         topicRouteData = this.mQClientAPIImpl.getTopicRouteInfoFromNameServer(topic, 1000 * 3);
+                    } else {
+                        log.info("Skip default topic: {}", topic);
+                        return false;
                     }
+
                     if (topicRouteData != null) {
                         TopicRouteData old = this.topicRouteTable.get(topic);
                         boolean changed = topicRouteDataIsChange(old, topicRouteData);
                         if (!changed) {
                             changed = this.isNeedUpdateTopicRouteInfo(topic);
                         } else {
-                            log.info("the topic[{}] route info changed, odl[{}] ,new[{}]", topic, old,
+                            log.info("the topic[{}] route info changed: \n old[{}]; \n new[{}]", topic, old,
                                     topicRouteData);
                         }
 
@@ -993,8 +999,8 @@ public class MQClientInstance {
     /**
      * 管理类的接口查询Broker地址，Master优先
      *
-     * @param brokerName
-     * @return
+     * @param brokerName Broker name, according to which find broker address and its master/slave role.
+     * @return Wrapper of search result, including broker address and the broker's role, being master or slave.
      */
     public FindBrokerResult findBrokerAddressInAdmin(final String brokerName) {
         String brokerAddr = null;
@@ -1003,24 +1009,28 @@ public class MQClientInstance {
 
         HashMap<Long/* brokerId */, String/* address */> map = this.brokerAddrTable.get(brokerName);
         if (map != null && !map.isEmpty()) {
-            // TODO 如果有多个Slave，可能会每次都选中相同的Slave，这里需要优化
-            FOR_SEG:
-            for (Map.Entry<Long, String> entry : map.entrySet()) {
+            List<String> slaveBrokers = new ArrayList<String>(map.size());
+            for (Entry<Long, String> entry : map.entrySet()) {
                 Long id = entry.getKey();
                 brokerAddr = entry.getValue();
                 if (brokerAddr != null) {
                     found = true;
                     if (MixAll.MASTER_ID == id) {
                         slave = false;
-                        break FOR_SEG;
+                        break;
                     } else {
                         slave = true;
+                        slaveBrokers.add(brokerAddr);
                     }
-                    break;
-
                 }
-            } // end of for
+            }
+
+            if (found && slave) {
+                Random random = new Random(System.currentTimeMillis());
+                brokerAddr = slaveBrokers.get(random.nextInt(slaveBrokers.size()));
+            }
         }
+
 
         if (found) {
             return new FindBrokerResult(brokerAddr, slave);
@@ -1033,7 +1043,7 @@ public class MQClientInstance {
     /**
      * 发布消息过程中，寻找Broker地址，一定是找Master
      * @param brokerName name of broker.
-     * @return Address of mater broker whose name matches.
+     * @return Address of master broker whose name matches.
      */
     public String findBrokerAddressInPublish(final String brokerName) {
         HashMap<Long/* brokerId */, String/* address */> map = this.brokerAddrTable.get(brokerName);

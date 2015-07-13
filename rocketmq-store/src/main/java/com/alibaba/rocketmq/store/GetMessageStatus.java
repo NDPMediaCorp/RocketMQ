@@ -40,4 +40,7 @@ public enum GetMessageStatus {
     NO_MATCHED_LOGIC_QUEUE,
     // 队列中一条消息都没有
     NO_MESSAGE_IN_QUEUE,
+
+    // Slave broker commit log lags behinds
+    SLAVE_LAG_BEHIND
 }

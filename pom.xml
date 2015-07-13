@@ -13,7 +13,7 @@
 	<inceptionYear>2012</inceptionYear>
 	<groupId>com.alibaba.rocketmq</groupId>
 	<artifactId>rocketmq-all</artifactId>
-	<version>3.2.2</version>
+	<version>3.2.2.R1</version>
 	<packaging>pom</packaging>
 	<name>rocketmq-all ${project.version}</name>
 	<url>https://github.com/alibaba/rocketmq</url>
@@ -236,26 +236,6 @@
 		</profile>
 
         <profile>
-            <id>deployCorp</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <distributionManagement>
-                <repository>
-                    <id>nexus-release</id>
-                    <name>Local Nexus Repository</name>
-                    <url>http://172.30.10.160:8081/nexus/content/repositories/releases/</url>
-                </repository>
-
-                <snapshotRepository>
-                    <id>nexus-snapshot</id>
-                    <name>Local Nexus Repository</name>
-                    <url>http://172.30.10.160:8081/nexus/content/repositories/snapshots/</url>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
-
-        <profile>
             <id>deploy</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -264,12 +244,12 @@
                 <repository>
                     <id>nexus-release</id>
                     <name>Local Nexus Repository</name>
-                    <url>http://172.30.10.200:8081/nexus/content/repositories/releases/</url>
+                    <url>http://172.30.10.160:8081/nexus/content/repositories/releases/</url>
                 </repository>
                 <snapshotRepository>
                     <id>nexus-snapshot</id>
                     <name>Local Nexus Repository</name>
-                    <url>http://172.30.10.200:8081/nexus/content/repositories/snapshots/</url>
+                    <url>http://172.30.10.160:8081/nexus/content/repositories/snapshots/</url>
                 </snapshotRepository>
             </distributionManagement>
         </profile>

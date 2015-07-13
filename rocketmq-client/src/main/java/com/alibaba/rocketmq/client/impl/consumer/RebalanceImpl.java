@@ -244,8 +244,7 @@ public abstract class RebalanceImpl {
                 final String topic = entry.getKey();
                 try {
                     this.rebalanceByTopic(topic);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     if (!topic.startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
                         log.warn("rebalanceByTopic Exception", e);
                     }

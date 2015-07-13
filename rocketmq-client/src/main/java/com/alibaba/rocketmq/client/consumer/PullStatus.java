@@ -24,16 +24,29 @@ public enum PullStatus {
      * 找到消息
      */
     FOUND,
+
     /**
      * 没有新的消息可以被拉取
      */
     NO_NEW_MSG,
+
     /**
      * 经过过滤后，没有匹配的消息
      */
     NO_MATCHED_MSG,
+
     /**
      * Offset不合法，可能过大或者过小
      */
-    OFFSET_ILLEGAL
+    OFFSET_ILLEGAL,
+
+    /**
+     * Master broker is down and slaves lag behind.
+     */
+    SLAVE_LAG_BEHIND,
+
+    /**
+     * Broker subscription is older than client.
+     */
+    SUBSCRIPTION_NOT_LATEST
 }

@@ -229,9 +229,8 @@ public class PullMessageProcessor implements NettyRequestProcessor {
         SubscriptionData subscriptionData = null;
         if (hasSubscriptionFlag) {
             try {
-                subscriptionData =
-                        FilterAPI.buildSubscriptionData(requestHeader.getConsumerGroup(),
-                                requestHeader.getTopic(), requestHeader.getSubscription());
+                subscriptionData = FilterAPI.buildSubscriptionData(requestHeader.getConsumerGroup(),
+                        requestHeader.getTopic(), requestHeader.getSubscription());
             } catch (Exception e) {
                 log.warn("parse the consumer's subscription[{}] failed, group: {}",
                         requestHeader.getSubscription(),//
@@ -241,14 +240,12 @@ public class PullMessageProcessor implements NettyRequestProcessor {
                 return response;
             }
         } else {
-            ConsumerGroupInfo consumerGroupInfo =
-                    this.brokerController.getConsumerManager().getConsumerGroupInfo(
-                            requestHeader.getConsumerGroup());
+            ConsumerGroupInfo consumerGroupInfo = this.brokerController.getConsumerManager().getConsumerGroupInfo(
+                    requestHeader.getConsumerGroup());
             if (null == consumerGroupInfo) {
                 log.warn("the consumer's group info not exist, group: {}", requestHeader.getConsumerGroup());
                 response.setCode(ResponseCode.SUBSCRIPTION_NOT_EXIST);
-                response.setRemark("the consumer's group info not exist"
-                        + FAQUrl.suggestTodo(FAQUrl.SAME_GROUP_DIFFERENT_TOPIC));
+                response.setRemark("the consumer's group info not exist" + FAQUrl.suggestTodo(FAQUrl.SAME_GROUP_DIFFERENT_TOPIC));
                 return response;
             }
 
@@ -291,8 +288,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
 
             // 消费较慢，重定向到另外一台机器
             if (getMessageResult.isSuggestPullingFromSlave()) {
-                responseHeader.setSuggestWhichBrokerId(subscriptionGroupConfig
-                        .getWhichBrokerWhenConsumeSlowly());
+                responseHeader.setSuggestWhichBrokerId(subscriptionGroupConfig.getWhichBrokerWhenConsumeSlowly());
             }
             // 消费正常，按照订阅组配置重定向
             else {
@@ -373,6 +369,11 @@ public class PullMessageProcessor implements NettyRequestProcessor {
                             + " too small, broker min offset: " + getMessageResult.getMinOffset()
                             + ", consumer: " + channel.remoteAddress());
                     break;
+
+                case SLAVE_LAG_BEHIND:
+                    response.setCode(ResponseCode.SLAVE_LAG_BEHIND);
+                    break;
+
                 default:
                     assert false;
                     break;

@@ -111,10 +111,17 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
      * 本地队列消息数超过此阀值，开始流控
      */
     private int pullThresholdForQueue = 1000;
+
     /**
      * 拉消息间隔，如果为了降低拉取速度，可以设置大于0的值
      */
     private long pullInterval = 0;
+
+    /**
+     * Pull interval when master broker is down and maximum of consume queue offset is smaller than consumer consume offset.
+     */
+    private long pullIntervalWhenMasterDownAndSlaveLagBehind = 500;
+
     /**
      * 消费一批消息，最大数
      */
@@ -325,6 +332,13 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
         this.pullInterval = pullInterval;
     }
 
+    public long getPullIntervalWhenMasterDownAndSlaveLagBehind() {
+        return pullIntervalWhenMasterDownAndSlaveLagBehind;
+    }
+
+    public void setPullIntervalWhenMasterDownAndSlaveLagBehind(long pullIntervalWhenMasterDownAndSlaveLagBehind) {
+        this.pullIntervalWhenMasterDownAndSlaveLagBehind = pullIntervalWhenMasterDownAndSlaveLagBehind;
+    }
 
     public int getPullThresholdForQueue() {
         return pullThresholdForQueue;

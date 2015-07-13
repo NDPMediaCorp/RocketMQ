@@ -31,7 +31,8 @@ import java.util.List;
  * @since 2013-7-21
  */
 public class ConsumeQueue {
-    // 存储单元大小
+
+    // 存储单元大小, physical Offset(long, 8) + message size(int, 4) + tag hash code(long, 8)
     public static final int CQStoreUnitSize = 20;
     private static final Logger log = LoggerFactory.getLogger(LoggerName.StoreLoggerName);
     private static final Logger logError = LoggerFactory.getLogger(LoggerName.StoreErrorLoggerName);
@@ -393,8 +394,8 @@ public class ConsumeQueue {
     }
 
 
-    public void putMessagePostionInfoWrapper(long offset, int size, long tagsCode, long storeTimestamp,
-            long logicOffset) {
+    public void putMessagePositionInfoWrapper(long offset, int size, long tagsCode, long storeTimestamp,
+                                              long logicOffset) {
         final int MaxRetries = 5;
         boolean canWrite = this.defaultMessageStore.getRunningFlags().isWritable();
         for (int i = 0; i < MaxRetries && canWrite; i++) {
@@ -507,7 +508,7 @@ public class ConsumeQueue {
     public SelectMappedBufferResult getIndexBuffer(final long startIndex) {
         int mappedFileSize = this.mappedFileSize;
         long offset = startIndex * CQStoreUnitSize;
-        if (offset >= this.getMinLogicOffset()) {
+        if (offset >= getMinLogicOffset()) {
             MappedFile mappedFile = this.mappedFileQueue.findMappedFileByOffset(offset);
             if (mappedFile != null) {
                 SelectMappedBufferResult result = mappedFile.selectMappedBuffer((int) (offset % mappedFileSize));

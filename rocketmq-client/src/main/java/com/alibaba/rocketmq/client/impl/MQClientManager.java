@@ -59,14 +59,12 @@ public class MQClientManager {
                 config.setWeakReference(new WeakReference(clientConfig));
             }
 
-            instance = new MQClientInstance(config,
-                    this.factoryIndexGenerator.getAndIncrement(), clientId, rpcHook);
+            instance = new MQClientInstance(config, this.factoryIndexGenerator.getAndIncrement(), clientId, rpcHook);
 
             MQClientInstance prev = this.factoryTable.putIfAbsent(clientId, instance);
             if (prev != null) {
                 instance = prev;
-            }
-            else {
+            } else {
                 // TODO log
             }
         }

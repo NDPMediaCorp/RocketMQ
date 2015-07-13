@@ -544,8 +544,7 @@ public class MQClientAPIImpl {
                     catch (Exception e) {
                         pullCallback.onException(e);
                     }
-                }
-                else {
+                } else {
                     if (!responseFuture.isSendRequestOK()) {
                         pullCallback.onException(new MQClientException("send request failed", responseFuture
                             .getCause()));
@@ -555,7 +554,7 @@ public class MQClientAPIImpl {
                                 + responseFuture.getTimeoutMillis() + "ms", responseFuture.getCause()));
                     }
                     else {
-                        pullCallback.onException(new MQClientException("unknow reseaon", responseFuture
+                        pullCallback.onException(new MQClientException("unknown reason", responseFuture
                             .getCause()));
                     }
                 }
@@ -579,6 +578,15 @@ public class MQClientAPIImpl {
             break;
         case ResponseCode.PULL_OFFSET_MOVED:
             pullStatus = PullStatus.OFFSET_ILLEGAL;
+            break;
+
+        case ResponseCode.SLAVE_LAG_BEHIND:
+            pullStatus = PullStatus.SLAVE_LAG_BEHIND;
+            break;
+
+        case ResponseCode.SUBSCRIPTION_NOT_LATEST:
+            log.warn("Response Code: SUBSCRIPTION_NOT_LATEST. Remark: {}", response.getRemark());
+            pullStatus = PullStatus.SUBSCRIPTION_NOT_LATEST;
             break;
 
         default:
@@ -1493,7 +1501,8 @@ public class MQClientAPIImpl {
         assert response != null;
         switch (response.getCode()) {
         case ResponseCode.TOPIC_NOT_EXIST: {
-            log.warn("get Topic [{}] RouteInfoFromNameServer is not exist value", topic);
+            log.warn("getRouteInfoFromNameServer for topic [{}] failed. Response Code: TOPIC_NOT_EXIST; Remark: {}",
+                    topic, response.getRemark());
             break;
         }
         case ResponseCode.SUCCESS: {
