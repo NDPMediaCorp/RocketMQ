@@ -495,7 +495,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
 
                         case SUBSCRIPTION_NOT_LATEST:
                             log.warn("Found client subscription later than that of broker. Now post subscription for every pull.");
-                            defaultMQPushConsumer.setPostSubscriptionWhenPull(true);
+                            mQClientFactory.sendHeartbeatToAllBrokerWithLock();
                             executePullRequestImmediately(pullRequest);
                             break;
                     default:
