@@ -454,9 +454,11 @@ public abstract class NettyRemotingAbstract {
     }
 
 
-    public void invokeOneWayImpl(final Channel channel, final RemotingCommand request,
-                                 final long timeoutMillis) throws InterruptedException, RemotingTooMuchRequestException,
-            RemotingTimeoutException, RemotingSendRequestException {
+    public void invokeOneWayImpl(final Channel channel, //
+                                 final RemotingCommand request, //
+                                 final long timeoutMillis) //
+            throws InterruptedException, RemotingTooMuchRequestException, RemotingTimeoutException,
+            RemotingSendRequestException {
         request.markOnewayRPC();
         boolean acquired = this.semaphoreOneWay.tryAcquire(timeoutMillis, TimeUnit.MILLISECONDS);
         if (acquired) {
@@ -472,23 +474,20 @@ public abstract class NettyRemotingAbstract {
                         }
                     }
                 });
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 once.release();
                 LOGGER.warn("write send a request command to channel <" + channel.remoteAddress() + "> failed.");
                 throw new RemotingSendRequestException(RemotingHelper.parseChannelRemoteAddr(channel), e);
             }
-        }
-        else {
+        } else {
             if (timeoutMillis <= 0) {
                 throw new RemotingTooMuchRequestException("invokeOneWayImpl invoke too fast");
-            }
-            else {
+            } else {
                 String info = String.format(
                         "invokeOneWayImpl tryAcquire semaphore timeout, %dms, waiting thread nums: %d semaphoreAsyncValue: %d", //
                         timeoutMillis,//
-                        this.semaphoreAsync.getQueueLength(),//
-                        this.semaphoreAsync.availablePermits()//
+                        this.semaphoreOneWay.getQueueLength(),//
+                        this.semaphoreOneWay.availablePermits()//
                 );
                 LOGGER.warn(info);
                 LOGGER.warn(request.toString());
