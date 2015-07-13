@@ -584,6 +584,11 @@ public class MQClientAPIImpl {
             pullStatus = PullStatus.SLAVE_LAG_BEHIND;
             break;
 
+        case ResponseCode.SUBSCRIPTION_NOT_LATEST:
+            log.warn("Response Code: SUBSCRIPTION_NOT_LATEST. Remark: {}", response.getRemark());
+            pullStatus = PullStatus.SUBSCRIPTION_NOT_LATEST;
+            break;
+
         default:
             throw new MQBrokerException(response.getCode(), response.getRemark());
         }

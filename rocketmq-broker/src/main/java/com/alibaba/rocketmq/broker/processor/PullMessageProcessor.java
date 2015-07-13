@@ -229,9 +229,8 @@ public class PullMessageProcessor implements NettyRequestProcessor {
         SubscriptionData subscriptionData = null;
         if (hasSubscriptionFlag) {
             try {
-                subscriptionData =
-                        FilterAPI.buildSubscriptionData(requestHeader.getConsumerGroup(),
-                                requestHeader.getTopic(), requestHeader.getSubscription());
+                subscriptionData = FilterAPI.buildSubscriptionData(requestHeader.getConsumerGroup(),
+                        requestHeader.getTopic(), requestHeader.getSubscription());
             } catch (Exception e) {
                 log.warn("parse the consumer's subscription[{}] failed, group: {}",
                         requestHeader.getSubscription(),//
@@ -241,14 +240,12 @@ public class PullMessageProcessor implements NettyRequestProcessor {
                 return response;
             }
         } else {
-            ConsumerGroupInfo consumerGroupInfo =
-                    this.brokerController.getConsumerManager().getConsumerGroupInfo(
-                            requestHeader.getConsumerGroup());
+            ConsumerGroupInfo consumerGroupInfo = this.brokerController.getConsumerManager().getConsumerGroupInfo(
+                    requestHeader.getConsumerGroup());
             if (null == consumerGroupInfo) {
                 log.warn("the consumer's group info not exist, group: {}", requestHeader.getConsumerGroup());
                 response.setCode(ResponseCode.SUBSCRIPTION_NOT_EXIST);
-                response.setRemark("the consumer's group info not exist"
-                        + FAQUrl.suggestTodo(FAQUrl.SAME_GROUP_DIFFERENT_TOPIC));
+                response.setRemark("the consumer's group info not exist" + FAQUrl.suggestTodo(FAQUrl.SAME_GROUP_DIFFERENT_TOPIC));
                 return response;
             }
 

@@ -43,5 +43,10 @@ public enum PullStatus {
     /**
      * Master broker is down and slaves lag behind.
      */
-    SLAVE_LAG_BEHIND
+    SLAVE_LAG_BEHIND,
+
+    /**
+     * Broker subscription is older than client.
+     */
+    SUBSCRIPTION_NOT_LATEST
 }
