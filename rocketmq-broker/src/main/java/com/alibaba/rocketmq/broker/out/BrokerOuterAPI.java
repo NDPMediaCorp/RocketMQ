@@ -15,12 +15,6 @@
  */
 package com.alibaba.rocketmq.broker.out;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.alibaba.rocketmq.client.exception.MQBrokerException;
 import com.alibaba.rocketmq.common.MixAll;
 import com.alibaba.rocketmq.common.constant.LoggerName;
@@ -46,6 +40,11 @@ import com.alibaba.rocketmq.remoting.exception.RemotingTooMuchRequestException;
 import com.alibaba.rocketmq.remoting.netty.NettyClientConfig;
 import com.alibaba.rocketmq.remoting.netty.NettyRemotingClient;
 import com.alibaba.rocketmq.remoting.protocol.RemotingCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -159,7 +158,6 @@ public class BrokerOuterAPI {
                         .decodeCommandCustomHeader(RegisterBrokerResponseHeader.class);
             RegisterBrokerResult result = new RegisterBrokerResult();
             result.setMasterAddr(responseHeader.getMasterAddr());
-            result.setHaServerAddr(responseHeader.getHaServerAddr());
             result.setHaServerAddr(responseHeader.getHaServerAddr());
             if (response.getBody() != null) {
                 result.setKvTable(KVTable.decode(response.getBody(), KVTable.class));
