@@ -15,6 +15,10 @@
  */
 package com.alibaba.rocketmq.remoting.common;
 
+import com.alibaba.rocketmq.remoting.exception.RemotingConnectException;
+import com.alibaba.rocketmq.remoting.exception.RemotingSendRequestException;
+import com.alibaba.rocketmq.remoting.exception.RemotingTimeoutException;
+import com.alibaba.rocketmq.remoting.protocol.RemotingCommand;
 import io.netty.channel.Channel;
 
 import java.io.IOException;
@@ -22,11 +26,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-
-import com.alibaba.rocketmq.remoting.exception.RemotingConnectException;
-import com.alibaba.rocketmq.remoting.exception.RemotingSendRequestException;
-import com.alibaba.rocketmq.remoting.exception.RemotingTimeoutException;
-import com.alibaba.rocketmq.remoting.protocol.RemotingCommand;
 
 
 /**
@@ -57,12 +56,41 @@ public class RemotingHelper {
 
 
     /**
-     * IP:PORT
+     * IP1,IP2,IP3:PORT
      */
     public static SocketAddress string2SocketAddress(final String addr) {
         String[] s = addr.split(":");
-        InetSocketAddress isa = new InetSocketAddress(s[0], Integer.valueOf(s[1]));
+        InetSocketAddress isa = new InetSocketAddress(filterIP(s[0]), Integer.valueOf(s[1]));
         return isa;
+    }
+
+    public static String filterIP(String ipCSV) {
+        if (!ipCSV.contains(",")) {
+            return ipCSV;
+        } else {
+            String[] ipArray = ipCSV.split(",");
+
+            // First to filter IP of the same subnet
+            for (String ip : ipArray) {
+                for (Subnet subnet : RemotingUtil.CURRENT_HOST_SUBNETS) {
+                    if (subnet.compareAddressToSubnet(ip)) {
+                        return ip;
+                    }
+                }
+            }
+
+            // If not found in the previous step, choose a public IP
+            for (String ip : ipArray) {
+                if (!RemotingUtil.isPrivateIPv4Address(ip)) {
+                    return ip;
+                }
+            }
+
+            // TODO Choose the one that connects faster.
+
+            // Choose the last one for now.
+            return ipArray[ipArray.length - 1];
+        }
     }
 
 

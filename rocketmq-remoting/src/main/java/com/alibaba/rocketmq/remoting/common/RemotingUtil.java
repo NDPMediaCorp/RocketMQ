@@ -23,9 +23,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -35,6 +37,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 
 /**
@@ -76,6 +79,8 @@ public class RemotingUtil {
 
     private static final Subnet[] PRIVATE_SUBNET = new Subnet[PRIVATE_NETWORK_CIDR.length];
 
+    public static final List<Subnet> CURRENT_HOST_SUBNETS = new ArrayList<Subnet>();
+
     static {
         if (OS_NAME != null && OS_NAME.toLowerCase().contains("linux")) {
             isLinuxPlatform = true;
@@ -87,6 +92,24 @@ public class RemotingUtil {
 
         for (int i = 0; i < PRIVATE_NETWORK_CIDR.length; i++) {
             PRIVATE_SUBNET[i] = new Subnet(PRIVATE_NETWORK_CIDR[i]);
+        }
+
+        try {
+            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+            while (networkInterfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = networkInterfaces.nextElement();
+                List<InterfaceAddress> interfaceAddresses = networkInterface.getInterfaceAddresses();
+                for (InterfaceAddress interfaceAddress : interfaceAddresses) {
+                    InetAddress inetAddress = interfaceAddress.getAddress();
+                    if (!inetAddress.isLoopbackAddress() && inetAddress instanceof  Inet4Address) {
+                        CURRENT_HOST_SUBNETS.add(new Subnet(interfaceAddress.getAddress().getHostAddress() + "/"
+                                + interfaceAddress.getNetworkPrefixLength()));
+                    }
+                }
+
+            }
+        } catch (SocketException e) {
+            log.error("", e);
         }
     }
 
@@ -292,5 +315,37 @@ public class RemotingUtil {
                     future.isSuccess());
             }
         });
+    }
+
+    public static List<InetAddress> gatherInetAddresses(boolean onlyIPv4) {
+        List<InetAddress> inetAddressList = new ArrayList<InetAddress>();
+        try {
+            Enumeration<NetworkInterface> networks = NetworkInterface.getNetworkInterfaces();
+            while (networks.hasMoreElements()) {
+                NetworkInterface network = networks.nextElement();
+                Enumeration<InetAddress> addresses = network.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress address = addresses.nextElement();
+                    if (!address.isLoopbackAddress()) {
+                        if (onlyIPv4) {
+                            if (address instanceof Inet4Address) {
+                                inetAddressList.add(address);
+                            }
+                        } else {
+                            inetAddressList.add(address);
+                        }
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            log.error("Error gathering InetAddress", e);
+        }
+
+        return inetAddressList;
+    }
+
+
+    public static void main(String[] args) throws SocketException {
+        System.out.println(RemotingHelper.filterIP("192.168.50.54,8.8.8.8"));
     }
 }
