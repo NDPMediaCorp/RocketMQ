@@ -475,6 +475,10 @@ public class MixAll {
     }
 
     public static<T> String concatenateCollectionToCSV(Collection<T> collection) {
+        if (collection.isEmpty()) {
+            return "";
+        }
+
         StringBuilder sb = new StringBuilder();
         for (T t : collection) {
             sb.append(t).append(",");
