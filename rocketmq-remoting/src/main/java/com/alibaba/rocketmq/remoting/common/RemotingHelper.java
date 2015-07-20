@@ -64,6 +64,12 @@ public class RemotingHelper {
         return isa;
     }
 
+    /**
+     * This method is to preferably choose the first IP that shares the same subnet. If not found in the previous step,
+     * a public IP is chosen then.
+     * @param ipCSV List of IP separated by comma to choose.
+     * @return preferable IP.
+     */
     public static String filterIP(String ipCSV) {
         if (!ipCSV.contains(",")) {
             return ipCSV;
