@@ -140,7 +140,6 @@ public class BrokerOuterAPI {
             RegisterBrokerResult result = new RegisterBrokerResult();
             result.setMasterAddr(responseHeader.getMasterAddr());
             result.setHaServerAddr(responseHeader.getHaServerAddr());
-            result.setHaServerAddr(responseHeader.getHaServerAddr());
             if (response.getBody() != null) {
                 result.setKvTable(KVTable.decode(response.getBody(), KVTable.class));
             }
@@ -169,7 +168,7 @@ public class BrokerOuterAPI {
         if (nameServerAddressList != null) {
             for (String namesrvAddr : nameServerAddressList) {
                 try {
-                    RegisterBrokerResult result = this.registerBroker(namesrvAddr, clusterName, brokerAddr, brokerName,
+                    RegisterBrokerResult result = registerBroker(namesrvAddr, clusterName, brokerAddr, brokerName,
                             brokerId, haServerAddr, topicConfigWrapper, filterServerList);
                     if (result != null) {
                         registerBrokerResult = result;

@@ -473,4 +473,16 @@ public class MixAll {
             throw new RuntimeException("get localhost fail", e);
         }
     }
+
+    public static<T> String concatenateCollectionToCSV(Collection<T> collection) {
+        if (collection.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (T t : collection) {
+            sb.append(t).append(",");
+        }
+        return sb.substring(0, sb.length() - 1);
+    }
 }
