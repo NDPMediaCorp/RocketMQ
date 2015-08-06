@@ -166,7 +166,7 @@ public class UpdateTopicSubCommand implements SubCommand {
                 Set<String> masterSet = CommandUtil.fetchMasterAddrByClusterName(defaultMQAdminExt, clusterName);
 
                 final CountDownLatch countDownLatch = new CountDownLatch(masterSet.size());
-                ExecutorService executorService = Executors.newFixedThreadPool(masterSet.size());
+                ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
                 for (final String address : masterSet) {
                     executorService.submit(new Runnable() {
                         @Override
@@ -181,14 +181,13 @@ public class UpdateTopicSubCommand implements SubCommand {
                                         break;
                                     } catch (Exception e) {
                                         failureCount++;
-                                        System.out.println("Failed to updateTopic against broker[" + address + "] " + failureCount + " time(s), " + (MAX_UPDATE_TOPIC_RETRY - failureCount) + " times left.");
                                     }
                                 }
 
-                                if (!success) {
-                                    System.out.println("Abort updateTopic against broker[" + address + "]");
-                                } else {
+                                if (success) {
                                     System.out.println("updateTopic against broker[" + address + "] succeeded.");
+                                } else {
+                                    System.out.println("Abort updateTopic against broker[" + address + "] after " + MAX_UPDATE_TOPIC_RETRY + " failure trials.");
                                 }
 
                                 countDownLatch.countDown();

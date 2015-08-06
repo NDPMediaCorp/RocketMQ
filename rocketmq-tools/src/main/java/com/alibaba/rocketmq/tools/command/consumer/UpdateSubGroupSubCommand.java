@@ -15,18 +15,20 @@
  */
 package com.alibaba.rocketmq.tools.command.consumer;
 
-import java.util.Set;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-
 import com.alibaba.rocketmq.common.subscription.SubscriptionGroupConfig;
 import com.alibaba.rocketmq.remoting.RPCHook;
 import com.alibaba.rocketmq.srvutil.ServerUtil;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.alibaba.rocketmq.tools.command.CommandUtil;
 import com.alibaba.rocketmq.tools.command.SubCommand;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -36,6 +38,8 @@ import com.alibaba.rocketmq.tools.command.SubCommand;
  * @since 2013-7-21
  */
 public class UpdateSubGroupSubCommand implements SubCommand {
+
+    private static final int MAX_RETRY_TIMES = 5;
 
     @Override
     public String commandName() {
@@ -97,12 +101,12 @@ public class UpdateSubGroupSubCommand implements SubCommand {
 
     @Override
     public void execute(final CommandLine commandLine, final Options options, RPCHook rpcHook) {
-        DefaultMQAdminExt defaultMQAdminExt = new DefaultMQAdminExt(rpcHook);
+        final DefaultMQAdminExt defaultMQAdminExt = new DefaultMQAdminExt(rpcHook);
 
         defaultMQAdminExt.setInstanceName(Long.toString(System.currentTimeMillis()));
 
         try {
-            SubscriptionGroupConfig subscriptionGroupConfig = new SubscriptionGroupConfig();
+            final SubscriptionGroupConfig subscriptionGroupConfig = new SubscriptionGroupConfig();
             subscriptionGroupConfig.setConsumeBroadcastEnable(false);
             subscriptionGroupConfig.setConsumeFromMinEnable(false);
 
@@ -160,19 +164,47 @@ public class UpdateSubGroupSubCommand implements SubCommand {
                 System.out.println(subscriptionGroupConfig);
                 return;
 
-            }
-            else if (commandLine.hasOption('c')) {
+            } else if (commandLine.hasOption('c')) {
                 String clusterName = commandLine.getOptionValue('c').trim();
 
                 defaultMQAdminExt.start();
 
-                Set<String> masterSet =
-                        CommandUtil.fetchMasterAddrByClusterName(defaultMQAdminExt, clusterName);
-                for (String addr : masterSet) {
-                    defaultMQAdminExt.createAndUpdateSubscriptionGroupConfig(addr, subscriptionGroupConfig);
-                    System.out.printf("create subscription group to %s success.\n", addr);
+                Set<String> masterSet = CommandUtil.fetchMasterAddrByClusterName(defaultMQAdminExt, clusterName);
+                final CountDownLatch countDownLatch = new CountDownLatch(masterSet.size());
+                ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+                for (final String addr : masterSet) {
+                    executorService.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                int failureCount = 0;
+                                boolean successful = false;
+                                while (failureCount < MAX_RETRY_TIMES) {
+                                    try {
+                                        defaultMQAdminExt.createAndUpdateSubscriptionGroupConfig(addr, subscriptionGroupConfig);
+                                        successful = true;
+                                        break;
+                                    } catch (Exception e) {
+                                        failureCount++;
+                                    }
+                                }
+
+                                if (successful) {
+                                    System.out.printf("create subscription group to %s success.\n", addr);
+                                } else {
+                                    System.out.println("Abort execute updateSubGroup against broker[" + addr + "] after " + MAX_RETRY_TIMES + " failure trials.");
+                                }
+                                countDownLatch.countDown();
+                            } catch (Exception e) {
+                                //Ignore.
+                            }
+                        }
+                    });
                 }
+                countDownLatch.await();
                 System.out.println(subscriptionGroupConfig);
+                executorService.shutdown();
                 return;
             }
 
