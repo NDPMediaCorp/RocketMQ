@@ -15,9 +15,12 @@
  */
 package com.alibaba.rocketmq.tools.command.topic;
 
+import com.alibaba.rocketmq.client.exception.MQBrokerException;
+import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.common.TopicConfig;
 import com.alibaba.rocketmq.common.sysflag.TopicSysFlag;
 import com.alibaba.rocketmq.remoting.RPCHook;
+import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.alibaba.rocketmq.srvutil.ServerUtil;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.alibaba.rocketmq.tools.command.CommandUtil;
@@ -147,41 +150,59 @@ public class UpdateTopicSubCommand implements SubCommand {
                     String brokerName = CommandUtil.fetchBrokerNameByAddr(defaultMQAdminExt, addr);
                     String orderConf = brokerName + ":" + topicConfig.getWriteQueueNums();
                     defaultMQAdminExt.createOrUpdateOrderConf(topicConfig.getTopicName(), orderConf, false);
-                    System.out.println(String.format("set broker orderConf. isOrder=%s, orderConf=[%s]",
-                        isOrder, orderConf));
+                    System.out.println(String.format("set broker orderConf. isOrder=%s, orderConf=[%s]", isOrder, orderConf));
                 }
                 System.out.printf("create topic to %s success.\n", addr);
                 System.out.println(topicConfig);
                 return;
 
-            }
-            else if (commandLine.hasOption('c')) {
+            } else if (commandLine.hasOption('c')) {
                 String clusterName = commandLine.getOptionValue('c').trim();
 
                 defaultMQAdminExt.start();
 
-                Set<String> masterSet =
-                        CommandUtil.fetchMasterAddrByClusterName(defaultMQAdminExt, clusterName);
+                Set<String> masterSet = CommandUtil.fetchMasterAddrByClusterName(defaultMQAdminExt, clusterName);
+                int failureCount = 0;
+                StringBuilder stringBuilder = new StringBuilder();
                 for (String addr : masterSet) {
-                    defaultMQAdminExt.createAndUpdateTopicConfig(addr, topicConfig);
-                    System.out.printf("create topic to %s success.\n", addr);
+                    try {
+                        defaultMQAdminExt.createAndUpdateTopicConfig(addr, topicConfig);
+                        System.out.printf("create topic to %s success.\n", addr);
+                    } catch (RemotingException e) {
+                        failureCount++;
+                        stringBuilder.append(addr).append(";");
+                        e.printStackTrace();
+                    } catch (MQBrokerException e) {
+                        failureCount++;
+                        stringBuilder.append(addr).append(";");
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        failureCount++;
+                        stringBuilder.append(addr).append(";");
+                        e.printStackTrace();
+                    } catch (MQClientException e) {
+                        failureCount++;
+                        stringBuilder.append(addr).append(";");
+                        e.printStackTrace();
+                    }
+                }
+
+                if (failureCount > 0) {
+                    System.out.println("Apply updateTopic command to the following broker(s) failed: ");
+                    System.out.println(stringBuilder.toString());
                 }
 
                 if (isOrder) {
                     // 注册顺序消息到 nameserver
-                    Set<String> brokerNameSet =
-                            CommandUtil.fetchBrokerNameByClusterName(defaultMQAdminExt, clusterName);
+                    Set<String> brokerNameSet = CommandUtil.fetchBrokerNameByClusterName(defaultMQAdminExt, clusterName);
                     StringBuilder orderConf = new StringBuilder();
-                    String splitor = "";
+                    String splitter = "";
                     for (String s : brokerNameSet) {
-                        orderConf.append(splitor).append(s).append(":")
-                            .append(topicConfig.getWriteQueueNums());
-                        splitor = ";";
+                        orderConf.append(splitter).append(s).append(":").append(topicConfig.getWriteQueueNums());
+                        splitter = ";";
                     }
-                    defaultMQAdminExt.createOrUpdateOrderConf(topicConfig.getTopicName(),
-                        orderConf.toString(), true);
-                    System.out.println(String.format("set cluster orderConf. isOrder=%s, orderConf=[%s]",
-                        isOrder, orderConf.toString()));
+                    defaultMQAdminExt.createOrUpdateOrderConf(topicConfig.getTopicName(), orderConf.toString(), true);
+                    System.out.println(String.format("set cluster orderConf. isOrder=%s, orderConf=[%s]", true, orderConf.toString()));
                 }
 
                 System.out.println(topicConfig);
