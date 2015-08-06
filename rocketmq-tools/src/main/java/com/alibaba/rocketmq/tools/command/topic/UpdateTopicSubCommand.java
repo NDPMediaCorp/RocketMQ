@@ -15,12 +15,9 @@
  */
 package com.alibaba.rocketmq.tools.command.topic;
 
-import com.alibaba.rocketmq.client.exception.MQBrokerException;
-import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.common.TopicConfig;
 import com.alibaba.rocketmq.common.sysflag.TopicSysFlag;
 import com.alibaba.rocketmq.remoting.RPCHook;
-import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.alibaba.rocketmq.srvutil.ServerUtil;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.alibaba.rocketmq.tools.command.CommandUtil;
@@ -30,6 +27,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -51,6 +51,8 @@ public class UpdateTopicSubCommand implements SubCommand {
         return "Update or create topic";
     }
 
+
+    private static final int MAX_UPDATE_TOPIC_RETRY = 5;
 
     @Override
     public Options buildCommandlineOptions(Options options) {
@@ -96,11 +98,11 @@ public class UpdateTopicSubCommand implements SubCommand {
 
     @Override
     public void execute(final CommandLine commandLine, final Options options, RPCHook rpcHook) {
-        DefaultMQAdminExt defaultMQAdminExt = new DefaultMQAdminExt(rpcHook);
+        final DefaultMQAdminExt defaultMQAdminExt = new DefaultMQAdminExt(rpcHook);
         defaultMQAdminExt.setInstanceName(Long.toString(System.currentTimeMillis()));
 
         try {
-            TopicConfig topicConfig = new TopicConfig();
+            final TopicConfig topicConfig = new TopicConfig();
             topicConfig.setReadQueueNums(8);
             topicConfig.setWriteQueueNums(8);
             topicConfig.setTopicName(commandLine.getOptionValue('t').trim());
@@ -150,7 +152,7 @@ public class UpdateTopicSubCommand implements SubCommand {
                     String brokerName = CommandUtil.fetchBrokerNameByAddr(defaultMQAdminExt, addr);
                     String orderConf = brokerName + ":" + topicConfig.getWriteQueueNums();
                     defaultMQAdminExt.createOrUpdateOrderConf(topicConfig.getTopicName(), orderConf, false);
-                    System.out.println(String.format("set broker orderConf. isOrder=%s, orderConf=[%s]", isOrder, orderConf));
+                    System.out.println(String.format("set broker orderConf. isOrder=%s, orderConf=[%s]", true, orderConf));
                 }
                 System.out.printf("create topic to %s success.\n", addr);
                 System.out.println(topicConfig);
@@ -162,35 +164,44 @@ public class UpdateTopicSubCommand implements SubCommand {
                 defaultMQAdminExt.start();
 
                 Set<String> masterSet = CommandUtil.fetchMasterAddrByClusterName(defaultMQAdminExt, clusterName);
-                int failureCount = 0;
-                StringBuilder stringBuilder = new StringBuilder();
-                for (String addr : masterSet) {
-                    try {
-                        defaultMQAdminExt.createAndUpdateTopicConfig(addr, topicConfig);
-                        System.out.printf("create topic to %s success.\n", addr);
-                    } catch (RemotingException e) {
-                        failureCount++;
-                        stringBuilder.append(addr).append(";");
-                        e.printStackTrace();
-                    } catch (MQBrokerException e) {
-                        failureCount++;
-                        stringBuilder.append(addr).append(";");
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        failureCount++;
-                        stringBuilder.append(addr).append(";");
-                        e.printStackTrace();
-                    } catch (MQClientException e) {
-                        failureCount++;
-                        stringBuilder.append(addr).append(";");
-                        e.printStackTrace();
-                    }
+
+                final CountDownLatch countDownLatch = new CountDownLatch(masterSet.size());
+                ExecutorService executorService = Executors.newFixedThreadPool(masterSet.size());
+                for (final String address : masterSet) {
+                    executorService.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                int failureCount = 0;
+                                boolean success = false;
+                                while (failureCount < MAX_UPDATE_TOPIC_RETRY) {
+                                    try {
+                                        defaultMQAdminExt.createAndUpdateTopicConfig(address, topicConfig);
+                                        success = true;
+                                        break;
+                                    } catch (Exception e) {
+                                        failureCount++;
+                                        System.out.println("Failed to updateTopic against broker[" + address + "] " + failureCount + " time(s), " + (MAX_UPDATE_TOPIC_RETRY - failureCount) + " times left.");
+                                    }
+                                }
+
+                                if (!success) {
+                                    System.out.println("Abort updateTopic against broker[" + address + "]");
+                                } else {
+                                    System.out.println("updateTopic against broker[" + address + "] succeeded.");
+                                }
+
+                                countDownLatch.countDown();
+                            } catch (Exception e) {
+                                //Ignore.
+                            }
+                        }
+                    });
                 }
 
-                if (failureCount > 0) {
-                    System.out.println("Apply updateTopic command to the following broker(s) failed: ");
-                    System.out.println(stringBuilder.toString());
-                }
+                countDownLatch.await();
+
+                executorService.shutdown();
 
                 if (isOrder) {
                     // 注册顺序消息到 nameserver
