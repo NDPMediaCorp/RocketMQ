@@ -89,12 +89,7 @@ public class DeleteSubscriptionGroupCommand implements SubCommand {
                 adminExt.start();
 
                 Set<String> masterSet = CommandUtil.fetchMasterAddrByClusterName(adminExt, clusterName);
-                for (String master : masterSet) {
-                    adminExt.deleteSubscriptionGroup(master, groupName);
-                    System.out.printf(
-                        "delete subscription group [%s] from broker [%s] in cluster [%s] success.\n",
-                        groupName, master, clusterName);
-                }
+                delete(adminExt, masterSet, groupName, clusterName);
 
                 // 删除%RETRY%打头的Topic
                 try {
@@ -115,6 +110,27 @@ public class DeleteSubscriptionGroupCommand implements SubCommand {
         }
         finally {
             adminExt.shutdown();
+        }
+    }
+
+    private static void delete(DefaultMQAdminExt adminExt, Set<String> masterSet, String groupName, String clusterName){
+        for (String master : masterSet) {
+            int failCount = 0;
+            while (failCount < 5) {
+                try {
+                    adminExt.deleteSubscriptionGroup(master, groupName);
+                    System.out.printf(
+                            "delete subscription group [%s] from broker [%s] in cluster [%s] success.\n",
+                            groupName, master, clusterName);
+                    break;
+                } catch (Exception e) {
+                    failCount++;
+                }
+
+                System.out.printf(
+                        "delete subscription group [%s] from broker [%s] in cluster [%s] failed.\n",
+                        groupName, master, clusterName);
+            }
         }
     }
 }
