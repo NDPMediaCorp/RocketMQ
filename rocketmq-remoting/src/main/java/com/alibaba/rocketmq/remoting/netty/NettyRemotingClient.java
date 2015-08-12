@@ -136,61 +136,77 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
             return false;
         }
 
-        public Channel createChannel() throws InterruptedException {
-            ChannelFuture channelFuture = null;
-            if (lock.tryLock() || lock.tryLock(LockTimeoutMillis, TimeUnit.MILLISECONDS)) {
-                try {
+        public Channel createChannel() {
+
+            if (!allowedToCreateChannel()) {
+                return getChannel();
+            }
+
+            try {
+                ChannelFuture channelFuture = null;
+                if (lock.tryLock() || lock.tryLock(LockTimeoutMillis, TimeUnit.MILLISECONDS)) {
                     if (!allowedToCreateChannel()) {
                         return getChannel();
                     }
 
-                    channelFuture = bootstrap.connect(RemotingHelper.string2SocketAddress(address));
-                    log.info("createChannel: begin to connect remote host[{}] asynchronously", address);
-                    ChannelWrapper channelWrapper = new ChannelWrapper(channelFuture);
-                    ++parallelism;
-                    channelWrappers.add(channelWrapper);
-                } finally {
-                    lock.unlock();
-                }
-            } else {
-                log.warn("createChannel: try to lock composite channel, but timeout, {}ms", LockTimeoutMillis);
-            }
-
-            if (null != channelFuture) {
-                if (channelFuture.awaitUninterruptibly(nettyClientConfig.getConnectTimeoutMillis(), TimeUnit.MILLISECONDS)) {
-                    if (null != channelFuture.channel() && channelFuture.channel().isActive()) {
-                        log.info("createChannel: connect remote host[{}] success, {}", address, channelFuture.toString());
-                        return channelFuture.channel();
+                    try {
+                        channelFuture = bootstrap.connect(RemotingHelper.string2SocketAddress(address));
+                        log.info("createChannel: begin to connect remote host[{}] asynchronously", address);
+                        ChannelWrapper channelWrapper = new ChannelWrapper(channelFuture);
+                        ++parallelism;
+                        channelWrappers.add(channelWrapper);
+                    } finally {
+                        lock.unlock();
                     }
                 } else {
-                    log.warn("createChannel: connect remote host[" + address + "] failed, " + channelFuture.toString(), channelFuture.cause());
+                    log.warn("createChannel: try to lock composite channel, but timeout, {}ms", LockTimeoutMillis);
                 }
-            }
 
+                if (null != channelFuture) {
+                    if (channelFuture.awaitUninterruptibly(nettyClientConfig.getConnectTimeoutMillis(), TimeUnit.MILLISECONDS)) {
+                        if (null != channelFuture.channel() && channelFuture.channel().isActive()) {
+                            log.info("createChannel: connect remote host[{}] success, {}", address, channelFuture.toString());
+                            return channelFuture.channel();
+                        }
+                    } else {
+                        log.warn("createChannel: connect remote host[" + address + "] failed, " + channelFuture.toString(), channelFuture.cause());
+                    }
+                }
+            } catch (InterruptedException e) {
+                log.error("Try to lock composite channel time out.", e);
+            }
             return null;
         }
 
-        public boolean closeChannel(Channel channel) throws InterruptedException {
+        public boolean closeChannel(Channel channel) {
             if (parallelism <= 0) {
                 return false;
             }
+            try {
+                if (lock.tryLock() || lock.tryLock(LockTimeoutMillis, TimeUnit.MILLISECONDS)) {
 
-            if (lock.tryLock() || lock.tryLock(LockTimeoutMillis, TimeUnit.MILLISECONDS)) {
-                try {
-                    Iterator<ChannelWrapper> iterator = channelWrappers.iterator();
-                    ChannelWrapper channelWrapper;
-                    while (iterator.hasNext()) {
-                        channelWrapper = iterator.next();
-                        if (null != channelWrapper && channelWrapper.getChannel() == channel) {
-                            iterator.remove();
-                            RemotingUtil.closeChannel(channel);
-                            --parallelism;
-                            return true;
-                        }
+                    if (parallelism <= 0) {
+                        return false;
                     }
-                } finally {
-                    lock.unlock();
+
+                    try {
+                        Iterator<ChannelWrapper> iterator = channelWrappers.iterator();
+                        ChannelWrapper channelWrapper;
+                        while (iterator.hasNext()) {
+                            channelWrapper = iterator.next();
+                            if (null != channelWrapper && channelWrapper.getChannel() == channel) {
+                                iterator.remove();
+                                RemotingUtil.closeChannel(channel);
+                                --parallelism;
+                                return true;
+                            }
+                        }
+                    } finally {
+                        lock.unlock();
+                    }
                 }
+            } catch (InterruptedException e) {
+                log.error("Try to lock composite channel timeout.", e);
             }
             return false;
         }
@@ -215,11 +231,23 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
         }
 
         public Channel getChannel() {
+
             if (1 == parallelism) {
                 return channelWrappers.get(0).getChannel();
             }
 
-            return channelWrappers.get((int) (Math.abs(channelSequencer.getAndIncrement()) % channelWrappers.size())).getChannel();
+            if (allowedToCreateChannel()) {
+                return createChannel();
+            }
+
+            ChannelWrapper channelWrapper = channelWrappers.get((int) (Math.abs(channelSequencer.getAndIncrement()) % channelWrappers.size()));
+
+            if (channelWrapper.isOK()) {
+                return channelWrapper.getChannel();
+            } else {
+                closeChannel(channelWrapper.getChannel());
+                return createChannel();
+            }
         }
 
         public int getParallelism() {
@@ -527,27 +555,27 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
     }
 
 
-    private Channel getAndCreateChannel(final String addr, int parallelism) throws InterruptedException {
-        if (null == addr) {
-            return getAndCreateNameserverChannel();
+    private Channel getAndCreateChannel(final String address, int parallelism) throws InterruptedException {
+        if (null == address) {
+            return getAndCreateNameServerChannel();
         }
 
-        CompositeChannel compositeChannel = this.channelTables.get(addr);
+        CompositeChannel compositeChannel = this.channelTables.get(address);
         if (compositeChannel == null || compositeChannel.allowedToCreateChannel()) {
-            return createChannel(addr, parallelism);
+            return createChannel(address, parallelism);
         }
 
         return compositeChannel.getChannel();
     }
 
 
-    private Channel getAndCreateNameserverChannel() throws InterruptedException {
-        String addr = this.namesrvAddrChosen.get();
-        if (addr != null) {
-            CompositeChannel compositeChannel = channelTables.get(addr);
+    private Channel getAndCreateNameServerChannel() throws InterruptedException {
+        String address = this.namesrvAddrChosen.get();
+        if (address != null) {
+            CompositeChannel compositeChannel = channelTables.get(address);
             if (null == compositeChannel) {
-                compositeChannel = new CompositeChannel(addr, 1);
-                if (null == channelTables.putIfAbsent(addr, compositeChannel)) {
+                compositeChannel = new CompositeChannel(address, 1);
+                if (null == channelTables.putIfAbsent(address, compositeChannel)) {
                     return compositeChannel.createChannel();
                 }
             } else {
@@ -559,22 +587,22 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
             }
         }
 
-        final List<String> addrList = this.namesrvAddrList.get();
+        final List<String> addressList = this.namesrvAddrList.get();
         try {
-            if (addrList != null && !addrList.isEmpty()) {
-                for (int i = 0; i < addrList.size(); i++) {
+            if (addressList != null && !addressList.isEmpty()) {
+                for (int i = 0; i < addressList.size(); i++) {
                     int index = this.namesrvIndex.incrementAndGet();
                     index = Math.abs(index);
-                    index = index % addrList.size();
-                    String newAddr = addrList.get(index);
+                    index = index % addressList.size();
+                    String newAddr = addressList.get(index);
                     if (null != newAddr && !newAddr.isEmpty()) {
                         this.namesrvAddrChosen.set(newAddr);
-                        return getAndCreateNameserverChannel();
+                        return getAndCreateNameServerChannel();
                     }
                 }
             }
         } catch (Exception e) {
-            log.error("getAndCreateNameserverChannel: create name server channel exception", e);
+            log.error("getAndCreateNameServerChannel: create name server channel exception", e);
         }
 
         return null;
@@ -607,11 +635,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
 
         final CompositeChannel compositeChannel = this.channelTables.get(addrRemote);
         if (null != compositeChannel) {
-            try {
-                compositeChannel.closeChannel(channel);
-            } catch (InterruptedException e) {
-                log.error("closeChannel exception", e);
-            }
+            compositeChannel.closeChannel(channel);
         }
     }
 
