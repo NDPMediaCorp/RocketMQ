@@ -222,30 +222,6 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
             return channelWrappers.get((int) (Math.abs(channelSequencer.getAndIncrement()) % channelWrappers.size())).getChannel();
         }
 
-        public void selfCheck() {
-            Iterator<ChannelWrapper> iterator = channelWrappers.iterator();
-            while (iterator.hasNext()) {
-                ChannelWrapper channelWrapper = iterator.next();
-                if (channelWrapper.isOK()) {
-                    continue;
-                }
-
-                ChannelFuture channelFuture = channelWrapper.getChannelFuture();
-                if (!channelFuture.isDone()) {
-                    continue;
-                }
-
-                lock.lock();
-                try {
-                    RemotingUtil.closeChannel(channelWrapper.getChannel());
-                    iterator.remove();
-                    --parallelism;
-                } finally {
-                    lock.unlock();
-                }
-            }
-        }
-
         public int getParallelism() {
             return parallelism;
         }
@@ -255,12 +231,17 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
         }
 
         public void close() {
-            Iterator<ChannelWrapper> iterator = channelWrappers.iterator();
-            while (iterator.hasNext()) {
-                ChannelWrapper channelWrapper = iterator.next();
-                channelWrapper.close();
-                iterator.remove();
-                --parallelism;
+            lock.lock();
+            try {
+                Iterator<ChannelWrapper> iterator = channelWrappers.iterator();
+                while (iterator.hasNext()) {
+                    ChannelWrapper channelWrapper = iterator.next();
+                    channelWrapper.close();
+                    iterator.remove();
+                    --parallelism;
+                }
+            } finally {
+                lock.unlock();
             }
         }
 
@@ -546,14 +527,14 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
     }
 
 
-    private Channel getAndCreateChannel(final String addr) throws InterruptedException {
+    private Channel getAndCreateChannel(final String addr, int parallelism) throws InterruptedException {
         if (null == addr) {
             return getAndCreateNameserverChannel();
         }
 
         CompositeChannel compositeChannel = this.channelTables.get(addr);
         if (compositeChannel == null || compositeChannel.allowedToCreateChannel()) {
-            return createChannel(addr);
+            return createChannel(addr, parallelism);
         }
 
         return compositeChannel.getChannel();
@@ -600,11 +581,11 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
     }
 
 
-    private Channel createChannel(final String addr) throws InterruptedException {
+    private Channel createChannel(final String addr, int parallelism) throws InterruptedException {
         CompositeChannel compositeChannel = this.channelTables.get(addr);
 
         if (null == compositeChannel) {
-            compositeChannel = new CompositeChannel(addr, 1); //TODO make connection number a parameter.
+            compositeChannel = new CompositeChannel(addr, parallelism);
             if (null != channelTables.putIfAbsent(addr, compositeChannel)) {
                 compositeChannel = channelTables.get(addr);
             }
@@ -685,7 +666,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
     public RemotingCommand invokeSync(String addr, final RemotingCommand request, long timeoutMillis)
             throws InterruptedException, RemotingConnectException, RemotingSendRequestException,
             RemotingTimeoutException {
-        final Channel channel = this.getAndCreateChannel(addr);
+        final Channel channel = this.getAndCreateChannel(addr, nettyClientConfig.getParallelism());
         if (channel != null && channel.isActive()) {
             try {
                 if (this.rpcHook != null) {
@@ -717,7 +698,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
     public void invokeAsync(String addr, RemotingCommand request, long timeoutMillis,
                             InvokeCallback invokeCallback) throws InterruptedException, RemotingConnectException,
             RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException {
-        final Channel channel = this.getAndCreateChannel(addr);
+        final Channel channel = this.getAndCreateChannel(addr, nettyClientConfig.getParallelism());
         if (channel != null && channel.isActive()) {
             try {
                 if (this.rpcHook != null) {
@@ -740,7 +721,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
     public void invokeOneWay(String addr, RemotingCommand request, long timeoutMillis)
             throws InterruptedException, RemotingConnectException, RemotingTooMuchRequestException,
             RemotingTimeoutException, RemotingSendRequestException {
-        final Channel channel = this.getAndCreateChannel(addr);
+        final Channel channel = this.getAndCreateChannel(addr, nettyClientConfig.getParallelism());
         if (channel != null && channel.isActive()) {
             try {
                 if (this.rpcHook != null) {
@@ -831,6 +812,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
         if (compositeChannel != null && compositeChannel.isOK()) {
             return compositeChannel.isWritable();
         }
-        return true;
+
+        return false;
     }
 }
