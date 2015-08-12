@@ -22,10 +22,22 @@ import com.alibaba.rocketmq.remoting.RemotingClient;
 import com.alibaba.rocketmq.remoting.common.Pair;
 import com.alibaba.rocketmq.remoting.common.RemotingHelper;
 import com.alibaba.rocketmq.remoting.common.RemotingUtil;
-import com.alibaba.rocketmq.remoting.exception.*;
+import com.alibaba.rocketmq.remoting.exception.RemotingConnectException;
+import com.alibaba.rocketmq.remoting.exception.RemotingSendRequestException;
+import com.alibaba.rocketmq.remoting.exception.RemotingTimeoutException;
+import com.alibaba.rocketmq.remoting.exception.RemotingTooMuchRequestException;
+import com.alibaba.rocketmq.remoting.exception.SSLContextCreationException;
 import com.alibaba.rocketmq.remoting.protocol.RemotingCommand;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPromise;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -38,20 +50,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
  * Remoting客户端实现
  *
- * @author shijia.wxr<vintage.wang@gmail.com>
+ * <p>
+ *     Version 1.1 change note:
+ *     <ul>Refactor to support of multiple connections between one client and one broker.</ul>
+ * </p>
+ *
+ * @author shijia.wxr<vintage.wang@gmail.com>, lizhanhui
  * @since 2013-7-13
+ * @version 1.1
  */
 public class NettyRemotingClient extends NettyRemotingAbstract implements RemotingClient {
     private static final Logger log = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
@@ -72,7 +99,6 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
     private final AtomicReference<List<String>> namesrvAddrList = new AtomicReference<List<String>>();
     private final AtomicReference<String> namesrvAddrChosen = new AtomicReference<String>();
     private final AtomicInteger namesrvIndex = new AtomicInteger(initValueIndex());
-    private final Lock lockNamesrvChannel = new ReentrantLock();
 
     // 处理Callback应答器
     private final ExecutorService publicExecutor;
@@ -108,17 +134,6 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
             }
 
             return false;
-        }
-
-        public void addChannelWrapper(ChannelWrapper channelWrapper) throws InterruptedException {
-            if (lock.tryLock() || lock.tryLock(LockTimeoutMillis, TimeUnit.MILLISECONDS)) {
-                try {
-                    channelWrappers.add(channelWrapper);
-                    ++parallelism;
-                } finally {
-                    lock.unlock();
-                }
-            }
         }
 
         public Channel createChannel() throws InterruptedException {
@@ -204,7 +219,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
                 return channelWrappers.get(0).getChannel();
             }
 
-            return channelWrappers.get((int) (channelSequencer.getAndIncrement() % channelWrappers.size())).getChannel();
+            return channelWrappers.get((int) (Math.abs(channelSequencer.getAndIncrement()) % channelWrappers.size())).getChannel();
         }
 
         public void selfCheck() {
@@ -548,45 +563,37 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
     private Channel getAndCreateNameserverChannel() throws InterruptedException {
         String addr = this.namesrvAddrChosen.get();
         if (addr != null) {
-            CompositeChannel cw = this.channelTables.get(addr);
-            if (cw != null && cw.isOK()) {
-                return cw.getChannel();
+            CompositeChannel compositeChannel = channelTables.get(addr);
+            if (null == compositeChannel) {
+                compositeChannel = new CompositeChannel(addr, 1);
+                if (null == channelTables.putIfAbsent(addr, compositeChannel)) {
+                    return compositeChannel.createChannel();
+                }
+            } else {
+                if (compositeChannel.allowedToCreateChannel()) {
+                    return compositeChannel.createChannel();
+                } else {
+                    return compositeChannel.getChannel();
+                }
             }
         }
 
         final List<String> addrList = this.namesrvAddrList.get();
-        // 加锁，尝试创建连接
-        if (this.lockNamesrvChannel.tryLock(LockTimeoutMillis, TimeUnit.MILLISECONDS)) {
-            try {
-                addr = this.namesrvAddrChosen.get();
-                if (addr != null) {
-                    CompositeChannel compositeChannel = this.channelTables.get(addr);
-                    if (compositeChannel != null && compositeChannel.isOK()) {
-                        return compositeChannel.getChannel();
-                    }
-                }
-
-                if (addrList != null && !addrList.isEmpty()) {
-                    for (int i = 0; i < addrList.size(); i++) {
-                        int index = this.namesrvIndex.incrementAndGet();
-                        index = Math.abs(index);
-                        index = index % addrList.size();
-                        String newAddr = addrList.get(index);
-
+        try {
+            if (addrList != null && !addrList.isEmpty()) {
+                for (int i = 0; i < addrList.size(); i++) {
+                    int index = this.namesrvIndex.incrementAndGet();
+                    index = Math.abs(index);
+                    index = index % addrList.size();
+                    String newAddr = addrList.get(index);
+                    if (null != newAddr && !newAddr.isEmpty()) {
                         this.namesrvAddrChosen.set(newAddr);
-                        Channel channelNew = this.createChannel(newAddr);
-                        if (channelNew != null)
-                            return channelNew;
+                        return getAndCreateNameserverChannel();
                     }
                 }
-            } catch (Exception e) {
-                log.error("getAndCreateNameserverChannel: create name server channel exception", e);
-            } finally {
-                this.lockNamesrvChannel.unlock();
             }
-        } else {
-            log.warn("getAndCreateNameserverChannel: try to lock name server, but timeout, {}ms",
-                    LockTimeoutMillis);
+        } catch (Exception e) {
+            log.error("getAndCreateNameserverChannel: create name server channel exception", e);
         }
 
         return null;
