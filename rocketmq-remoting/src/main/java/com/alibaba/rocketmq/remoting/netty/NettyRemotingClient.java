@@ -29,6 +29,7 @@ import com.alibaba.rocketmq.remoting.exception.RemotingTooMuchRequestException;
 import com.alibaba.rocketmq.remoting.exception.SSLContextCreationException;
 import com.alibaba.rocketmq.remoting.protocol.RemotingCommand;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFuture;
@@ -467,7 +468,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
                     }
                 });
 
-        Bootstrap handler = this.bootstrap.group(this.eventLoopGroupWorker).channel(NioSocketChannel.class)//
+        final Bootstrap handler = this.bootstrap.group(this.eventLoopGroupWorker).channel(NioSocketChannel.class)//
                 //
                 .option(ChannelOption.TCP_NODELAY, true)
                         //
@@ -500,6 +501,11 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
                         }
                     }
                 });
+
+        if (nettyClientConfig.isClientPooledByteBufAllocatorEnable()) {
+            // 这个选项有可能会占用大量堆外内存，暂时不使用。
+            handler.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+        }
 
         // 每隔1秒扫描下异步调用超时情况
         this.timer.scheduleAtFixedRate(new TimerTask() {
