@@ -24,8 +24,10 @@ public class DelayTask implements Runnable {
     public void run() {
         try {
             LOGGER.info("Start re-consume messages");
-            if (cacheableConsumer.getMessageQueue().remainingCapacity() == 0) {
-                LOGGER.warn("Message queue is full. Won't fetch message from local message store.");
+
+            if (cacheableConsumer.getMessageQueue().remainingCapacity()
+                    < 4 * cacheableConsumer.getMaximumPoolSizeForWorkTasks()) {
+                LOGGER.info("Client message queue is almost full, skip popping message from local message store.");
                 return;
             }
 
@@ -65,5 +67,7 @@ public class DelayTask implements Runnable {
         } catch (Exception e) {
             LOGGER.error("DelayTask error", e);
         }
+
+        LOGGER.info("Re-consume completes.");
     }
 }

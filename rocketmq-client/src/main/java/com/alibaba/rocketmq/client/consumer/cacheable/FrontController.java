@@ -38,7 +38,12 @@ public class FrontController implements MessageListenerConcurrently {
             if (null != message) {
                 try {
                     cacheableConsumer.getMessageQueue().put(message);
-                } catch (Exception e) {
+
+                    if (cacheableConsumer.getMessageQueue().remainingCapacity()
+                            < cacheableConsumer.getMaximumPoolSizeForWorkTasks() * 4) {
+                        cacheableConsumer.suspend();
+                    }
+                } catch (InterruptedException e) {
                     LOGGER.error("Failed to put message into message queue", e);
                     return ConsumeConcurrentlyStatus.RECONSUME_LATER;
                 }

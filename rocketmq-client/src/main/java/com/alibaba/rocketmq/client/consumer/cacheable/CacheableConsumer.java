@@ -42,7 +42,7 @@ public class CacheableConsumer {
 
     private List<DefaultMQPushConsumer> defaultMQPushConsumers = new ArrayList<DefaultMQPushConsumer>();
 
-    private ClientStatus status = ClientStatus.CREATED;
+    private volatile ClientStatus status = ClientStatus.CREATED;
 
     private MessageModel messageModel = MessageModel.CLUSTERING;
 
@@ -66,6 +66,9 @@ public class CacheableConsumer {
 
     private ScheduledExecutorService scheduledExecutorDelayService =
             Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl("LocalDelayConsumeService"));
+
+    private ScheduledExecutorService scheduledExecutorStatusService =
+            Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl("StatusService"));
 
     private ThreadPoolExecutor executorWorkerService;
 
@@ -230,10 +233,27 @@ public class CacheableConsumer {
             defaultMQPushConsumer.registerMessageListener(frontController);
             defaultMQPushConsumer.start();
         }
+
+        maintainStatus();
+
         startPopThread();
         addShutdownHook();
         status = ClientStatus.ACTIVE;
         LOGGER.debug("DefaultMQPushConsumer starts.");
+    }
+
+    private void maintainStatus() {
+        scheduledExecutorStatusService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                if (ClientStatus.SUSPENDED == status) {
+                    if (messageQueue.remainingCapacity() > 4 * maximumPoolSizeForWorkTasks) {
+                        resume();
+                        LOGGER.info("Activate client to resume receiving message from broker.");
+                    }
+                }
+            }
+        }, 1000, 100, TimeUnit.MILLISECONDS);
     }
 
     private void addShutdownHook() {
@@ -456,11 +476,19 @@ public class CacheableConsumer {
 
     public void resume() {
         if (ClientStatus.SUSPENDED == status) {
-            status = ClientStatus.ACTIVE;
             localMessageStore.resume();
             for (DefaultMQPushConsumer defaultMQPushConsumer : defaultMQPushConsumers) {
                 defaultMQPushConsumer.resume();
             }
+            status = ClientStatus.ACTIVE;
         }
+    }
+
+    public int getMaximumPoolSizeForWorkTasks() {
+        return maximumPoolSizeForWorkTasks;
+    }
+
+    public ClientStatus getStatus() {
+        return status;
     }
 }
