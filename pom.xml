@@ -255,15 +255,15 @@
         </profile>
 
 		<profile>
-			<id>deployFB</id>
+			<id>deployTP</id>
 			<distributionManagement>
 				<repository>
-					<id>fb-release</id>
+					<id>tp-release</id>
 					<name>Local Nexus Repository</name>
 					<url>http://172.30.10.200:8081/nexus/content/repositories/releases/</url>
 				</repository>
 				<snapshotRepository>
-					<id>fb-snapshot</id>
+					<id>tp-snapshot</id>
 					<name>Local Nexus Repository</name>
 					<url>http://172.30.10.200:8081/nexus/content/repositories/snapshots/</url>
 				</snapshotRepository>
