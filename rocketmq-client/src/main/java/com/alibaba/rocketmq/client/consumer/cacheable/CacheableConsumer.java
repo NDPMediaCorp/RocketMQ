@@ -381,7 +381,6 @@ public class CacheableConsumer {
      */
     public void shutdown() throws InterruptedException {
         LOGGER.info("Start to shutdown");
-        status = ClientStatus.CLOSED;
         try {
             stopReceiving();
         } catch (InterruptedException e) {
@@ -440,27 +439,26 @@ public class CacheableConsumer {
     }
 
     public void suspend() {
-        if (ClientStatus.SUSPENDED == status) {
+
+        if (ClientStatus.ACTIVE != status) {
             return;
         }
 
-        if (ClientStatus.ACTIVE == status) {
-            for (DefaultMQPushConsumer defaultMQPushConsumer : defaultMQPushConsumers) {
-                defaultMQPushConsumer.suspend();
-            }
-
-            localMessageStore.suspend();
-            status = ClientStatus.SUSPENDED;
+        for (DefaultMQPushConsumer defaultMQPushConsumer : defaultMQPushConsumers) {
+            defaultMQPushConsumer.suspend();
         }
+
+        localMessageStore.suspend();
+        status = ClientStatus.SUSPENDED;
     }
 
     public void resume() {
         if (ClientStatus.SUSPENDED == status) {
-            status = ClientStatus.ACTIVE;
             localMessageStore.resume();
             for (DefaultMQPushConsumer defaultMQPushConsumer : defaultMQPushConsumers) {
                 defaultMQPushConsumer.resume();
             }
+            status = ClientStatus.ACTIVE;
         }
     }
 }
