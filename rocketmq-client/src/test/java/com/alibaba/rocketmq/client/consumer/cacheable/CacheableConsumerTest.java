@@ -25,7 +25,13 @@ public class CacheableConsumerTest {
         MessageHandler messageHandler = new MessageHandler() {
             @Override
             public int handle(MessageExt message) {
-                return 5000;
+                System.out.println("Done");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return 0;
             }
         };
 
