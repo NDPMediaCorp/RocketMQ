@@ -35,13 +35,17 @@ public class ProcessMessageTask implements Runnable {
                 cacheableConsumer.getSuccessCounter().incrementAndGet();
             } else if (result > 0) {
                 cacheableConsumer.getFailureCounter().incrementAndGet();
-                cacheableConsumer.getMessageQueue().offer(message);
+                cacheableConsumer.getMessageQueue().put(message);
             } else {
                 LOGGER.error("Unable to process returning result: " + result);
             }
         } catch (Exception e) {
             LOGGER.error("ProcessMessageTask failed! Automatic retry scheduled.", e);
-            cacheableConsumer.getMessageQueue().offer(message);
+            try {
+                cacheableConsumer.getMessageQueue().put(message);
+            } catch (InterruptedException e1) {
+                LOGGER.error("Put message to message queue failed.", e1);
+            }
         } finally {
             cacheableConsumer.getInProgressMessageQueue().remove(message);
         }
