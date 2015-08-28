@@ -25,8 +25,7 @@ public class DelayTask implements Runnable {
         try {
             LOGGER.info("Start re-consume messages");
 
-            if (cacheableConsumer.getMessageQueue().remainingCapacity()
-                    < 4 * cacheableConsumer.getMaximumPoolSizeForWorkTasks()) {
+            if (cacheableConsumer.isAboutFull()) {
                 LOGGER.info("Client message queue is almost full, skip popping message from local message store.");
                 return;
             }

@@ -491,4 +491,8 @@ public class CacheableConsumer {
     public ClientStatus getStatus() {
         return status;
     }
+
+    public boolean isAboutFull() {
+       return messageQueue.remainingCapacity() < 4 * maximumPoolSizeForWorkTasks + inProgressMessageQueue.size();
+    }
 }
