@@ -71,7 +71,7 @@ public class CacheableConsumer {
 
     private FrontController frontController;
 
-    private static final int DEFAULT_MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED = 20000;
+    private static final int DEFAULT_MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED = 1000;
 
     private int maximumNumberOfMessageBuffered = DEFAULT_MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED;
 
@@ -381,7 +381,6 @@ public class CacheableConsumer {
      */
     public void shutdown() throws InterruptedException {
         LOGGER.info("Start to shutdown");
-        status = ClientStatus.CLOSED;
         try {
             stopReceiving();
         } catch (InterruptedException e) {
