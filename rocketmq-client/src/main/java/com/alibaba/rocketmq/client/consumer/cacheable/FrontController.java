@@ -39,6 +39,7 @@ public class FrontController implements MessageListenerConcurrently {
                 try {
                     if (cacheableConsumer.isAboutFull()) {
                         cacheableConsumer.suspend();
+                        LOGGER.warn("Client message queue is about to full; stop receiving message from broker.");
                         return ConsumeConcurrentlyStatus.RECONSUME_LATER;
                     } else {
                         cacheableConsumer.getMessageQueue().put(message);
