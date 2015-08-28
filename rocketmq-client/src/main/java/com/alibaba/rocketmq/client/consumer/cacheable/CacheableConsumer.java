@@ -247,7 +247,7 @@ public class CacheableConsumer {
             @Override
             public void run() {
                 if (ClientStatus.SUSPENDED == status) {
-                    if (messageQueue.remainingCapacity() > 4 * maximumPoolSizeForWorkTasks) {
+                    if (!isAboutFull()) {
                         resume();
                         LOGGER.info("Activate client to resume receiving message from broker.");
                     }
