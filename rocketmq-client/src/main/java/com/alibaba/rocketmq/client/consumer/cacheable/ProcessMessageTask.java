@@ -2,7 +2,6 @@ package com.alibaba.rocketmq.client.consumer.cacheable;
 
 import com.alibaba.rocketmq.client.log.ClientLogger;
 import com.alibaba.rocketmq.common.message.MessageExt;
-import com.alibaba.rocketmq.common.message.StashableMessage;
 import org.slf4j.Logger;
 
 public class ProcessMessageTask implements Runnable {
@@ -36,11 +35,7 @@ public class ProcessMessageTask implements Runnable {
                 cacheableConsumer.getSuccessCounter().incrementAndGet();
             } else if (result > 0) {
                 cacheableConsumer.getFailureCounter().incrementAndGet();
-                StashableMessage stashableMessage = message.buildStashableMessage();
-                stashableMessage.putUserProperty(NEXT_TIME_KEY, String.valueOf(System.currentTimeMillis() + result));
-                LOGGER.info("Stashing message[msgId=" + message.getMsgId() + "] for later retry in " + result + " ms.");
-                cacheableConsumer.getLocalMessageStore().stash(stashableMessage);
-                LOGGER.info("Message stashed.");
+                cacheableConsumer.getMessageQueue().offer(message);
             } else {
                 LOGGER.error("Unable to process returning result: " + result);
             }

@@ -409,11 +409,12 @@ public class CacheableConsumer {
             scheduledExecutorDelayService.shutdown();
             scheduledExecutorDelayService.awaitTermination(30000, TimeUnit.MILLISECONDS);
 
+            frontController.stopSubmittingJob();
+
             //Stop consuming messages.
             executorWorkerService.shutdown();
             executorWorkerService.awaitTermination(30000, TimeUnit.MILLISECONDS);
 
-            frontController.stopSubmittingJob();
 
             //Stash back all those that is not properly handled.
             LOGGER.info(messageQueue.size() + " messages to save into local message store due to system shutdown.");
