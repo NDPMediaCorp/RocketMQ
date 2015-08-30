@@ -88,7 +88,26 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
 
     private FlushDiskService flushDiskService;
 
+    /**
+     * Flush request.
+     */
     class FlushDiskRequest {
+
+        /**
+         * Indicate whether we need to flush all message to disk.
+         */
+        private boolean forceful;
+
+        public FlushDiskRequest() {
+        }
+
+        public FlushDiskRequest(boolean forceful) {
+            this.forceful = forceful;
+        }
+
+        public boolean isForceful() {
+            return forceful;
+        }
     }
 
 
@@ -105,25 +124,25 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         public void putRequest(final FlushDiskRequest request) {
             synchronized (this) {
                 this.requestsWrite.add(request);
-                if (!this.hasNotified) {
-                    this.hasNotified = true;
-                    this.notify();
+                if (!hasNotified) {
+                    hasNotified = true;
+                    notify();
                 }
             }
         }
 
 
         private void swapRequests() {
-            List<FlushDiskRequest> tmp = this.requestsWrite;
-            this.requestsWrite = this.requestsRead;
-            this.requestsRead = tmp;
+            List<FlushDiskRequest> tmp = requestsWrite;
+            requestsWrite = requestsRead;
+            requestsRead = tmp;
         }
 
         @Override
         public void run() {
             while (!isStopped()) {
                 waitForRunning(0);
-                doFlush(false);
+                doFlush();
             }
 
             // 在正常shutdown情况下，等待请求到来，然后再刷盘
@@ -133,18 +152,32 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
                 LOGGER.error("", e);
             }
 
+
             synchronized (this) {
-                this.swapRequests();
+                putRequest(new FlushDiskRequest(true));
+                swapRequests();
             }
 
-            doFlush(true);
+            doFlush();
         }
 
 
-        public void doFlush(boolean force) {
-            if (!this.requestsRead.isEmpty()) {
-                flush(force);
-                this.requestsRead.clear();
+        public void doFlush() {
+            if (!requestsRead.isEmpty()) {
+                boolean flushed = false;
+                for (FlushDiskRequest request : requestsRead) {
+                    if (request.isForceful()) {
+                        flushed = true;
+                        flush(true);
+                        break;
+                    }
+                }
+
+                if (!flushed) {
+                    flush();
+                }
+
+                requestsRead.clear();
             }
         }
 
@@ -549,8 +582,9 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         }
 
         try {
-            //Block if no space available.
             messageQueue.put(wrap(message));
+
+            //Check if we need flush some messages to disk.
             if (messageQueue.size() >= HIGH_QUEUE_LEVEL) {
                 flushDiskService.putRequest(new FlushDiskRequest());
             }
@@ -851,17 +885,11 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         LOGGER.info("Default local message store shuts down completely");
     }
 
+    /**
+     * All messages will forcefully flushed to disk.
+     */
     public void suspend() {
-        if (ClientStatus.ACTIVE == status) {
-            flush(true);
-            status = ClientStatus.SUSPENDED;
-        }
-    }
-
-    public void resume() {
-        if (ClientStatus.SUSPENDED == status) {
-            status = ClientStatus.ACTIVE;
-        }
+        flushDiskService.putRequest(new FlushDiskRequest(true));
     }
 
     private MessageExt wrap(Message message) {
