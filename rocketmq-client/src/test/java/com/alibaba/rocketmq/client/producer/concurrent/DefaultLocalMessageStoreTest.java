@@ -30,6 +30,8 @@ public class DefaultLocalMessageStoreTest {
         }
 
         defaultLocalMessageStore.close();
+
+        Thread.sleep(5000);
     }
 
     @Test
@@ -40,6 +42,8 @@ public class DefaultLocalMessageStoreTest {
             }
         }
         defaultLocalMessageStore.close();
+
+        Thread.sleep(1000 * 5);
     }
 
     @Test
