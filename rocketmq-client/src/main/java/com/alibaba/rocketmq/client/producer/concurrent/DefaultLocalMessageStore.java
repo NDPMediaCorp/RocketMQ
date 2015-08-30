@@ -58,8 +58,6 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
 
     private static final int MAGIC_CODE = 0xAABBCCDD ^ 1880681586 + 8;
 
-    private String storeLocation = System.getProperty("defaultLocalMessageStoreLocation", DEFAULT_STORE_LOCATION);
-
     private File localMessageStoreDirectory;
 
     private ConcurrentHashMap<Long, File> messageStoreNameFileMapping = new ConcurrentHashMap<Long, File>();
@@ -96,6 +94,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
 
     public DefaultLocalMessageStore(String storeName) throws IOException {
         //For convenience of development.
+        String storeLocation = System.getProperty("defaultLocalMessageStoreLocation", DEFAULT_STORE_LOCATION);
         if (DEFAULT_STORE_LOCATION.equals(storeLocation)) {
             File defaultStoreLocation = new File(DEFAULT_STORE_LOCATION);
             if (!defaultStoreLocation.exists()) {
