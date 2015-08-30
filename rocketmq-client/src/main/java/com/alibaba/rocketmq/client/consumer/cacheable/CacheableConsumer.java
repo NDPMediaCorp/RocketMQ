@@ -477,7 +477,6 @@ public class CacheableConsumer {
 
     public void resume() {
         if (ClientStatus.SUSPENDED == status) {
-            localMessageStore.resume();
             for (DefaultMQPushConsumer defaultMQPushConsumer : defaultMQPushConsumers) {
                 defaultMQPushConsumer.resume();
             }
