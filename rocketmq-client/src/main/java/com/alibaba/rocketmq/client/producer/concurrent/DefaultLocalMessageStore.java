@@ -140,7 +140,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
 
         @Override
         public void run() {
-            System.out.println(getServiceName() + " starts.");
+            LOGGER.info(getServiceName() + " starts.");
             while (!isStopped()) {
                 waitForRunning(0);
                 doFlush();
@@ -160,7 +160,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
             }
 
             doFlush();
-            System.out.println(getServiceName() + " terminated.");
+            LOGGER.info(getServiceName() + " terminated.");
         }
 
 
