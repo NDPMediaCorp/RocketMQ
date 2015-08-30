@@ -96,15 +96,6 @@ public class Message implements Serializable {
         return null != properties && properties.containsKey(MessageConst.PROPERTY_MESSAGE_TRACE_ID);
     }
 
-    public StashableMessage buildStashableMessage() {
-        StashableMessage stashableMessage = new StashableMessage();
-        stashableMessage.setTopic(topic);
-        stashableMessage.setBody(body);
-        stashableMessage.setFlag(flag);
-        stashableMessage.setProperties(properties);
-        return stashableMessage;
-    }
-
     void clearProperty(final String name) {
         if (null != this.properties) {
             this.properties.remove(name);

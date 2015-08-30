@@ -4,7 +4,7 @@
 package com.ndpmedia.rocketmq.store.tool;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.rocketmq.common.message.StashableMessage;
+import com.alibaba.rocketmq.common.message.MessageExt;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -72,7 +72,7 @@ public class LocalMessageStoreVerificationTool {
 
             byte[] data = new byte[msgSize];
             randomAccessFile.readFully(data);
-            JSON.parseObject(data, StashableMessage.class);
+            JSON.parseObject(data, MessageExt.class);
             System.out.println("Msg Size: " + msgSize);
             System.out.println("MSG Body: " + new String(data, Charset.forName("UTF-8")));
         }

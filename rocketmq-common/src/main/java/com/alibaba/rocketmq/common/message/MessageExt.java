@@ -75,24 +75,6 @@ public class MessageExt extends Message implements Serializable{
         this.msgId = msgId;
     }
 
-
-    @Override
-    public StashableMessage buildStashableMessage() {
-        StashableMessage stashableMessage = super.buildStashableMessage();
-        stashableMessage.setQueueId(queueId);
-        stashableMessage.setStoreSize(storeSize);
-        stashableMessage.setQueueOffset(queueOffset);
-        stashableMessage.setSysFlag(sysFlag);
-        stashableMessage.setBornTimestamp(bornTimestamp);
-        stashableMessage.setStoreTimestamp(storeTimestamp);
-        stashableMessage.setMsgId(msgId);
-        stashableMessage.setCommitLogOffset(commitLogOffset);
-        stashableMessage.setBodyCRC(bodyCRC);
-        stashableMessage.setReconsumeTimes(reconsumeTimes);
-        stashableMessage.setPreparedTransactionOffset(preparedTransactionOffset);
-        return stashableMessage;
-    }
-
     /**
      * SocketAddress ----> ByteBuffer 转化成8个字节
      */

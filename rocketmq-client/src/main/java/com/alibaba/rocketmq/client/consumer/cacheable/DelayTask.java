@@ -1,7 +1,7 @@
 package com.alibaba.rocketmq.client.consumer.cacheable;
 
 import com.alibaba.rocketmq.client.log.ClientLogger;
-import com.alibaba.rocketmq.common.message.StashableMessage;
+import com.alibaba.rocketmq.common.message.MessageExt;
 import org.slf4j.Logger;
 
 public class DelayTask implements Runnable {
@@ -31,10 +31,10 @@ public class DelayTask implements Runnable {
             }
 
             boolean isMessageQueueFull = false;
-            StashableMessage[] messages = cacheableConsumer.getLocalMessageStore().pop(BATCH_SIZE);
+            MessageExt[] messages = cacheableConsumer.getLocalMessageStore().pop(BATCH_SIZE);
             while (messages != null && messages.length > 0) {
                 long current = System.currentTimeMillis();
-                for (StashableMessage message : messages) {
+                for (MessageExt message : messages) {
                     if (null == message) {
                         continue;
                     }
@@ -47,7 +47,7 @@ public class DelayTask implements Runnable {
                         }
 
                         if (cacheableConsumer.getMessageQueue().remainingCapacity() > 0) {
-                            cacheableConsumer.getMessageQueue().put(message.buildMessageExt());
+                            cacheableConsumer.getMessageQueue().put(message);
                         } else {
                             isMessageQueueFull = true;
                             cacheableConsumer.getLocalMessageStore().stash(message);

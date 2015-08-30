@@ -5,7 +5,7 @@ import com.alibaba.rocketmq.client.ClientStatus;
 import com.alibaba.rocketmq.client.log.ClientLogger;
 import com.alibaba.rocketmq.common.ThreadFactoryImpl;
 import com.alibaba.rocketmq.common.message.Message;
-import com.alibaba.rocketmq.common.message.StashableMessage;
+import com.alibaba.rocketmq.common.message.MessageExt;
 import org.slf4j.Logger;
 
 import java.io.BufferedWriter;
@@ -67,7 +67,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
 
     private static final int QUEUE_CAPACITY = 50000;
 
-    private LinkedBlockingQueue<StashableMessage> messageQueue = new LinkedBlockingQueue<StashableMessage>(QUEUE_CAPACITY);
+    private LinkedBlockingQueue<MessageExt> messageQueue = new LinkedBlockingQueue<MessageExt>(QUEUE_CAPACITY);
 
     private static final int HIGH_QUEUE_LEVEL = (int)(QUEUE_CAPACITY * 0.8);
 
@@ -431,7 +431,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
                 randomAccessFile.readFully(messageData);
 
                 try {
-                    JSON.parseObject(messageData, StashableMessage.class);
+                    JSON.parseObject(messageData, MessageExt.class);
                 } catch (Exception e) {
                     break;
                 }
@@ -492,8 +492,17 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
 
         try {
             //Block if no space available.
-            StashableMessage stashableMessage = message.buildStashableMessage();
-            messageQueue.put(stashableMessage);
+            if (message instanceof MessageExt) {
+                messageQueue.put((MessageExt)message);
+            } else {
+                MessageExt messageExt = new MessageExt();
+                messageExt.setBody(message.getBody());
+                messageExt.setTopic(message.getTopic());
+                messageExt.setFlag(message.getFlag());
+                //TODO add message properties.
+
+                messageQueue.put(messageExt);
+            }
         } catch (InterruptedException e) {
             LOGGER.error("Unable to stash message locally.", e);
             LOGGER.error("Fatal Error: Message [" + JSON.toJSONString(message) + "] is lost.");
@@ -657,7 +666,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
     }
 
     @Override
-    public StashableMessage[] pop(int n) {
+    public MessageExt[] pop(int n) {
         if (n < 0) {
             throw new IllegalArgumentException("n should be positive");
         }
@@ -676,11 +685,11 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
             return null;
         }
 
-        StashableMessage[] messages = new StashableMessage[messageToRead];
+        MessageExt[] messages = new MessageExt[messageToRead];
         int messageRead = 0;
 
         //First retrieve messages from message queue, beginning from head side, which is held in memory.
-        StashableMessage message = messageQueue.poll();
+        MessageExt message = messageQueue.poll();
         while (null != message) {
             messages[messageRead++] = message;
             if (messageRead == messageToRead) { //We've already got all messages we want to pop.
@@ -724,7 +733,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
 
                     byte[] data = new byte[messageSize];
                     readRandomAccessFile.readFully(data);
-                    messages[messageRead++] = JSON.parseObject(data, StashableMessage.class);
+                    messages[messageRead++] = JSON.parseObject(data, MessageExt.class);
                     readIndex.incrementAndGet();
                     readOffSet.addAndGet(4 + 4 + messageSize); //message_size_int + magic_code_int + messageSize.
 
@@ -765,7 +774,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         }
 
         if (messageRead < messageToRead) {
-            StashableMessage[] result = new StashableMessage[messageRead];
+            MessageExt[] result = new MessageExt[messageRead];
             System.arraycopy(messages, 0, result, 0, messageRead);
             return result;
         } else {
