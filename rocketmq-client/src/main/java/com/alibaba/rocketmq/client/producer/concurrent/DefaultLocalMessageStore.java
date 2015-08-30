@@ -3,7 +3,7 @@ package com.alibaba.rocketmq.client.producer.concurrent;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.rocketmq.client.ClientStatus;
 import com.alibaba.rocketmq.client.log.ClientLogger;
-import com.alibaba.rocketmq.common.ThreadFactoryImpl;
+import com.alibaba.rocketmq.common.ServiceThread;
 import com.alibaba.rocketmq.common.message.Message;
 import com.alibaba.rocketmq.common.message.MessageAccessor;
 import com.alibaba.rocketmq.common.message.MessageDecoder;
@@ -24,15 +24,13 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -66,15 +64,13 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
 
     private ReentrantLock lock = new ReentrantLock();
 
-    private static final int QUEUE_CAPACITY = 50000;
+    private static final int QUEUE_CAPACITY = 1000;
 
     private LinkedBlockingQueue<MessageExt> messageQueue = new LinkedBlockingQueue<MessageExt>(QUEUE_CAPACITY);
 
     private static final int HIGH_QUEUE_LEVEL = (int)(QUEUE_CAPACITY * 0.8);
 
     private static final int LOW_QUEUE_LEVEL = (int)(QUEUE_CAPACITY * 0.3);
-
-    private ScheduledExecutorService flushMessageExecutorService;
 
     private volatile ClientStatus status = ClientStatus.CREATED;
 
@@ -89,6 +85,75 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
     private volatile long lastWarnTime = -1;
 
     private static final String ACCESS_FILE_MODE = "rws";
+
+    private FlushDiskService flushDiskService;
+
+    class FlushDiskRequest {
+    }
+
+
+    class FlushDiskService extends ServiceThread {
+
+        private volatile List<FlushDiskRequest> requestsWrite = new ArrayList<FlushDiskRequest>();
+        private volatile List<FlushDiskRequest> requestsRead = new ArrayList<FlushDiskRequest>();
+
+        @Override
+        public String getServiceName() {
+            return FlushDiskService.class.getSimpleName();
+        }
+
+        public void putRequest(final FlushDiskRequest request) {
+            synchronized (this) {
+                this.requestsWrite.add(request);
+                if (!this.hasNotified) {
+                    this.hasNotified = true;
+                    this.notify();
+                }
+            }
+        }
+
+
+        private void swapRequests() {
+            List<FlushDiskRequest> tmp = this.requestsWrite;
+            this.requestsWrite = this.requestsRead;
+            this.requestsRead = tmp;
+        }
+
+
+
+        @Override
+        public void run() {
+            while (!isStopped()) {
+                waitForRunning(0);
+                doFlush();
+            }
+
+            // 在正常shutdown情况下，等待请求到来，然后再刷盘
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                LOGGER.error("", e);
+            }
+
+            synchronized (this) {
+                this.swapRequests();
+            }
+            doFlush();
+        }
+
+
+        public void doFlush() {
+            if (!this.requestsRead.isEmpty()) {
+                flush();
+                this.requestsRead.clear();
+            }
+        }
+
+        @Override
+        protected void onWaitEnd() {
+            swapRequests();
+        }
+    }
 
     public DefaultLocalMessageStore(String storeName) throws IOException {
         //For convenience of development.
@@ -118,24 +183,16 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
             init(false);
         }
 
-        ThreadFactory threadFactory = new ThreadFactoryImpl("LocalMessageStoreFlushMessageExecutorService");
-        flushMessageExecutorService = Executors.newSingleThreadScheduledExecutor(threadFactory);
-        flushMessageExecutorService.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                //We do not flush all message down to disk every time, with the purpose of boosting popping message speed.
-                if (messageQueue.size() > HIGH_QUEUE_LEVEL) {
-                    flush();
-                }
-            }
-        }, 500, 1000, TimeUnit.MILLISECONDS);
-
         try {
             createAbortFile();
         } catch (IOException e) {
             LOGGER.error("Failed to create abort file.", e);
             throw e;
         }
+
+        flushDiskService = new FlushDiskService();
+        flushDiskService.start();
+
         status = ClientStatus.ACTIVE;
         LOGGER.info("Local Message store starts to operate.");
     }
@@ -495,6 +552,9 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         try {
             //Block if no space available.
             messageQueue.put(wrap(message));
+            if (messageQueue.size() >= HIGH_QUEUE_LEVEL) {
+                flushDiskService.putRequest(new FlushDiskRequest());
+            }
         } catch (InterruptedException e) {
             LOGGER.error("Unable to stash message locally.", e);
             LOGGER.error("Fatal Error: Message [" + JSON.toJSONString(message) + "] is lost.");
@@ -788,8 +848,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         LOGGER.info("Default local message store starts to shut down.");
         status = ClientStatus.CLOSED;
         flush(true);
-        flushMessageExecutorService.shutdown();
-        flushMessageExecutorService.awaitTermination(30, TimeUnit.SECONDS);
+        flushDiskService.makeStop();
         deleteAbortFile();
         LOGGER.info("Default local message store shuts down completely");
     }
