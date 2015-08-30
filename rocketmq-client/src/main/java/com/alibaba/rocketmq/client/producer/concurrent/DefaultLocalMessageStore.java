@@ -140,6 +140,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
 
         @Override
         public void run() {
+            System.out.println(getServiceName() + " starts.");
             while (!isStopped()) {
                 waitForRunning(0);
                 doFlush();
@@ -159,6 +160,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
             }
 
             doFlush();
+            System.out.println(getServiceName() + " terminated.");
         }
 
 
@@ -880,7 +882,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
     public void close() throws InterruptedException {
         LOGGER.info("Default local message store starts to shut down.");
         status = ClientStatus.CLOSED;
-        flushDiskService.makeStop();
+        flushDiskService.shutdown();
         deleteAbortFile();
         LOGGER.info("Default local message store shuts down completely");
     }
