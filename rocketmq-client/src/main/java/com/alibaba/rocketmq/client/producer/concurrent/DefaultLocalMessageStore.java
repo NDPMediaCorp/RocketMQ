@@ -167,6 +167,8 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         public void doFlush() {
             if (!requestsRead.isEmpty()) {
                 boolean flushed = false;
+
+                // Check if there is any request to flush all messages to disk.
                 for (FlushDiskRequest request : requestsRead) {
                     if (request.isForceful()) {
                         flushed = true;
@@ -175,6 +177,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
                     }
                 }
 
+                // We need to perform a normal maintaining flush.
                 if (!flushed) {
                     flush();
                 }
