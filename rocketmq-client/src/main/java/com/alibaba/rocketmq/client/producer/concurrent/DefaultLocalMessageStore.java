@@ -5,7 +5,9 @@ import com.alibaba.rocketmq.client.ClientStatus;
 import com.alibaba.rocketmq.client.log.ClientLogger;
 import com.alibaba.rocketmq.common.ThreadFactoryImpl;
 import com.alibaba.rocketmq.common.message.Message;
+import com.alibaba.rocketmq.common.message.MessageAccessor;
 import com.alibaba.rocketmq.common.message.MessageExt;
+import com.alibaba.rocketmq.remoting.common.RemotingUtil;
 import org.slf4j.Logger;
 
 import java.io.BufferedWriter;
@@ -17,10 +19,13 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -340,11 +345,11 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
 
     private String[] getMessageDataFiles() {
        String[] dataFiles = localMessageStoreDirectory.list(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.matches("\\d+");
-            }
-        });
+           @Override
+           public boolean accept(File dir, String name) {
+               return name.matches("\\d+");
+           }
+       });
 
         Arrays.sort(dataFiles, new Comparator<String>() {
             @Override
@@ -809,5 +814,182 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         if (ClientStatus.SUSPENDED == status) {
             status = ClientStatus.ACTIVE;
         }
+    }
+
+
+
+
+    public static byte[] serialize(MessageExt msg) {
+
+        /**
+         * 序列化消息
+         */
+        final byte[] propertiesData = msg.getProperties() == null ? null : (JSON.toJSONBytes(msg.getProperties()));
+        final int propertiesLength = propertiesData == null ? 0 : propertiesData.length;
+
+        final byte[] topicData = msg.getTopic().getBytes();
+        final int topicLength = topicData.length;
+        final int bodyLength = msg.getBody() == null ? 0 : msg.getBody().length;
+
+        final int msgLen = 4 // 1 TOTAL SIZE
+                + 4 // 2 MAGIC CODE
+                + 4 // 3 BODY CRC
+                + 4 // 4 QUEUE ID
+                + 4 // 5 FLAG
+                + 8 // 6 QUEUE OFFSET
+                + 8 // 7 commit log offset
+                + 4 // 8 SYS FLAG
+                + 8 // 9 BORN TIMESTAMP
+                + 8 // 10 BORN HOST
+                + 8 // 11 STORE TIMESTAMP
+                + 8 // 12 STORE HOST ADDRESS
+                + 4 // 13 RE-CONSUME TIMES
+                + 8 // 14 Prepared Transaction Offset
+                + 4 + bodyLength // 14 BODY
+                + 1 + topicLength // 15 TOPIC
+                + 2 + propertiesLength // 16 propertiesLength
+                + 0;
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(msgLen);
+
+        // 1 TOTALSIZE
+        byteBuffer.putInt(msgLen);
+
+        // 2 MAGICCODE
+        byteBuffer.putInt(MAGIC_CODE);
+
+        // 3 BODY CRC
+        byteBuffer.putInt(msg.getBodyCRC());
+
+        // 4 QUEUE ID
+        byteBuffer.putInt(msg.getQueueId());
+
+        // 5 FLAG
+        byteBuffer.putInt(msg.getFlag());
+
+        // 6 QUEUE OFFSET
+        byteBuffer.putLong(msg.getQueueOffset());
+
+        // 7 commit log offset
+        byteBuffer.putLong(msg.getCommitLogOffset());
+
+        // 8 System FLAG
+        byteBuffer.putInt(msg.getSysFlag());
+
+        // 9 BORN TIMESTAMP
+        byteBuffer.putLong(msg.getBornTimestamp());
+
+        // 10 BORN HOST
+        byteBuffer.put(msg.getBornHostBytes());
+
+        // 11 STORE TIMESTAMP
+        byteBuffer.putLong(msg.getStoreTimestamp());
+
+        // 12 STORE HOST ADDRESS
+        byteBuffer.put(msg.getStoreHostBytes());
+
+        // 13 RE-CONSUME TIMES
+        byteBuffer.putInt(msg.getReconsumeTimes());
+
+        // 14 Prepared Transaction Offset
+        byteBuffer.putLong(msg.getPreparedTransactionOffset());
+
+        // 15 BODY
+        byteBuffer.putInt(bodyLength);
+        if (bodyLength > 0) {
+            byteBuffer.put(msg.getBody());
+        }
+
+        // 16 TOPIC
+        byteBuffer.put((byte) topicLength);
+        byteBuffer.put(topicData);
+
+        // 17 PROPERTIES
+        byteBuffer.putShort((short) propertiesLength);
+        if (propertiesLength > 0) {
+            byteBuffer.put(propertiesData);
+        }
+
+        return byteBuffer.array();
+    }
+
+    public static MessageExt deserialize(byte[] data) throws IllegalMagicCodeException, UnsupportedEncodingException,
+            LocalMessageStoreException {
+        if (data == null || data.length == 0) {
+            throw new RuntimeException("Data to de-serialize is null or empty array");
+        }
+
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        MessageExt msg = new MessageExt();
+        int totalLength = byteBuffer.getInt();
+
+        if (data.length != totalLength) {
+            throw new LocalMessageStoreException("Message length does not match");
+        }
+
+        int magicCode = byteBuffer.getInt();
+        if (magicCode != MAGIC_CODE) {
+            throw new IllegalMagicCodeException("Illegal magic code: " + magicCode);
+        }
+        int bodyCRC = byteBuffer.getInt();
+        msg.setBodyCRC(bodyCRC);
+
+        int queueID = byteBuffer.getInt();
+        msg.setQueueId(queueID);
+
+        int flag = byteBuffer.getInt();
+        msg.setFlag(flag);
+
+        long queueOffset = byteBuffer.getLong();
+        msg.setQueueOffset(queueOffset);
+
+        long commitLogOffset = byteBuffer.getLong();
+        msg.setCommitLogOffset(commitLogOffset);
+
+        int systemFlag = byteBuffer.getInt();
+        msg.setSysFlag(systemFlag);
+
+        byte[] bornHost = new byte[8];
+        byteBuffer.get(bornHost);
+        msg.setBornHost(RemotingUtil.string2SocketAddress(new String(bornHost, "UTF-8")));
+
+        long storeTimestamp = byteBuffer.getLong();
+        msg.setStoreTimestamp(storeTimestamp);
+
+        byte[] storeHostAddress = new byte[8];
+        byteBuffer.get(storeHostAddress);
+        msg.setStoreHost(RemotingUtil.string2SocketAddress(new String(storeHostAddress, "UTF-8")));
+
+        int reconsumeTimes = byteBuffer.getInt();
+        msg.setReconsumeTimes(reconsumeTimes);
+
+        long preparedTransactionOffset = byteBuffer.getLong();
+        msg.setPreparedTransactionOffset(preparedTransactionOffset);
+
+
+        int bodyLength = byteBuffer.getInt();
+        byte[] body = null;
+        if (bodyLength > 0) {
+            body = new byte[bodyLength];
+            byteBuffer.get(body);
+            msg.setBody(body);
+        }
+
+
+        int topicLength = byteBuffer.getInt();
+        byte[] topic = new byte[topicLength];
+        byteBuffer.get(topic);
+        msg.setTopic(new String(topic, "UTF-8"));
+
+        short propertiesLength = byteBuffer.getShort();
+        byte[] properties = null;
+        if (propertiesLength > 0) {
+            properties = new byte[propertiesLength];
+            byteBuffer.get(properties);
+            HashMap<String, String> props =  JSON.parseObject(properties, HashMap.class);
+            MessageAccessor.setProperties(msg, props);
+        }
+
+        return msg;
     }
 }
