@@ -818,8 +818,8 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         messageExt.setBody(message.getBody());
         MessageAccessor.setProperties(messageExt, message.getProperties());
 
-        messageExt.setBornHost(new InetSocketAddress(1234));
-        messageExt.setStoreHost(new InetSocketAddress(1234));
+        messageExt.setBornHost(new InetSocketAddress(0));
+        messageExt.setStoreHost(new InetSocketAddress(0));
 
         return messageExt;
     }

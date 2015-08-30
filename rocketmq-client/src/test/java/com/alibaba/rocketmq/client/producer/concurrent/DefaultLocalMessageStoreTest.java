@@ -28,10 +28,7 @@ public class DefaultLocalMessageStoreTest {
         for (int i = 0; i < 100; i++) {
             defaultLocalMessageStore.stash(new Message("Topic", "Data".getBytes()));
         }
-
         defaultLocalMessageStore.close();
-
-        Thread.sleep(5000);
     }
 
     @Test
@@ -51,7 +48,7 @@ public class DefaultLocalMessageStoreTest {
         Message[] messages = defaultLocalMessageStore.pop(2);
         while (null != messages && messages.length > 0) {
             for (Message msg : messages) {
-                System.out.println(msg.getTopic());
+                System.out.println(msg);
             }
             messages = defaultLocalMessageStore.pop(2);
         }
