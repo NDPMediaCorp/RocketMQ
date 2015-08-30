@@ -976,8 +976,9 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         }
 
 
-        int topicLength = byteBuffer.getInt();
-        byte[] topic = new byte[topicLength];
+        byte[] topicLength = new byte[1];
+        byteBuffer.get(topicLength);
+        byte[] topic = new byte[topicLength[0]];
         byteBuffer.get(topic);
         msg.setTopic(new String(topic, "UTF-8"));
 
