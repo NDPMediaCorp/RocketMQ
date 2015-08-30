@@ -119,13 +119,11 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
             this.requestsRead = tmp;
         }
 
-
-
         @Override
         public void run() {
             while (!isStopped()) {
                 waitForRunning(0);
-                doFlush();
+                doFlush(false);
             }
 
             // 在正常shutdown情况下，等待请求到来，然后再刷盘
@@ -138,13 +136,14 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
             synchronized (this) {
                 this.swapRequests();
             }
-            doFlush();
+
+            doFlush(true);
         }
 
 
-        public void doFlush() {
+        public void doFlush(boolean force) {
             if (!this.requestsRead.isEmpty()) {
-                flush();
+                flush(force);
                 this.requestsRead.clear();
             }
         }
@@ -847,7 +846,6 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
     public void close() throws InterruptedException {
         LOGGER.info("Default local message store starts to shut down.");
         status = ClientStatus.CLOSED;
-        flush(true);
         flushDiskService.makeStop();
         deleteAbortFile();
         LOGGER.info("Default local message store shuts down completely");
