@@ -497,17 +497,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
 
         try {
             //Block if no space available.
-            if (message instanceof MessageExt) {
-                messageQueue.put((MessageExt)message);
-            } else {
-                MessageExt messageExt = new MessageExt();
-                messageExt.setBody(message.getBody());
-                messageExt.setTopic(message.getTopic());
-                messageExt.setFlag(message.getFlag());
-                //TODO add message properties.
-
-                messageQueue.put(messageExt);
-            }
+            messageQueue.put(wrap(message));
         } catch (InterruptedException e) {
             LOGGER.error("Unable to stash message locally.", e);
             LOGGER.error("Fatal Error: Message [" + JSON.toJSONString(message) + "] is lost.");
@@ -592,11 +582,9 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
                     writeRandomAccessFile = new RandomAccessFile(currentWritingDataFile, ACCESS_FILE_MODE);
                 }
 
-                byte[] msgData = JSON.toJSONString(message).getBytes();
-                writeRandomAccessFile.writeInt(msgData.length);
-                writeRandomAccessFile.writeInt(MAGIC_CODE);
+                byte[] msgData = serialize(wrap(message));
                 writeRandomAccessFile.write(msgData);
-                writeOffSet.addAndGet(4 + 4 + msgData.length);
+                writeOffSet.addAndGet(msgData.length);
                 writeIndex.incrementAndGet();
                 if (writeIndex.longValue() % MESSAGES_PER_FILE == 0) {
                     writeOffSet.set(0L);
@@ -721,26 +709,33 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
                         }
                     }
 
-                    if (readOffSet.longValue() + 4 + 4 > readRandomAccessFile.length()) {
+                    if (readOffSet.longValue() + 4 > readRandomAccessFile.length()) {
                         LOGGER.error("Data inconsistent!");
                         break;
                     }
                     int messageSize = readRandomAccessFile.readInt();
+
                     int magicCode = readRandomAccessFile.readInt();
                     if (magicCode != MAGIC_CODE) {
                         LOGGER.error("Data inconsistent!");
                     }
 
-                    if (readOffSet.longValue() + 4 + 4 + messageSize > readRandomAccessFile.length()) {
+                    if (readOffSet.longValue() + messageSize > readRandomAccessFile.length()) {
                         LOGGER.error("Data inconsistent!");
                         break;
                     }
 
-                    byte[] data = new byte[messageSize];
+                    byte[] data = new byte[messageSize - 4 - 4];
                     readRandomAccessFile.readFully(data);
-                    messages[messageRead++] = JSON.parseObject(data, MessageExt.class);
+
+                    ByteBuffer byteBuffer = ByteBuffer.allocate(messageSize);
+                    byteBuffer.putInt(messageSize);
+                    byteBuffer.putInt(magicCode);
+                    byteBuffer.put(data);
+                    byteBuffer.flip();
+                    messages[messageRead++] = deserialize(byteBuffer.array());
                     readIndex.incrementAndGet();
-                    readOffSet.addAndGet(4 + 4 + messageSize); //message_size_int + magic_code_int + messageSize.
+                    readOffSet.addAndGet(messageSize);
 
                     if (readIndex.longValue() % MESSAGES_PER_FILE == 0) {
                         readOffSet.set(0L);
@@ -847,8 +842,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
                 + 8 // 14 Prepared Transaction Offset
                 + 4 + bodyLength // 14 BODY
                 + 1 + topicLength // 15 TOPIC
-                + 2 + propertiesLength // 16 propertiesLength
-                + 0;
+                + 2 + propertiesLength; // 16 propertiesLength
 
         ByteBuffer byteBuffer = ByteBuffer.allocate(msgLen);
 
@@ -909,6 +903,8 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         if (propertiesLength > 0) {
             byteBuffer.put(propertiesData);
         }
+
+        byteBuffer.flip();
 
         return byteBuffer.array();
     }
@@ -992,5 +988,21 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         }
 
         return msg;
+    }
+
+
+    private MessageExt wrap(Message message) {
+        if (message instanceof MessageExt) {
+            return (MessageExt)message;
+        }
+
+
+        MessageExt messageExt = new MessageExt();
+        messageExt.setTopic(message.getTopic());
+        messageExt.setFlag(message.getFlag());
+        messageExt.setBody(message.getBody());
+        MessageAccessor.setProperties(messageExt, message.getProperties());
+
+        return messageExt;
     }
 }
