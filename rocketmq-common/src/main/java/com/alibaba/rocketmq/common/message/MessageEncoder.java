@@ -1,7 +1,5 @@
 package com.alibaba.rocketmq.common.message;
 
-import com.alibaba.fastjson.JSON;
-
 import java.nio.ByteBuffer;
 
 public class MessageEncoder {
@@ -12,9 +10,8 @@ public class MessageEncoder {
      * 序列化消息
      */
     public static ByteBuffer encode(MessageExt msg) {
-        final byte[] propertiesData = msg.getProperties() == null ? null : (JSON.toJSONBytes(msg.getProperties()));
+        final byte[] propertiesData = msg.getProperties() == null ? null : MessageDecoder.messageProperties2String(msg.getProperties()).getBytes();
         final int propertiesLength = propertiesData == null ? 0 : propertiesData.length;
-
         final byte[] topicData = msg.getTopic().getBytes();
         final int topicLength = topicData.length;
         final int bodyLength = msg.getBody() == null ? 0 : msg.getBody().length;

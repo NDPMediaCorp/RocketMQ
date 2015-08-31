@@ -26,7 +26,9 @@ public class DefaultLocalMessageStoreTest {
     @Test
     public void testStash() throws InterruptedException {
         for (int i = 0; i < 100; i++) {
-            defaultLocalMessageStore.stash(new Message("Topic", "Data".getBytes()));
+            Message message = new Message("Topic", "Data".getBytes());
+            message.setKey("abc");
+            defaultLocalMessageStore.stash(message);
         }
         defaultLocalMessageStore.close();
     }
@@ -46,7 +48,7 @@ public class DefaultLocalMessageStoreTest {
         Message[] messages = defaultLocalMessageStore.pop(2);
         while (null != messages && messages.length > 0) {
             for (Message msg : messages) {
-                System.out.println(msg);
+                System.out.println(msg.getKeys());
             }
             messages = defaultLocalMessageStore.pop(2);
         }
