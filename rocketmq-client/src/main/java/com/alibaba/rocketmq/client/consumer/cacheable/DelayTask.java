@@ -33,26 +33,23 @@ public class DelayTask implements Runnable {
             boolean isMessageQueueFull = false;
             MessageExt[] messages = cacheableConsumer.getLocalMessageStore().pop(BATCH_SIZE);
             while (messages != null && messages.length > 0) {
-                long current = System.currentTimeMillis();
+                LOGGER.info("Popped " + messages.length + " messages from localMessageStore.");
                 for (MessageExt message : messages) {
                     if (null == message) {
                         continue;
                     }
 
-                    if (null == message.getProperty(NEXT_TIME_KEY) || Long.parseLong(message.getProperty(NEXT_TIME_KEY)) - current < TOL) {
-                        MessageHandler messageHandler = cacheableConsumer.getTopicHandlerMap().get(message.getTopic());
-                        if (null == messageHandler) {
-                            cacheableConsumer.getLocalMessageStore().stash(message);
-                            continue;
-                        }
+                    MessageHandler messageHandler = cacheableConsumer.getTopicHandlerMap().get(message.getTopic());
+                    if (null == messageHandler) {
+                        LOGGER.warn("No message handler for topic: " + message.getTopic());
+                        cacheableConsumer.getLocalMessageStore().stash(message);
+                        continue;
+                    }
 
-                        if (cacheableConsumer.getMessageQueue().remainingCapacity() > 0) {
-                            cacheableConsumer.getMessageQueue().put(message);
-                        } else {
-                            isMessageQueueFull = true;
-                            cacheableConsumer.getLocalMessageStore().stash(message);
-                        }
+                    if (!cacheableConsumer.isAboutFull()) {
+                        cacheableConsumer.getMessageQueue().put(message);
                     } else {
+                        isMessageQueueFull = true;
                         cacheableConsumer.getLocalMessageStore().stash(message);
                     }
                 }

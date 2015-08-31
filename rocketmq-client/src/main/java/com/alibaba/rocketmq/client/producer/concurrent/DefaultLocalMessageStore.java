@@ -761,8 +761,6 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         switch (status) {
             case CREATED:
                 throw new RuntimeException("Message store is not ready. You may have closed it already.");
-            case SUSPENDED:
-                return null;
             default:
                 break;
         }
