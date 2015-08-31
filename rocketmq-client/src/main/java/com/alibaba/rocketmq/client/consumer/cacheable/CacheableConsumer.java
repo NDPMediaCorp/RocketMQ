@@ -476,10 +476,10 @@ public class CacheableConsumer {
     }
 
     public boolean isAboutFull() {
-       return messageQueue.remainingCapacity() < 2 * maximumPoolSizeForWorkTasks + inProgressMessageQueue.size();
+       return messageQueue.remainingCapacity() <= 2 * maximumPoolSizeForWorkTasks + inProgressMessageQueue.size() + DEFAULT_PULL_BATCH_SIZE;
     }
 
     public boolean mayResume() {
-        return messageQueue.remainingCapacity() > 2 * maximumPoolSizeForWorkTasks + inProgressMessageQueue.size() + 256;
+        return messageQueue.remainingCapacity() >=  maximumNumberOfMessageBuffered * 2 / 3;
     }
 }
