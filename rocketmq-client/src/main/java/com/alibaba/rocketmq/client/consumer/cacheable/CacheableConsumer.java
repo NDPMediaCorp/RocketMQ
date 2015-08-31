@@ -67,9 +67,6 @@ public class CacheableConsumer {
     private ScheduledExecutorService scheduledExecutorDelayService =
             Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl("LocalDelayConsumeService"));
 
-    private ScheduledExecutorService scheduledExecutorStatusService =
-            Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl("StatusService"));
-
     private ThreadPoolExecutor executorWorkerService;
 
     private FrontController frontController;
@@ -234,26 +231,10 @@ public class CacheableConsumer {
             defaultMQPushConsumer.start();
         }
 
-        maintainStatus();
-
         startPopThread();
         addShutdownHook();
         status = ClientStatus.ACTIVE;
         LOGGER.debug("DefaultMQPushConsumer starts.");
-    }
-
-    private void maintainStatus() {
-        scheduledExecutorStatusService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                if (ClientStatus.SUSPENDED == status) {
-                    if (!isAboutFull()) {
-                        resume();
-                        LOGGER.info("Activate client to resume receiving message from broker.");
-                    }
-                }
-            }
-        }, 1000, 100, TimeUnit.MILLISECONDS);
     }
 
     private void addShutdownHook() {
@@ -470,16 +451,19 @@ public class CacheableConsumer {
             }
 
             localMessageStore.suspend();
+
             status = ClientStatus.SUSPENDED;
         }
     }
 
     public void resume() {
         if (ClientStatus.SUSPENDED == status) {
+            LOGGER.info("Start to resume consumer client");
             for (DefaultMQPushConsumer defaultMQPushConsumer : defaultMQPushConsumers) {
                 defaultMQPushConsumer.resume();
             }
             status = ClientStatus.ACTIVE;
+            LOGGER.info("Consumer client resumed.");
         }
     }
 
@@ -492,6 +476,6 @@ public class CacheableConsumer {
     }
 
     public boolean isAboutFull() {
-       return messageQueue.remainingCapacity() < 4 * maximumPoolSizeForWorkTasks + inProgressMessageQueue.size();
+       return messageQueue.remainingCapacity() < 2 * maximumPoolSizeForWorkTasks + inProgressMessageQueue.size();
     }
 }

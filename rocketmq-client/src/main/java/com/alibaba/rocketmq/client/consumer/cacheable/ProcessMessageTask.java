@@ -1,5 +1,6 @@
 package com.alibaba.rocketmq.client.consumer.cacheable;
 
+import com.alibaba.rocketmq.client.ClientStatus;
 import com.alibaba.rocketmq.client.log.ClientLogger;
 import com.alibaba.rocketmq.common.message.MessageExt;
 import org.slf4j.Logger;
@@ -48,6 +49,14 @@ public class ProcessMessageTask implements Runnable {
             }
         } finally {
             cacheableConsumer.getInProgressMessageQueue().remove(message);
+        }
+
+        try {
+            if (cacheableConsumer.getStatus() == ClientStatus.SUSPENDED && !cacheableConsumer.isAboutFull()) {
+                cacheableConsumer.resume();
+            }
+        } catch (Throwable e) {
+            LOGGER.error("Error to resume consumer client", e);
         }
     }
 
