@@ -10,10 +10,6 @@ public class DelayTask implements Runnable {
 
     private static final int BATCH_SIZE = 1000;
 
-    private static final String NEXT_TIME_KEY = "next_time";
-
-    private static final int TOL = 1000;
-
     private CacheableConsumer cacheableConsumer;
 
     public DelayTask(CacheableConsumer cacheableConsumer) {

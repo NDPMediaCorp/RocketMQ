@@ -20,11 +20,7 @@ public class FrontController implements MessageListenerConcurrently {
     public FrontController(CacheableConsumer cacheableConsumer) {
         this.cacheableConsumer = cacheableConsumer;
         jobSubmitter = new JobSubmitter();
-        Thread jobSubmitterThread = new Thread(jobSubmitter);
-        jobSubmitterThread.setName("JobSubmitter");
-        jobSubmitterThread.start();
     }
-
 
     @Override
     public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> messages,
@@ -56,6 +52,12 @@ public class FrontController implements MessageListenerConcurrently {
 
     public void stopSubmittingJob() {
         jobSubmitter.stop();
+    }
+
+    public void startSubmittingJob() {
+        Thread jobSubmitterThread = new Thread(jobSubmitter);
+        jobSubmitterThread.setName("JobSubmitter");
+        jobSubmitterThread.start();
     }
 
     /**

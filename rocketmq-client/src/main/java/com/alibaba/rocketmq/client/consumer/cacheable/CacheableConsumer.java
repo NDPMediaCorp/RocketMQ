@@ -226,6 +226,8 @@ public class CacheableConsumer {
         messageQueue = new LinkedBlockingQueue<MessageExt>(maximumNumberOfMessageBuffered);
         inProgressMessageQueue = new LinkedBlockingQueue<MessageExt>(maximumNumberOfMessageBuffered);
 
+        frontController.startSubmittingJob();
+
         for (DefaultMQPushConsumer defaultMQPushConsumer : defaultMQPushConsumers) {
             defaultMQPushConsumer.registerMessageListener(frontController);
             defaultMQPushConsumer.start();
