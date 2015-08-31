@@ -71,7 +71,7 @@ public class CacheableConsumer {
 
     private FrontController frontController;
 
-    private static final int DEFAULT_MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED = 1000;
+    private static final int DEFAULT_MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED = 10000;
 
     private int maximumNumberOfMessageBuffered = DEFAULT_MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED;
 
@@ -477,5 +477,9 @@ public class CacheableConsumer {
 
     public boolean isAboutFull() {
        return messageQueue.remainingCapacity() < 2 * maximumPoolSizeForWorkTasks + inProgressMessageQueue.size();
+    }
+
+    public boolean mayResume() {
+        return messageQueue.remainingCapacity() > 2 * maximumPoolSizeForWorkTasks + inProgressMessageQueue.size() + 256;
     }
 }

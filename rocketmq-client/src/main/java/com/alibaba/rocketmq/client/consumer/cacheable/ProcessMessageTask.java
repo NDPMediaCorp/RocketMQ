@@ -52,7 +52,7 @@ public class ProcessMessageTask implements Runnable {
         }
 
         try {
-            if (cacheableConsumer.getStatus() == ClientStatus.SUSPENDED && !cacheableConsumer.isAboutFull()) {
+            if (cacheableConsumer.getStatus() == ClientStatus.SUSPENDED && cacheableConsumer.mayResume()) {
                 cacheableConsumer.resume();
             }
         } catch (Throwable e) {
