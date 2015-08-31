@@ -129,7 +129,6 @@ public class CacheableConsumer {
                 defaultMQPushConsumer.setConsumeFromWhere(consumeFromWhere);
                 defaultMQPushConsumer.setPullBatchSize(pullBatchSize);
                 defaultMQPushConsumer.setConsumeMessageBatchMaxSize(consumeMessageMaxBatchSize);
-                defaultMQPushConsumer.setNamesrvAddr("localhost:9876");
                 defaultMQPushConsumers.add(defaultMQPushConsumer);
             }
 

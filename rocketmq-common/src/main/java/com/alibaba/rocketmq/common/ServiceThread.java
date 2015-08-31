@@ -137,11 +137,9 @@ public abstract class ServiceThread implements Runnable {
 
             try {
                 this.wait(interval);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
-            finally {
+            } finally {
                 this.hasNotified = false;
                 this.onWaitEnd();
             }
