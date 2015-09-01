@@ -192,7 +192,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         }
     }
 
-    public DefaultLocalMessageStore(String storeName) throws IOException {
+    public static File getLocalMessageStoreDirectory(String storeName) {
         //For convenience of development.
         String storeLocation = System.getProperty("defaultLocalMessageStoreLocation", DEFAULT_STORE_LOCATION);
         if (DEFAULT_STORE_LOCATION.equals(storeLocation)) {
@@ -205,8 +205,11 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
                         : storeLocation + File.separator + LOCAL_MESSAGE_STORE_FOLDER_NAME;
             }
         }
+        return new File(storeLocation, storeName);
+    }
 
-        localMessageStoreDirectory = new File(storeLocation, storeName);
+    public DefaultLocalMessageStore(String storeName) throws IOException {
+        localMessageStoreDirectory = getLocalMessageStoreDirectory(storeName);
 
         if (!localMessageStoreDirectory.exists()) {
             if (!localMessageStoreDirectory.mkdirs()) {
