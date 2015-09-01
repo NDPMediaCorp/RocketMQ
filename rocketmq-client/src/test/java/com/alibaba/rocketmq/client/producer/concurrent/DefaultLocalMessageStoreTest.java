@@ -56,7 +56,7 @@ public class DefaultLocalMessageStoreTest {
 
     @Test
     public void testStashAndPopMulti() throws InterruptedException, IOException {
-        final int totalMessageCount = Integer.parseInt(System.getProperty("messagecounts", "1000"));
+        final int totalMessageCount = Integer.parseInt(System.getProperty("messagecounts", "10000"));
         final int poolSize = Integer.parseInt(System.getProperty("poolsize", "10"));
         final String topic = "Topic";
         final byte[] body = "Data".getBytes();
@@ -75,8 +75,6 @@ public class DefaultLocalMessageStoreTest {
                         defaultLocalMessageStore.stash(message);
                     }
                     ai.addAndGet(1);
-//                    System.out.println(ai.addAndGet(1) + " this finish ");
-
                 }
             });
         }
@@ -85,16 +83,10 @@ public class DefaultLocalMessageStoreTest {
             if (ai.get() == poolSize){
                 break;
             }
-
             Thread.sleep(1000);
-//            System.out.println(" just wait ");
         }
 
-
         defaultLocalMessageStore.close();
-
-//        System.out.println("finish insert ");
-
         defaultLocalMessageStore = new DefaultLocalMessageStore(STORE_NAME);
         int poppedOut = 0;
         Message[] messages = defaultLocalMessageStore.pop(20);
@@ -143,6 +135,56 @@ public class DefaultLocalMessageStoreTest {
             messages = defaultLocalMessageStore.pop(2);
         }
         Assert.assertEquals(totalMessageCount, poppedOut);
+        defaultLocalMessageStore.close();
+    }
+
+    @Test
+    public void testStashAndPopHugeMulti() throws InterruptedException, IOException {
+        final int totalMessageCount = Integer.parseInt(System.getProperty("messagecounts", "100000"));
+        final int poolSize = Integer.parseInt(System.getProperty("poolsize", "100"));
+        final String topic = "Topic";
+        final byte[] body = "Data".getBytes();
+        final String key = "abc";
+        final String value = "value";
+        final AtomicInteger ai = new AtomicInteger(0);
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(poolSize);
+        for (int i = 0; i < poolSize; i++) {
+            scheduledExecutorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < totalMessageCount; i++) {
+                        Message message = new Message(topic, body);
+                        message.setKey(key);
+                        message.putUserProperty(key, value);
+                        defaultLocalMessageStore.stash(message);
+                    }
+                    ai.addAndGet(1);
+                }
+            });
+        }
+
+        while (true) {
+            if (ai.get() == poolSize){
+                break;
+            }
+            Thread.sleep(1000);
+        }
+
+        defaultLocalMessageStore.close();
+        defaultLocalMessageStore = new DefaultLocalMessageStore(STORE_NAME);
+        int poppedOut = 0;
+        Message[] messages = defaultLocalMessageStore.pop(20);
+        while (null != messages && messages.length > 0) {
+            poppedOut += messages.length;
+            for (Message msg : messages) {
+                Assert.assertEquals(topic, msg.getTopic());
+                Assert.assertArrayEquals(body, msg.getBody());
+                Assert.assertEquals(key, msg.getKeys());
+                Assert.assertEquals(value, msg.getProperty(key));
+            }
+            messages = defaultLocalMessageStore.pop(2);
+        }
+        Assert.assertEquals(totalMessageCount * poolSize, poppedOut);
         defaultLocalMessageStore.close();
     }
 }
