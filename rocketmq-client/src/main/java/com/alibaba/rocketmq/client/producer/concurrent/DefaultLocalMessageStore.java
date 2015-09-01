@@ -785,9 +785,9 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
 
         //In case we need more messages, read from local files.
         RandomAccessFile readRandomAccessFile = null;
-        try {
-            //Popping messages from file requires lock.
-            if (lock.tryLock()) {
+        //Popping messages from file requires lock.
+        if (lock.tryLock()) {
+            try {
                 LOGGER.debug(Thread.currentThread().getName() + " holds the lock.");
                 File currentReadFile = null;
                 while (messageRead < messageToRead && readIndex.longValue() <= writeIndex.longValue()) {
@@ -842,23 +842,22 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
                         }
                     }
                 }
-
                 updateConfig();
-            }
-        } catch (Exception e) {
-            LOGGER.error("Pop message fails.", e);
-            LOGGER.error("readIndex:" + readIndex.longValue() + ", writeIndex:" + writeIndex.longValue()
-                    + ", readOffset:" + readOffSet.longValue() + ", writeOffset:" + writeOffSet.longValue());
-        } finally {
-            if (null != readRandomAccessFile) {
-                try {
-                    readRandomAccessFile.close();
-                } catch (IOException e) {
-                    LOGGER.error("Unexpected IO error", e);
+            } catch (Exception e) {
+                LOGGER.error("Pop message fails.", e);
+                LOGGER.error("readIndex:" + readIndex.longValue() + ", writeIndex:" + writeIndex.longValue()
+                        + ", readOffset:" + readOffSet.longValue() + ", writeOffset:" + writeOffSet.longValue());
+            } finally {
+                if (null != readRandomAccessFile) {
+                    try {
+                        readRandomAccessFile.close();
+                    } catch (IOException e) {
+                        LOGGER.error("Unexpected IO error", e);
+                    }
                 }
+                lock.unlock();
+                LOGGER.debug(Thread.currentThread().getName() + " release the lock.");
             }
-            lock.unlock();
-            LOGGER.debug(Thread.currentThread().getName() + " release the lock.");
         }
 
         if (messageRead < 1) {

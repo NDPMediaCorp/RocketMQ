@@ -1,6 +1,7 @@
 package com.alibaba.rocketmq.client.producer.concurrent;
 
 import com.alibaba.rocketmq.common.message.Message;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -24,12 +25,36 @@ public class DefaultLocalMessageStoreTest {
     }
 
     @Test
-    public void testStash() throws InterruptedException {
-        for (int i = 0; i < 100; i++) {
-            Message message = new Message("Topic", "Data".getBytes());
-            message.setKey("abc");
+    public void testStashAndPop() throws InterruptedException, IOException {
+
+        int totalMessageCount = 100;
+        String topic = "Topic";
+        byte[] body = "Data".getBytes();
+        String key = "abc";
+        String value = "value";
+
+        for (int i = 0; i < totalMessageCount; i++) {
+            Message message = new Message(topic, body);
+            message.setKey(key);
+            message.putUserProperty(key, value);
             defaultLocalMessageStore.stash(message);
         }
+        defaultLocalMessageStore.close();
+
+        defaultLocalMessageStore = new DefaultLocalMessageStore("PG_Test");
+        int poppedOut = 0;
+        Message[] messages = defaultLocalMessageStore.pop(2);
+        while (null != messages && messages.length > 0) {
+            poppedOut += messages.length;
+            for (Message msg : messages) {
+                Assert.assertEquals(topic, msg.getTopic());
+                Assert.assertArrayEquals(body, msg.getBody());
+                Assert.assertEquals(key, msg.getKeys());
+                Assert.assertEquals(value, msg.getProperty(key));
+            }
+            messages = defaultLocalMessageStore.pop(2);
+        }
+        Assert.assertEquals(totalMessageCount, poppedOut);
         defaultLocalMessageStore.close();
     }
 
@@ -48,11 +73,10 @@ public class DefaultLocalMessageStoreTest {
         Message[] messages = defaultLocalMessageStore.pop(2);
         while (null != messages && messages.length > 0) {
             for (Message msg : messages) {
-                System.out.println(msg.getKeys());
+                System.out.println(msg);
             }
             messages = defaultLocalMessageStore.pop(2);
         }
-
         defaultLocalMessageStore.close();
     }
 
