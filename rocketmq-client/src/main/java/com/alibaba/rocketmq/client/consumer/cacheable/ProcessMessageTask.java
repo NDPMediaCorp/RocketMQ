@@ -9,8 +9,6 @@ public class ProcessMessageTask implements Runnable {
 
     private static final Logger LOGGER = ClientLogger.getLog();
 
-    private static final String NEXT_TIME_KEY = "next_time";
-
     private MessageExt message;
 
     private MessageHandler messageHandler;
@@ -36,17 +34,16 @@ public class ProcessMessageTask implements Runnable {
                 cacheableConsumer.getSuccessCounter().incrementAndGet();
             } else if (result > 0) {
                 cacheableConsumer.getFailureCounter().incrementAndGet();
-                cacheableConsumer.getMessageQueue().put(message);
+
+                // Stash failure handling messages, which will be re-handled later after popping out from local store.
+                cacheableConsumer.getLocalMessageStore().stash(message);
             } else {
                 LOGGER.error("Unable to process returning result: " + result);
             }
         } catch (Exception e) {
+            cacheableConsumer.getLocalMessageStore().stash(message);
+            LOGGER.error("Yuck! Business processing logic is buggy; stash the message for now.");
             LOGGER.error("ProcessMessageTask failed! Automatic retry scheduled.", e);
-            try {
-                cacheableConsumer.getMessageQueue().put(message);
-            } catch (InterruptedException e1) {
-                LOGGER.error("Put message to message queue failed.", e1);
-            }
         } finally {
             cacheableConsumer.getInProgressMessageQueue().remove(message);
         }

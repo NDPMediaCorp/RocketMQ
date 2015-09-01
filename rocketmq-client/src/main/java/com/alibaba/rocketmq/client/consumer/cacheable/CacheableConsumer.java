@@ -451,9 +451,6 @@ public class CacheableConsumer {
             for (DefaultMQPushConsumer defaultMQPushConsumer : defaultMQPushConsumers) {
                 defaultMQPushConsumer.suspend();
             }
-
-            localMessageStore.suspend();
-
             status = ClientStatus.SUSPENDED;
         }
     }
