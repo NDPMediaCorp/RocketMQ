@@ -95,7 +95,9 @@ public class ConsumerGroupInfo {
 
         for (Entry<Channel, ClientChannelInfo> entry : this.channelInfoTable.entrySet()) {
             ClientChannelInfo clientChannelInfo = entry.getValue();
-            result.add(clientChannelInfo.getClientId());
+            if (!result.contains(clientChannelInfo.getClientId())) {
+                result.add(clientChannelInfo.getClientId());
+            }
         }
 
         return result;
