@@ -7,6 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CacheableConsumerTest {
 
@@ -22,10 +23,15 @@ public class CacheableConsumerTest {
 
         cacheableConsumer.setMessageModel(MessageModel.CLUSTERING);
         cacheableConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
+        final AtomicInteger count = new AtomicInteger(0);
+
         MessageHandler messageHandler = new MessageHandler() {
             @Override
             public int handle(MessageExt message) {
-                return 5000;
+                if (count.incrementAndGet() % 100 == 0) {
+                    System.out.println("Consumed: " + count.intValue());
+                }
+                return 0;
             }
         };
 

@@ -20,11 +20,7 @@ public class FrontController implements MessageListenerConcurrently {
     public FrontController(CacheableConsumer cacheableConsumer) {
         this.cacheableConsumer = cacheableConsumer;
         jobSubmitter = new JobSubmitter();
-        Thread jobSubmitterThread = new Thread(jobSubmitter);
-        jobSubmitterThread.setName("JobSubmitter");
-        jobSubmitterThread.start();
     }
-
 
     @Override
     public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> messages,
@@ -37,8 +33,16 @@ public class FrontController implements MessageListenerConcurrently {
         for (MessageExt message : messages) {
             if (null != message) {
                 try {
-                    cacheableConsumer.getMessageQueue().put(message);
-                } catch (Exception e) {
+                    if (cacheableConsumer.isAboutFull()) {
+                        cacheableConsumer.suspend();
+                        // Stash those pre-fetched message.
+                        cacheableConsumer.getLocalMessageStore().stash(message);
+                        LOGGER.warn("Client message queue is about to full; stop receiving message from broker.");
+                    } else {
+                        // Normal Processing.
+                        cacheableConsumer.getMessageQueue().put(message);
+                    }
+                } catch (InterruptedException e) {
                     LOGGER.error("Failed to put message into message queue", e);
                     return ConsumeConcurrentlyStatus.RECONSUME_LATER;
                 }
@@ -52,11 +56,18 @@ public class FrontController implements MessageListenerConcurrently {
         jobSubmitter.stop();
     }
 
+    public void startSubmittingJob() {
+        Thread jobSubmitterThread = new Thread(jobSubmitter);
+        jobSubmitterThread.setName("JobSubmitter");
+        jobSubmitterThread.start();
+    }
+
     /**
      * This thread wraps messages from message queue into ProcessMessageTask items and submit them into
      */
     class JobSubmitter implements Runnable {
-        private boolean running = true;
+
+        private volatile boolean running = true;
 
         @Override
         public void run() {

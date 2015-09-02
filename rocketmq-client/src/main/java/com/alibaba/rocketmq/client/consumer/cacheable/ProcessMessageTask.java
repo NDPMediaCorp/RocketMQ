@@ -1,15 +1,13 @@
 package com.alibaba.rocketmq.client.consumer.cacheable;
 
+import com.alibaba.rocketmq.client.ClientStatus;
 import com.alibaba.rocketmq.client.log.ClientLogger;
 import com.alibaba.rocketmq.common.message.MessageExt;
-import com.alibaba.rocketmq.common.message.StashableMessage;
 import org.slf4j.Logger;
 
 public class ProcessMessageTask implements Runnable {
 
     private static final Logger LOGGER = ClientLogger.getLog();
-
-    private static final String NEXT_TIME_KEY = "next_time";
 
     private MessageExt message;
 
@@ -36,19 +34,24 @@ public class ProcessMessageTask implements Runnable {
                 cacheableConsumer.getSuccessCounter().incrementAndGet();
             } else if (result > 0) {
                 cacheableConsumer.getFailureCounter().incrementAndGet();
-                StashableMessage stashableMessage = message.buildStashableMessage();
-                stashableMessage.putUserProperty(NEXT_TIME_KEY, String.valueOf(System.currentTimeMillis() + result));
-                LOGGER.info("Stashing message[msgId=" + message.getMsgId() + "] for later retry in " + result + " ms.");
-                cacheableConsumer.getLocalMessageStore().stash(stashableMessage);
-                LOGGER.info("Message stashed.");
+                cacheableConsumer.getMessageQueue().put(message);
             } else {
                 LOGGER.error("Unable to process returning result: " + result);
             }
         } catch (Exception e) {
+            cacheableConsumer.getLocalMessageStore().stash(message);
+            LOGGER.error("Yuck! Business processing logic is buggy; Stash the message for now.");
             LOGGER.error("ProcessMessageTask failed! Automatic retry scheduled.", e);
-            cacheableConsumer.getMessageQueue().offer(message);
         } finally {
             cacheableConsumer.getInProgressMessageQueue().remove(message);
+        }
+
+        try {
+            if (cacheableConsumer.getStatus() == ClientStatus.SUSPENDED && cacheableConsumer.mayResume()) {
+                cacheableConsumer.resume();
+            }
+        } catch (Throwable e) {
+            LOGGER.error("Error to resume consumer client", e);
         }
     }
 

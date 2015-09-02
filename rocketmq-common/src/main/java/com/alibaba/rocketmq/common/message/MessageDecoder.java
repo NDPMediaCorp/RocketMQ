@@ -269,12 +269,10 @@ public class MessageDecoder {
         Map<String, String> map = new HashMap<String, String>();
         if (properties != null) {
             String[] items = properties.split(String.valueOf(PROPERTY_SEPARATOR));
-            if (items != null) {
-                for (String i : items) {
-                    String[] nv = i.split(String.valueOf(NAME_VALUE_SEPARATOR));
-                    if (nv != null && 2 == nv.length) {
-                        map.put(nv[0], nv[1]);
-                    }
+            for (String i : items) {
+                String[] nv = i.split(String.valueOf(NAME_VALUE_SEPARATOR));
+                if (2 == nv.length) {
+                    map.put(nv[0], nv[1]);
                 }
             }
         }

@@ -42,7 +42,7 @@ public class CacheableConsumer {
 
     private List<DefaultMQPushConsumer> defaultMQPushConsumers = new ArrayList<DefaultMQPushConsumer>();
 
-    private ClientStatus status = ClientStatus.CREATED;
+    private volatile ClientStatus status = ClientStatus.CREATED;
 
     private MessageModel messageModel = MessageModel.CLUSTERING;
 
@@ -71,7 +71,7 @@ public class CacheableConsumer {
 
     private FrontController frontController;
 
-    private static final int DEFAULT_MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED = 1000;
+    private static final int DEFAULT_MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED = 20000;
 
     private int maximumNumberOfMessageBuffered = DEFAULT_MAXIMUM_NUMBER_OF_MESSAGE_BUFFERED;
 
@@ -226,10 +226,13 @@ public class CacheableConsumer {
         messageQueue = new LinkedBlockingQueue<MessageExt>(maximumNumberOfMessageBuffered);
         inProgressMessageQueue = new LinkedBlockingQueue<MessageExt>(maximumNumberOfMessageBuffered);
 
+        frontController.startSubmittingJob();
+
         for (DefaultMQPushConsumer defaultMQPushConsumer : defaultMQPushConsumers) {
             defaultMQPushConsumer.registerMessageListener(frontController);
             defaultMQPushConsumer.start();
         }
+
         startPopThread();
         addShutdownHook();
         status = ClientStatus.ACTIVE;
@@ -409,11 +412,12 @@ public class CacheableConsumer {
             scheduledExecutorDelayService.shutdown();
             scheduledExecutorDelayService.awaitTermination(30000, TimeUnit.MILLISECONDS);
 
+            frontController.stopSubmittingJob();
+
             //Stop consuming messages.
             executorWorkerService.shutdown();
             executorWorkerService.awaitTermination(30000, TimeUnit.MILLISECONDS);
 
-            frontController.stopSubmittingJob();
 
             //Stash back all those that is not properly handled.
             LOGGER.info(messageQueue.size() + " messages to save into local message store due to system shutdown.");
@@ -454,11 +458,28 @@ public class CacheableConsumer {
 
     public void resume() {
         if (ClientStatus.SUSPENDED == status) {
-            localMessageStore.resume();
+            LOGGER.info("Start to resume consumer client");
             for (DefaultMQPushConsumer defaultMQPushConsumer : defaultMQPushConsumers) {
                 defaultMQPushConsumer.resume();
             }
             status = ClientStatus.ACTIVE;
+            LOGGER.info("Consumer client resumed.");
         }
+    }
+
+    public int getMaximumPoolSizeForWorkTasks() {
+        return maximumPoolSizeForWorkTasks;
+    }
+
+    public ClientStatus getStatus() {
+        return status;
+    }
+
+    public boolean isAboutFull() {
+       return messageQueue.remainingCapacity() <= 2 * maximumPoolSizeForWorkTasks + inProgressMessageQueue.size() + DEFAULT_PULL_BATCH_SIZE;
+    }
+
+    public boolean mayResume() {
+        return messageQueue.remainingCapacity() >=  maximumNumberOfMessageBuffered * 2 / 3;
     }
 }
