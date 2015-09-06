@@ -4,6 +4,7 @@ import com.alibaba.rocketmq.common.message.Message;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -14,6 +15,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DefaultLocalMessageStoreTest {
+
+    @BeforeClass
+    public static void setEnv() {
+        System.setProperty("log.home", System.getProperty("user.home"));
+    }
 
     private static final String STORE_NAME = "test_local_message_store";
 
