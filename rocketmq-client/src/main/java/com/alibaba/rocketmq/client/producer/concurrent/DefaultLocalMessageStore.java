@@ -512,6 +512,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
         int recoveredMessageNumber = 0;
         try {
             while (recoveredMessageNumber++ < MESSAGES_PER_FILE) {
+
                 if (writeOffSet.longValue() + 4 + 4 > randomAccessFile.length()) {
                     break;
                 }
@@ -519,27 +520,27 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
                 int messageSize = randomAccessFile.readInt();
                 int magicCode = randomAccessFile.readInt();
                 if (magicCode != MessageEncoder.MAGIC_CODE) {
+                    LOGGER.warn("Found an illegal magic code.");
                     break;
                 }
 
-                if (writeOffSet.longValue() + 4 + 4 + messageSize > randomAccessFile.length()) {
+                if (writeOffSet.longValue() + messageSize > randomAccessFile.length()) {
                     break;
                 }
 
-                byte[] messageData = new byte[messageSize];
+                byte[] messageData = new byte[messageSize - 4 - 4];
                 randomAccessFile.readFully(messageData);
-
-                try {
-                    JSON.parseObject(messageData, MessageExt.class);
-                } catch (Exception e) {
-                    break;
-                }
-
+                ByteBuffer byteBuffer = ByteBuffer.allocate(messageSize);
+                byteBuffer.putInt(messageSize);
+                byteBuffer.putInt(magicCode);
+                byteBuffer.put(messageData);
+                byteBuffer.flip();
+                MessageDecoder.decode(byteBuffer);
                 writeIndex.incrementAndGet();
                 if (writeIndex.longValue() % MESSAGES_PER_FILE == 0) {
                     writeOffSet.set(0);
                 } else {
-                    writeOffSet.addAndGet(4 + 4 + messageSize);
+                    writeOffSet.addAndGet(messageSize);
                 }
             }
         } finally {
