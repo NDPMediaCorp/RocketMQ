@@ -3,13 +3,13 @@
  */
 package com.ndpmedia.rocketmq.store.tool;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.rocketmq.common.message.MessageExt;
+import com.alibaba.rocketmq.common.message.MessageDecoder;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,7 +59,7 @@ public class LocalMessageStoreVerificationTool {
 
         RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
         boolean hasError = false;
-        while (randomAccessFile.getFilePointer() < randomAccessFile.length() - 4) {
+        while (randomAccessFile.getFilePointer() + 4 + 4 < randomAccessFile.length()) {
             int msgSize = randomAccessFile.readInt();
             int magicCode = randomAccessFile.readInt();
 
@@ -70,9 +70,12 @@ public class LocalMessageStoreVerificationTool {
                 break;
             }
 
-            byte[] data = new byte[msgSize];
+            byte[] data = new byte[msgSize - 4 - 4];
             randomAccessFile.readFully(data);
-            JSON.parseObject(data, MessageExt.class);
+            ByteBuffer byteBuffer = ByteBuffer.allocate(msgSize);
+            byteBuffer.putInt(msgSize);
+            byteBuffer.putInt(magicCode);
+            MessageDecoder.decode(byteBuffer);
             System.out.println("Msg Size: " + msgSize);
             System.out.println("MSG Body: " + new String(data, Charset.forName("UTF-8")));
         }
