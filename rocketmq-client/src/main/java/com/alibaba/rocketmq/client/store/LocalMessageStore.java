@@ -1,4 +1,4 @@
-package com.alibaba.rocketmq.client.producer.concurrent;
+package com.alibaba.rocketmq.client.store;
 
 import com.alibaba.rocketmq.common.message.Message;
 

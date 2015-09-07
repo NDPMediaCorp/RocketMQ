@@ -1,9 +1,10 @@
-package com.alibaba.rocketmq.client.producer.concurrent;
+package com.alibaba.rocketmq.client.store;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.rocketmq.client.ClientStatus;
 import com.alibaba.rocketmq.client.log.ClientLogger;
 import com.alibaba.rocketmq.common.ServiceThread;
+import com.alibaba.rocketmq.common.constant.LoggerName;
 import com.alibaba.rocketmq.common.message.Message;
 import com.alibaba.rocketmq.common.message.MessageAccessor;
 import com.alibaba.rocketmq.common.message.MessageDecoder;
@@ -44,7 +45,7 @@ public class DefaultLocalMessageStore implements LocalMessageStore {
 
     private static final String CONFIG_FILE_NAME = ".config";
 
-    private static final Logger LOGGER = ClientLogger.getLog();
+    private static final Logger LOGGER = ClientLogger.getLog(LoggerName.RocketmqLocalStoreLoggerName);
 
     private static final int MESSAGES_PER_FILE = 100000;
 

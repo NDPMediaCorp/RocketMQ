@@ -30,7 +30,6 @@ public class LoggerName {
     public static final String TransactionLoggerName = "RocketmqTransaction";
     public static final String RebalanceLockLoggerName = "RocketmqRebalanceLock";
     public static final String RocketmqStatsLoggerName = "RocketmqStats";
-    public static final String RocketmqAuthorizeLoggerName = "RocketmqAuthorize";
-    public static final String RocketMqCockpitLoggerName = "RocketMqCockpit";
     public static final String RocketmqTracerLoggerName = "RocketmqTracer";
+    public static final String RocketmqLocalStoreLoggerName = "RocketmqLocalStore";
 }
