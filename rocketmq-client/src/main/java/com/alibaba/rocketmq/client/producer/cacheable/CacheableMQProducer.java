@@ -1,4 +1,4 @@
-package com.alibaba.rocketmq.client.producer.concurrent;
+package com.alibaba.rocketmq.client.producer.cacheable;
 
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.client.log.ClientLogger;
@@ -13,8 +13,6 @@ import com.alibaba.rocketmq.common.ThreadFactoryImpl;
 import com.alibaba.rocketmq.common.message.Message;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -22,7 +20,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class MultiThreadMQProducer {
+public class CacheableMQProducer {
 
     private static final Logger LOGGER = ClientLogger.getLog();
 
@@ -32,9 +30,7 @@ public class MultiThreadMQProducer {
 
     private final ScheduledExecutorService resendFailureMessagePoolExecutor;
 
-    private static final int NUMBER_OF_EMBEDDED_PRODUCERS = 4;
-
-    private final List<DefaultMQProducer> defaultMQProducers = new ArrayList<DefaultMQProducer>();
+    private final DefaultMQProducer defaultMQProducer;
 
     private SendCallback sendCallback;
 
@@ -58,7 +54,7 @@ public class MultiThreadMQProducer {
 
     private int count;
 
-    private final List<MessageQueueSelector> messageQueueSelectors = new ArrayList<MessageQueueSelector>();
+    private final MessageQueueSelector messageQueueSelector;
 
     private LinkedBlockingQueue<Message> messageQueue;
 
@@ -66,11 +62,11 @@ public class MultiThreadMQProducer {
 
     private volatile long waitResponseTimeoutCounter = 0;
 
-    public MultiThreadMQProducer(MultiThreadMQProducerConfiguration configuration) {
+    public CacheableMQProducer(CacheableMQProducerConfiguration configuration) {
 
         try {
             if (null == configuration) {
-                throw new IllegalArgumentException("MultiThreadMQProducerConfiguration cannot be null");
+                throw new IllegalArgumentException("CacheableMQProducerConfiguration cannot be null");
             }
 
             resendFailureMessagePoolExecutor = Executors
@@ -80,20 +76,15 @@ public class MultiThreadMQProducer {
 
             semaphore = new CustomizableSemaphore(semaphoreCapacity, true);
 
-            for (int i = 0; i < NUMBER_OF_EMBEDDED_PRODUCERS; i++) {
-                DefaultMQProducer defaultMQProducer = new DefaultMQProducer(configuration.getProducerGroup() + "_" + (i + 1));
+            defaultMQProducer = new DefaultMQProducer(configuration.getProducerGroup());
 
-                //Configure default producer.
-                defaultMQProducer.setDefaultTopicQueueNums(configuration.getDefaultTopicQueueNumber());
-                defaultMQProducer.setRetryTimesWhenSendFailed(configuration.getRetryTimesBeforeSendingFailureClaimed());
-                defaultMQProducer.setSendMsgTimeout(configuration.getSendMessageTimeOutInMilliSeconds());
-                defaultMQProducer.setTraceLevel(TraceLevel.PRODUCTION.name());
-                defaultMQProducers.add(defaultMQProducer);
-            }
+            //Configure default producer.
+            defaultMQProducer.setDefaultTopicQueueNums(configuration.getDefaultTopicQueueNumber());
+            defaultMQProducer.setRetryTimesWhenSendFailed(configuration.getRetryTimesBeforeSendingFailureClaimed());
+            defaultMQProducer.setSendMsgTimeout(configuration.getSendMessageTimeOutInMilliSeconds());
+            defaultMQProducer.setTraceLevel(TraceLevel.PRODUCTION.name());
 
-            for (DefaultMQProducer defaultMQProducer : defaultMQProducers) {
-                defaultMQProducer.start();
-            }
+            defaultMQProducer.start();
 
             localMessageStore = new DefaultLocalMessageStore(configuration.getProducerGroup());
 
@@ -101,10 +92,7 @@ public class MultiThreadMQProducer {
 
             startMonitorTPS();
 
-            for (DefaultMQProducer defaultMQProducer : defaultMQProducers) {
-                messageQueueSelectors.add(new SelectMessageQueueByDataCenter(defaultMQProducer));
-            }
-
+            messageQueueSelector = new SelectMessageQueueByDataCenter(defaultMQProducer);
             messageQueue = new LinkedBlockingQueue<Message>(MAX_NUMBER_OF_MESSAGE_IN_QUEUE);
 
             addShutdownHook();
@@ -116,7 +104,7 @@ public class MultiThreadMQProducer {
             messageSendingThread.start();
             started = true;
         } catch (Exception e) {
-            LOGGER.error("Fatal error while instantiating MultiThreadMQProducer", e);
+            LOGGER.error("Fatal error while instantiating CacheableMQProducer", e);
             throw new RuntimeException("Initialization error", e);
         } finally {
             if (started) {
@@ -184,10 +172,10 @@ public class MultiThreadMQProducer {
                         if (tps > officialTps) {
                             if (accumulativeTPSDelta > TPS_TOL) { //Update due to accumulative TPS delta surpass TPS_TOL
                                 updatedSemaphoreCapacity = Math.min(semaphoreCapacity + (int) accumulativeTPSDelta / count,
-                                        MultiThreadMQProducerConfiguration.MAXIMUM_NUMBER_OF_MESSAGE_PERMITS);
+                                        CacheableMQProducerConfiguration.MAXIMUM_NUMBER_OF_MESSAGE_PERMITS);
                             } else { //Update due to a specific second-average TPS > officialTPS + TPS_TOL
                                 updatedSemaphoreCapacity = Math.min(semaphoreCapacity + (int) (tps - officialTps) + 1,
-                                        MultiThreadMQProducerConfiguration.MAXIMUM_NUMBER_OF_MESSAGE_PERMITS);
+                                        CacheableMQProducerConfiguration.MAXIMUM_NUMBER_OF_MESSAGE_PERMITS);
                             }
 
                             if (updatedSemaphoreCapacity > semaphoreCapacity) {
@@ -197,10 +185,10 @@ public class MultiThreadMQProducer {
                         } else {
                             if (-1 * accumulativeTPSDelta > TPS_TOL) { //Update due to accumulative TPS delta surpass TPS_TOL
                                 updatedSemaphoreCapacity = Math.max(semaphoreCapacity + (int) accumulativeTPSDelta / count,
-                                        MultiThreadMQProducerConfiguration.MINIMUM_NUMBER_OF_MESSAGE_PERMITS);
+                                        CacheableMQProducerConfiguration.MINIMUM_NUMBER_OF_MESSAGE_PERMITS);
                             } else { //Update due to a specific second-average TPS < officialTPS - TPS_TOL
                                 updatedSemaphoreCapacity = Math.max(semaphoreCapacity + (int) (tps - officialTps) - 1,
-                                        MultiThreadMQProducerConfiguration.MINIMUM_NUMBER_OF_MESSAGE_PERMITS);
+                                        CacheableMQProducerConfiguration.MINIMUM_NUMBER_OF_MESSAGE_PERMITS);
                             }
 
                             if (updatedSemaphoreCapacity < semaphoreCapacity) {
@@ -324,8 +312,8 @@ public class MultiThreadMQProducer {
         }
     }
 
-    public static MultiThreadMQProducerConfiguration configure() {
-        return new MultiThreadMQProducerConfiguration();
+    public static CacheableMQProducerConfiguration configure() {
+        return new CacheableMQProducerConfiguration();
     }
 
     /**
@@ -334,7 +322,7 @@ public class MultiThreadMQProducer {
      * @throws InterruptedException if unable to shutdown within 1 minute.
      */
     public void shutdown() throws InterruptedException {
-        LOGGER.warn("MultiThreadMQProducer starts to shutdown.");
+        LOGGER.warn("CacheableMQProducer starts to shutdown.");
         //No more messages from client or local message store.
         semaphore.drainPermits();
 
@@ -345,9 +333,7 @@ public class MultiThreadMQProducer {
         messageSender.stop();
 
         //Stop defaultMQProducer.
-        for (DefaultMQProducer defaultMQProducer : defaultMQProducers) {
-            defaultMQProducer.shutdown();
-        }
+        defaultMQProducer.shutdown();
 
         Message message = null;
         while (messageQueue.size() > 0) {
@@ -363,7 +349,7 @@ public class MultiThreadMQProducer {
             localMessageStore = null;
         }
 
-        LOGGER.warn("MultiThreadMQProducer shuts down completely.");
+        LOGGER.warn("CacheableMQProducer shuts down completely.");
     }
 
     public CustomizableSemaphore getSemaphore() {
@@ -400,16 +386,14 @@ public class MultiThreadMQProducer {
 
     class MessageSender implements Runnable {
         private boolean running = true;
-        private long roundRobinCounter = 0;
         @Override
         public void run() {
             while (running) {
                 Message message = null;
                 try {
                     message = messageQueue.take();
-                    int loopRemain = (int)((roundRobinCounter++) % NUMBER_OF_EMBEDDED_PRODUCERS);
-                    defaultMQProducers.get(loopRemain).send(message, messageQueueSelectors.get(loopRemain), null,
-                            new SendMessageCallback(MultiThreadMQProducer.this, sendCallback, message));
+                    defaultMQProducer.send(message, messageQueueSelector, null,
+                            new SendMessageCallback(CacheableMQProducer.this, sendCallback, message));
                 } catch (Exception e) {
                     if (null != message) {
                         handleSendMessageFailure(message, e);

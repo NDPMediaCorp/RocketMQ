@@ -1,4 +1,4 @@
-package com.alibaba.rocketmq.client.producer.concurrent;
+package com.alibaba.rocketmq.client.producer.cacheable;
 
 import com.alibaba.rocketmq.client.log.ClientLogger;
 import com.alibaba.rocketmq.client.store.LocalMessageStore;
@@ -19,11 +19,11 @@ public class ResendMessageTask implements Runnable {
 
     private LocalMessageStore localMessageStore;
 
-    private MultiThreadMQProducer multiThreadMQProducer;
+    private CacheableMQProducer cacheableMQProducer;
 
-    public ResendMessageTask(LocalMessageStore localMessageStore, MultiThreadMQProducer multiThreadMQProducer) {
+    public ResendMessageTask(LocalMessageStore localMessageStore, CacheableMQProducer cacheableMQProducer) {
         this.localMessageStore = localMessageStore;
-        this.multiThreadMQProducer = multiThreadMQProducer;
+        this.cacheableMQProducer = cacheableMQProducer;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class ResendMessageTask implements Runnable {
                 return;
             }
 
-            int popSize = Math.min(multiThreadMQProducer.getSemaphore().availablePermits(),
+            int popSize = Math.min(cacheableMQProducer.getSemaphore().availablePermits(),
                     BATCH_FETCH_MESSAGE_FROM_STORE_SIZE);
 
             if (popSize <= 0) {
@@ -52,10 +52,10 @@ public class ResendMessageTask implements Runnable {
             int totalNumberOfMessagesSubmitted = 0;
 
             while (null != messages && messages.length > 0) {
-                multiThreadMQProducer.send(messages);
+                cacheableMQProducer.send(messages);
                 totalNumberOfMessagesSubmitted += messages.length;
                 //Prepare for next loop step.
-                popSize = Math.min(multiThreadMQProducer.getSemaphore().availablePermits(),
+                popSize = Math.min(cacheableMQProducer.getSemaphore().availablePermits(),
                         BATCH_FETCH_MESSAGE_FROM_STORE_SIZE);
                 if (popSize <= 0) {
                     break;
