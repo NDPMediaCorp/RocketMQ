@@ -234,7 +234,20 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
         public Channel getChannel() {
 
             if (1 == parallelism) {
-                return channelWrappers.get(0).getChannel();
+                ChannelWrapper channelWrapper = channelWrappers.get(0);
+                if (channelWrapper.isOK()) {
+                    return channelWrapper.getChannel();
+                } else {
+                    if (channelWrapper.getChannelFuture().awaitUninterruptibly(nettyClientConfig.getConnectTimeoutMillis(), TimeUnit.MILLISECONDS)) {
+                        return channelWrapper.getChannelFuture().channel();
+                    } else {
+                        log.info("Channel {} is not OK even after awaiting {}ms",
+                                channelWrapper.getChannel().toString(),
+                                nettyClientConfig.getConnectTimeoutMillis());
+                        closeChannel(channelWrapper.getChannel());
+                        return createChannel();
+                    }
+                }
             }
 
             if (allowedToCreateChannel()) {
@@ -245,7 +258,12 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
 
             if (channelWrapper.isOK()) {
                 return channelWrapper.getChannel();
+            } else if (channelWrapper.getChannelFuture().awaitUninterruptibly(nettyClientConfig.getConnectTimeoutMillis(), TimeUnit.MILLISECONDS)){
+                return channelWrapper.getChannel();
             } else {
+                log.info("Channel {} is not OK even after awaiting {}ms",
+                        channelWrapper.getChannel().toString(),
+                        nettyClientConfig.getConnectTimeoutMillis());
                 closeChannel(channelWrapper.getChannel());
                 return createChannel();
             }
