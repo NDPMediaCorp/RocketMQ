@@ -52,6 +52,9 @@ public class ExampleCacheableConsumer {
 
         cacheableConsumer.setMaximumNumberOfMessageBuffered(2000);
 
+        // Optionally set instance name for this consumer client, if not set, process ID will be used.
+        //cacheableConsumer.setInstanceName("ExampleCacheableConsumer");
+
         cacheableConsumer.start();
 
         System.out.println("User client starts.");

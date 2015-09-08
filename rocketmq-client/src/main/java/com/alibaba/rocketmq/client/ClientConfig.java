@@ -20,7 +20,6 @@ import com.alibaba.rocketmq.common.UtilAll;
 import com.alibaba.rocketmq.remoting.common.RemotingUtil;
 
 import java.lang.ref.WeakReference;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -41,8 +40,6 @@ public class ClientConfig {
     private ClientType clientType;
     private WeakReference weakReference;
 
-    private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
-
 
     public String buildMQClientId() {
         StringBuilder sb = new StringBuilder();
@@ -57,7 +54,7 @@ public class ClientConfig {
 
     public void changeInstanceNameToPID() {
         if (this.instanceName.equals("DEFAULT")) {
-            this.instanceName = String.valueOf(UtilAll.getPid()) + "_" + INSTANCE_COUNTER.incrementAndGet();
+            this.instanceName = String.valueOf(UtilAll.getPid());
         }
     }
 

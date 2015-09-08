@@ -32,10 +32,6 @@ public class CacheableConsumer {
 
     private final ConcurrentHashMap<String, MessageHandler> topicHandlerMap;
 
-    private static final AtomicLong CONSUMER_NAME_COUNTER = new AtomicLong();
-
-    private static final String BASE_INSTANCE_NAME = "CacheableConsumer";
-
     private DefaultMQPushConsumer defaultMQPushConsumer;
 
     private volatile ClientStatus status = ClientStatus.CREATED;
@@ -59,6 +55,8 @@ public class CacheableConsumer {
     private int corePoolSizeForWorkTasks = CORE_POOL_SIZE_FOR_WORK_TASKS;
 
     private int maximumPoolSizeForWorkTasks = MAXIMUM_POOL_SIZE_FOR_WORK_TASKS;
+
+    private String instanceName;
 
     private final ScheduledExecutorService scheduledExecutorDelayService =
             Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl("LocalDelayConsumeService"));
@@ -88,10 +86,6 @@ public class CacheableConsumer {
 
     private final AtomicLong failureCounter = new AtomicLong(0L);
 
-    private static String getInstanceName() {
-        return BASE_INSTANCE_NAME + "_" + CONSUMER_NAME_COUNTER.incrementAndGet();
-    }
-
     /**
      * Constructor with consumer group name and specified number of embedded {@link DefaultMQPushConsumer} clients.
      * @param consumerGroupName consumer group name.
@@ -107,7 +101,6 @@ public class CacheableConsumer {
 
             defaultMQPushConsumer = new DefaultMQPushConsumer(consumerGroupName);
             defaultMQPushConsumer.setAllocateMessageQueueStrategy(new AllocateMessageQueueByDataCenter(defaultMQPushConsumer));
-            defaultMQPushConsumer.setInstanceName(getInstanceName());
             defaultMQPushConsumer.setMessageModel(messageModel);
             defaultMQPushConsumer.setConsumeFromWhere(consumeFromWhere);
             defaultMQPushConsumer.setPullBatchSize(pullBatchSize);
@@ -304,6 +297,19 @@ public class CacheableConsumer {
 
     public String getConsumerGroupName() {
         return consumerGroupName;
+    }
+
+    public String getInstanceName() {
+        return instanceName;
+    }
+
+    public void setInstanceName(String instanceName) {
+        if (status != ClientStatus.CREATED) {
+            throw new RuntimeException("Please set instance name before start");
+        } else if (null != defaultMQPushConsumer){
+            this.instanceName = instanceName;
+            defaultMQPushConsumer.setInstanceName(instanceName);
+        }
     }
 
     public DefaultLocalMessageStore getLocalMessageStore() {
