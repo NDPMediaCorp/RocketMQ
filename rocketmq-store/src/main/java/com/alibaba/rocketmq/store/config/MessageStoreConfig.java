@@ -81,18 +81,23 @@ public class MessageStoreConfig {
     private int flushCommitLogThoroughInterval = 1000 * 10;
     // 刷ConsumeQueue，彻底刷盘间隔时间
     private int flushConsumeQueueThoroughInterval = 1000 * 60;
+
     // 最大被拉取的消息字节数，消息在内存
     @ImportantField
-    private int maxTransferBytesOnMessageInMemory = 1024 * 256;
+    private int maxTransferBytesOnMessageInMemory = 1024 * 512;
+
     // 最大被拉取的消息个数，消息在内存
     @ImportantField
-    private int maxTransferCountOnMessageInMemory = 32;
+    private int maxTransferCountOnMessageInMemory = 128;
+
     // 最大被拉取的消息字节数，消息在磁盘
     @ImportantField
-    private int maxTransferBytesOnMessageInDisk = 1024 * 64;
+    private int maxTransferBytesOnMessageInDisk = 1024 * 128;
+
     // 最大被拉取的消息个数，消息在磁盘
     @ImportantField
-    private int maxTransferCountOnMessageInDisk = 8;
+    private int maxTransferCountOnMessageInDisk = 32;
+
     // 命中消息在内存的最大比例
     @ImportantField
     private int accessMessageInMemoryMaxRatio = 40;
