@@ -833,12 +833,12 @@ public class AdminBrokerProcessor implements NettyRequestProcessor {
     private RemotingCommand getEarliestMsgStoreTime(ChannelHandlerContext ctx, RemotingCommand request)
             throws RemotingCommandException {
         final RemotingCommand response =
-                RemotingCommand.createResponseCommand(GetEarliestMsgStoretimeResponseHeader.class);
-        final GetEarliestMsgStoretimeResponseHeader responseHeader =
-                (GetEarliestMsgStoretimeResponseHeader) response.readCustomHeader();
-        final GetEarliestMsgStoretimeRequestHeader requestHeader =
-                (GetEarliestMsgStoretimeRequestHeader) request
-                    .decodeCommandCustomHeader(GetEarliestMsgStoretimeRequestHeader.class);
+                RemotingCommand.createResponseCommand(GetEarliestMsgStoreTimeResponseHeader.class);
+        final GetEarliestMsgStoreTimeResponseHeader responseHeader =
+                (GetEarliestMsgStoreTimeResponseHeader) response.readCustomHeader();
+        final GetEarliestMsgStoreTimeRequestHeader requestHeader =
+                (GetEarliestMsgStoreTimeRequestHeader) request
+                    .decodeCommandCustomHeader(GetEarliestMsgStoreTimeRequestHeader.class);
 
         long timestamp =
                 this.brokerController.getMessageStore().getEarliestMessageTime(requestHeader.getTopic(),

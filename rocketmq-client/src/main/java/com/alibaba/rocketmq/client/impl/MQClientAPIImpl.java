@@ -56,6 +56,7 @@ import com.alibaba.rocketmq.common.protocol.body.QueryConsumeTimeSpanBody;
 import com.alibaba.rocketmq.common.protocol.body.QueryCorrectionOffsetBody;
 import com.alibaba.rocketmq.common.protocol.body.QueueTimeSpan;
 import com.alibaba.rocketmq.common.protocol.body.ResetOffsetBody;
+import com.alibaba.rocketmq.common.protocol.body.SubscriptionGroupWrapper;
 import com.alibaba.rocketmq.common.protocol.body.TopicList;
 import com.alibaba.rocketmq.common.protocol.body.UnlockBatchRequestBody;
 import com.alibaba.rocketmq.common.protocol.header.CloneGroupOffsetRequestHeader;
@@ -71,8 +72,8 @@ import com.alibaba.rocketmq.common.protocol.header.GetConsumerListByGroupRequest
 import com.alibaba.rocketmq.common.protocol.header.GetConsumerListByGroupResponseBody;
 import com.alibaba.rocketmq.common.protocol.header.GetConsumerRunningInfoRequestHeader;
 import com.alibaba.rocketmq.common.protocol.header.GetConsumerStatusRequestHeader;
-import com.alibaba.rocketmq.common.protocol.header.GetEarliestMsgStoretimeRequestHeader;
-import com.alibaba.rocketmq.common.protocol.header.GetEarliestMsgStoretimeResponseHeader;
+import com.alibaba.rocketmq.common.protocol.header.GetEarliestMsgStoreTimeRequestHeader;
+import com.alibaba.rocketmq.common.protocol.header.GetEarliestMsgStoreTimeResponseHeader;
 import com.alibaba.rocketmq.common.protocol.header.GetMaxOffsetRequestHeader;
 import com.alibaba.rocketmq.common.protocol.header.GetMaxOffsetResponseHeader;
 import com.alibaba.rocketmq.common.protocol.header.GetMinOffsetRequestHeader;
@@ -800,7 +801,7 @@ public class MQClientAPIImpl {
             topicWithProjectGroup = VirtualEnvUtil.buildWithProjectGroup(topic, projectGroupPrefix);
         }
 
-        GetEarliestMsgStoretimeRequestHeader requestHeader = new GetEarliestMsgStoretimeRequestHeader();
+        GetEarliestMsgStoreTimeRequestHeader requestHeader = new GetEarliestMsgStoreTimeRequestHeader();
         requestHeader.setTopic(topicWithProjectGroup);
         requestHeader.setQueueId(queueId);
         RemotingCommand request =
@@ -810,9 +811,9 @@ public class MQClientAPIImpl {
         assert response != null;
         switch (response.getCode()) {
         case ResponseCode.SUCCESS: {
-            GetEarliestMsgStoretimeResponseHeader responseHeader =
-                    (GetEarliestMsgStoretimeResponseHeader) response
-                        .decodeCommandCustomHeader(GetEarliestMsgStoretimeResponseHeader.class);
+            GetEarliestMsgStoreTimeResponseHeader responseHeader =
+                    (GetEarliestMsgStoreTimeResponseHeader) response
+                        .decodeCommandCustomHeader(GetEarliestMsgStoreTimeResponseHeader.class);
 
             return responseHeader.getTimestamp();
         }
@@ -1045,7 +1046,7 @@ public class MQClientAPIImpl {
         // 添加虚拟运行环境相关的projectGroupPrefix
         if (!UtilAll.isBlank(projectGroupPrefix)) {
             requestHeader.setTopic(VirtualEnvUtil.buildWithProjectGroup(requestHeader.getTopic(),
-                projectGroupPrefix));
+                    projectGroupPrefix));
         }
 
         RemotingCommand request =
@@ -1916,7 +1917,7 @@ public class MQClientAPIImpl {
 
         RemotingCommand request =
                 RemotingCommand.createRequestCommand(RequestCode.INVOKE_BROKER_TO_GET_CONSUMER_STATUS,
-                    requestHeader);
+                        requestHeader);
 
         RemotingCommand response = this.remotingClient.invokeSync(addr, request, timeoutMillis);
         assert response != null;
@@ -2022,6 +2023,19 @@ public class MQClientAPIImpl {
             break;
         }
 
+        throw new MQClientException(response.getCode(), response.getRemark());
+    }
+
+    public SubscriptionGroupWrapper getSubscriptionGroupsFromBroker(final String brokerAddress, long timeout) throws InterruptedException,
+            RemotingTimeoutException, RemotingSendRequestException, RemotingConnectException, MQClientException {
+        RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.GET_ALL_SUBSCRIPTION_GROUP_CONFIG, null);
+        RemotingCommand response = remotingClient.invokeSync(brokerAddress, request, timeout);
+        switch (response.getCode()) {
+            case ResponseCode.SUCCESS:
+                return SubscriptionGroupWrapper.decode(response.getBody(), SubscriptionGroupWrapper.class);
+            default:
+                break;
+        }
         throw new MQClientException(response.getCode(), response.getRemark());
     }
 

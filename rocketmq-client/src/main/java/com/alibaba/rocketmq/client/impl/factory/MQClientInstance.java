@@ -111,6 +111,7 @@ public class MQClientInstance {
     // RPC调用的封装类
     private final MQClientAPIImpl mQClientAPIImpl;
     private final MQAdminImpl mQAdminImpl;
+
     // 存储从Name Server拿到的Topic路由信息
     private final ConcurrentHashMap<String/* Topic */, TopicRouteData> topicRouteTable =
             new ConcurrentHashMap<String, TopicRouteData>();

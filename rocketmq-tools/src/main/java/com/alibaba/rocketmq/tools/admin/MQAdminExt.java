@@ -32,6 +32,7 @@ import com.alibaba.rocketmq.common.protocol.body.GroupList;
 import com.alibaba.rocketmq.common.protocol.body.KVTable;
 import com.alibaba.rocketmq.common.protocol.body.ProducerConnection;
 import com.alibaba.rocketmq.common.protocol.body.QueueTimeSpan;
+import com.alibaba.rocketmq.common.protocol.body.SubscriptionGroupWrapper;
 import com.alibaba.rocketmq.common.protocol.body.TopicList;
 import com.alibaba.rocketmq.common.protocol.route.TopicRouteData;
 import com.alibaba.rocketmq.common.subscription.SubscriptionGroupConfig;
@@ -123,6 +124,9 @@ public interface MQAdminExt extends MQAdmin {
      * @return
      */
     public SubscriptionGroupConfig examineSubscriptionGroupConfig(final String addr, final String group);
+
+    public SubscriptionGroupWrapper fetchAllSubscriptionGroups(final String brokerAddress, final long timeout) throws RemotingException,
+            MQBrokerException, InterruptedException, MQClientException;
 
 
     /**

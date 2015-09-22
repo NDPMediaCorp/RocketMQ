@@ -56,6 +56,7 @@ public class MQAdminStartup {
         subCommandList.add(new UpdateTopicSubCommand());
         subCommandList.add(new DeleteTopicSubCommand());
         subCommandList.add(new UpdateSubGroupSubCommand());
+        subCommandList.add(new ListSubGroupSubCommand());
         subCommandList.add(new DeleteSubscriptionGroupCommand());
         subCommandList.add(new UpdateBrokerConfigSubCommand());
 

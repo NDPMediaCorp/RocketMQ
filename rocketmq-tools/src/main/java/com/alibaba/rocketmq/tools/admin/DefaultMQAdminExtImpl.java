@@ -43,6 +43,7 @@ import com.alibaba.rocketmq.common.protocol.body.GroupList;
 import com.alibaba.rocketmq.common.protocol.body.KVTable;
 import com.alibaba.rocketmq.common.protocol.body.ProducerConnection;
 import com.alibaba.rocketmq.common.protocol.body.QueueTimeSpan;
+import com.alibaba.rocketmq.common.protocol.body.SubscriptionGroupWrapper;
 import com.alibaba.rocketmq.common.protocol.body.TopicList;
 import com.alibaba.rocketmq.common.protocol.header.UpdateConsumerOffsetRequestHeader;
 import com.alibaba.rocketmq.common.protocol.heartbeat.SubscriptionData;
@@ -192,6 +193,11 @@ public class DefaultMQAdminExtImpl implements MQAdminExt, MQAdminExtInner {
         return null;
     }
 
+    @Override
+    public SubscriptionGroupWrapper fetchAllSubscriptionGroups(String brokerAddress, long timeout) throws RemotingException,
+            MQBrokerException, InterruptedException, MQClientException {
+        return mqClientInstance.getMQClientAPIImpl().getSubscriptionGroupsFromBroker(brokerAddress, timeout);
+    }
 
     @Override
     public TopicConfig examineTopicConfig(String addr, String topic) {
