@@ -67,12 +67,14 @@ public class ListSubGroupSubCommand implements SubCommand {
 
                 defaultMQAdminExt.start();
                 SubscriptionGroupWrapper subscriptionGroupWrapper = defaultMQAdminExt.fetchAllSubscriptionGroups(addr, 3000);
-                String format = "%-36s  %-6s  %-6s  %-6s %-6s\n";
+                String format = "%-80s  %-6s  %-6s  %-6s %-6s\n";
                 System.out.printf(format, "Consumer Group", "Consume Enabled", "Broadcast", "Consume From Min", "Which Broker When Consume Slow");
                 for (Map.Entry<String, SubscriptionGroupConfig> entry :
                         subscriptionGroupWrapper.getSubscriptionGroupTable().entrySet()) {
                     SubscriptionGroupConfig subscriptionGroupConfig = entry.getValue();
-                    System.out.printf(format, subscriptionGroupConfig.getGroupName(),
+                    String groupName = subscriptionGroupConfig.getGroupName();
+                    System.out.printf(format,
+                            groupName.length() > 80 ? groupName.substring(0, 80) : groupName,
                             subscriptionGroupConfig.isConsumeEnable(),
                             subscriptionGroupConfig.isConsumeBroadcastEnable(),
                             subscriptionGroupConfig.isConsumeFromMinEnable(),
