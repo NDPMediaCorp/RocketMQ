@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2010-2013 Alibaba Group Holding Limited
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,22 +20,29 @@ import com.alibaba.rocketmq.remoting.exception.RemotingSendRequestException;
 import com.alibaba.rocketmq.remoting.exception.RemotingTimeoutException;
 import com.alibaba.rocketmq.remoting.protocol.RemotingCommand;
 import io.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 
 /**
  * 通信层一些辅助方法
- * 
+ *
  * @author shijia.wxr<vintage.wang@gmail.com>
  * @since 2013-7-13
  */
 public class RemotingHelper {
+
     public static final String RemotingLogName = "RocketmqRemoting";
+
+    private static final Logger LOG = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
 
 
     public static String exceptionSimpleDesc(final Throwable e) {
@@ -93,31 +100,40 @@ public class RemotingHelper {
             }
 
             // TODO Choose the one that connects faster.
+            for (String ip : ipArray) {
+                try {
+                    InetAddress inetAddress = InetAddress.getByName(ip);
+                    if (inetAddress.isReachable(3000)) {
+                        return ip;
+                    }
+                } catch (UnknownHostException e) {
+                    LOG.error("Error while finding reachable IP", e);
+                } catch (IOException e) {
+                    LOG.error("Error while finding reachable IP", e);
+                }
+            }
 
-            // Choose the last one for now.
-            return ipArray[ipArray.length - 1];
+            throw new RuntimeException("Unable to find a reachable IP");
         }
     }
-
 
     /**
      * 短连接调用 TODO
      */
     public static RemotingCommand invokeSync(final String addr, final RemotingCommand request,
-            final long timeoutMillis) throws InterruptedException, RemotingConnectException,
-            RemotingSendRequestException, RemotingTimeoutException {
+                                             final long timeoutMillis) throws InterruptedException,
+            RemotingConnectException, RemotingSendRequestException, RemotingTimeoutException {
         long beginTime = System.currentTimeMillis();
         SocketAddress socketAddress = RemotingUtil.string2SocketAddress(addr);
         SocketChannel socketChannel = RemotingUtil.connect(socketAddress);
         if (socketChannel != null) {
             boolean sendRequestOK = false;
-
             try {
                 // 使用阻塞模式
                 socketChannel.configureBlocking(true);
                 /*
                  * FIXME The read methods in SocketChannel (and DatagramChannel)
-                 * do notsupport timeouts
+                 * do not support timeouts
                  * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4614802
                  */
                 socketChannel.socket().setSoTimeout((int) timeoutMillis);
@@ -133,8 +149,7 @@ public class RemotingHelper {
                                 throw new RemotingSendRequestException(addr);
                             }
                         }
-                    }
-                    else {
+                    } else {
                         throw new RemotingSendRequestException(addr);
                     }
 
@@ -155,8 +170,7 @@ public class RemotingHelper {
                                 throw new RemotingTimeoutException(addr, timeoutMillis);
                             }
                         }
-                    }
-                    else {
+                    } else {
                         throw new RemotingTimeoutException(addr, timeoutMillis);
                     }
 
@@ -176,8 +190,7 @@ public class RemotingHelper {
                                 throw new RemotingTimeoutException(addr, timeoutMillis);
                             }
                         }
-                    }
-                    else {
+                    } else {
                         throw new RemotingTimeoutException(addr, timeoutMillis);
                     }
 
@@ -188,27 +201,21 @@ public class RemotingHelper {
                 // 对应答数据解码
                 byteBufferBody.flip();
                 return RemotingCommand.decode(byteBufferBody);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-
+            } catch (IOException e) {
+                LOG.error("Socket Channel IO error", e);
                 if (sendRequestOK) {
                     throw new RemotingTimeoutException(addr, timeoutMillis);
-                }
-                else {
+                } else {
                     throw new RemotingSendRequestException(addr);
                 }
-            }
-            finally {
+            } finally {
                 try {
                     socketChannel.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
+                } catch (IOException e) {
+                    LOG.error("Error while closing socket channel", e);
                 }
             }
-        }
-        else {
+        } else {
             throw new RemotingConnectException(addr);
         }
     }
