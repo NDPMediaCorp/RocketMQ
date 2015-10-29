@@ -39,6 +39,8 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -47,6 +49,7 @@ import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,10 +124,13 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
 
         private final AtomicLong channelSequencer = new AtomicLong(0L);
 
+        private final ChannelGroup channelGroup;
+
         public CompositeChannel(String address, int maxParallelism) {
             this.address = address;
             this.maxParallelism = maxParallelism;
             channelWrappers = new ArrayList<ChannelWrapper>(maxParallelism);
+            channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
         }
 
         public boolean containsChannel(Channel channel) {
@@ -167,6 +173,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
                     if (channelFuture.awaitUninterruptibly(nettyClientConfig.getConnectTimeoutMillis(), TimeUnit.MILLISECONDS)) {
                         if (null != channelFuture.channel() && channelFuture.channel().isActive()) {
                             log.info("createChannel: connect remote host[{}] success, {}", address, channelFuture.toString());
+                            channelGroup.add(channelFuture.channel());
                             return channelFuture.channel();
                         }
                     } else {
@@ -198,6 +205,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
                             if (null != channelWrapper && channelWrapper.getChannel() == channel) {
                                 iterator.remove();
                                 RemotingUtil.closeChannel(channel);
+                                channelGroup.remove(channel);
                                 --parallelism;
                                 return true;
                             }
@@ -294,6 +302,10 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
 
         public boolean allowedToCreateChannel() {
             return parallelism < maxParallelism;
+        }
+
+        public ChannelGroup getChannelGroup() {
+            return channelGroup;
         }
     }
 
@@ -592,6 +604,22 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
         return compositeChannel.getChannel();
     }
 
+    private ChannelGroup getAndCreateChannelGroup(final String address) throws InterruptedException {
+        CompositeChannel compositeChannel = this.channelTables.get(address);
+
+        if (compositeChannel == null) {
+            compositeChannel = new CompositeChannel(address, nettyClientConfig.getParallelism());
+            if (null == this.channelTables.putIfAbsent(address, compositeChannel)) {
+                compositeChannel = channelTables.get(address);
+                if (compositeChannel.allowedToCreateChannel()) {
+                    compositeChannel.createChannel();
+                }
+            }
+        }
+
+        return compositeChannel.getChannelGroup();
+    }
+
 
     private Channel getAndCreateNameServerChannel() throws InterruptedException {
         String address = this.namesrvAddrChosen.get();
@@ -742,6 +770,23 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
     }
 
 
+    public RemotingCommand broadcastSync(final String addr,
+                                         final RemotingCommand request,
+                                         final long timeoutMillis)
+            throws InterruptedException, RemotingConnectException, RemotingSendRequestException,
+            RemotingTimeoutException {
+        ChannelGroup channels = getAndCreateChannelGroup(addr);
+
+        if (this.rpcHook != null) {
+            this.rpcHook.doBeforeRequest(addr, request);
+        }
+        RemotingCommand response = this.broadcastSyncImpl(channels, request, timeoutMillis);
+        if (this.rpcHook != null) {
+            this.rpcHook.doAfterResponse(request, response);
+        }
+        return response;
+    }
+
     @Override
     public void invokeAsync(String addr, RemotingCommand request, long timeoutMillis,
                             InvokeCallback invokeCallback) throws InterruptedException, RemotingConnectException,
@@ -862,5 +907,9 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
         }
 
         return false;
+    }
+
+    public NettyClientConfig getConfig() {
+        return nettyClientConfig;
     }
 }

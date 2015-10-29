@@ -37,6 +37,7 @@ public class Producer {
                         ("Hello RocketMQ " + i).getBytes()// body
                 );
                 msg.putUserProperty("id", "aaa");
+                msg.putUserProperty("sendT", String.valueOf(System.currentTimeMillis()));
 
                 //Unique key may be used to query message using command line and web console.
                 msg.setKeys("Key-A");

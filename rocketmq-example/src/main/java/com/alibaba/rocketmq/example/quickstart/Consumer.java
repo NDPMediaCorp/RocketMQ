@@ -48,7 +48,14 @@ public class Consumer {
             @Override
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs,
                     ConsumeConcurrentlyContext context) {
-                System.out.println(Thread.currentThread().getName() + " Receive New Messages: " + msgs);
+                System.out.print(Thread.currentThread().getName() + " Receive New Messages: " + msgs);
+                String sendT = msgs.get(0).getProperty("sendT");
+                if (null != sendT) {
+                    System.out.println(", MQ Time:" + (System.currentTimeMillis() - Long.parseLong(sendT)) + "ms");
+                } else {
+                    System.out.println();
+                }
+
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
         });

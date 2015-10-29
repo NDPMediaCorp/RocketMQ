@@ -45,6 +45,11 @@ public interface RemotingClient extends RemotingService {
             RemotingSendRequestException, RemotingTimeoutException;
 
 
+    public RemotingCommand broadcastSync(final String addr, final RemotingCommand request,
+                                      final long timeoutMillis) throws InterruptedException, RemotingConnectException,
+            RemotingSendRequestException, RemotingTimeoutException;
+
+
     public void invokeAsync(final String addr, final RemotingCommand request, final long timeoutMillis,
             final InvokeCallback invokeCallback) throws InterruptedException, RemotingConnectException,
             RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException;
@@ -60,4 +65,6 @@ public interface RemotingClient extends RemotingService {
 
 
     public boolean isChannelWritable(final String addr);
+
+    public Object getConfig();
 }

@@ -956,7 +956,12 @@ public class MQClientAPIImpl {
         RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.HEART_BEAT, null);
 
         request.setBody(heartbeatData.encode());
-        RemotingCommand response = this.remotingClient.invokeSync(addr, request, timeoutMillis);
+        RemotingCommand response = null;
+        if (((NettyClientConfig)remotingClient.getConfig()).getParallelism() > 1) {
+            response = this.remotingClient.broadcastSync(addr, request, timeoutMillis);
+        } else {
+            response = this.remotingClient.invokeSync(addr, request, timeoutMillis);
+        }
         assert response != null;
         switch (response.getCode()) {
         case ResponseCode.SUCCESS: {
