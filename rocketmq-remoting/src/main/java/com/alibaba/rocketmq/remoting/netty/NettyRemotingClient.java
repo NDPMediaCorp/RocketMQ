@@ -657,6 +657,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
             log.error("getAndCreateNameServerChannel: create name server channel exception", e);
         }
 
+        log.error("Unable to create name server channel");
         return null;
     }
 
