@@ -469,7 +469,7 @@ public class DefaultMessageStore implements MessageStore {
 
         ConsumeQueue consumeQueue = findConsumeQueue(topic, queueId);
         if (consumeQueue != null) {
-            minOffset = consumeQueue.getMinOffsetInQuque();
+            minOffset = consumeQueue.getMinOffsetInQueue();
             maxOffset = consumeQueue.getMaxOffsetInQueue();
 
             if (maxOffset == 0) {
@@ -638,7 +638,7 @@ public class DefaultMessageStore implements MessageStore {
     public long getMinOffsetInQueue(String topic, int queueId) {
         ConsumeQueue logic = this.findConsumeQueue(topic, queueId);
         if (logic != null) {
-            return logic.getMinOffsetInQuque();
+            return logic.getMinOffsetInQueue();
         }
 
         return -1;
@@ -1844,7 +1844,7 @@ public class DefaultMessageStore implements MessageStore {
 
         ConsumeQueue consumeQueue = findConsumeQueue(topic, queueId);
         if (consumeQueue != null) {
-            minOffset = Math.max(minOffset, consumeQueue.getMinOffsetInQuque());
+            minOffset = Math.max(minOffset, consumeQueue.getMinOffsetInQueue());
             maxOffset = Math.min(maxOffset, consumeQueue.getMaxOffsetInQueue());
 
             if (maxOffset == 0) {
